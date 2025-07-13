@@ -4,12 +4,16 @@ import Header from '../components/Header';
 import '../style/projectdetail.css';
 import Profile from '../pages/Profile';
 import { useNavigate, useParams } from 'react-router-dom';
+import AddTaskPopup from '../components/AddTaskPopupProps';
 
 const ProjectDetail = () => {
     const navigate = useNavigate();
 
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const [showProfile, setShowProfile] = useState(false);
+
+
+    const [showAddTaskPopup, setShowAddTaskPopup] = useState(false);
 
     const toggleDropdown = () => {
         setIsDropdownOpen(!isDropdownOpen);
@@ -32,6 +36,11 @@ const ProjectDetail = () => {
     const handleLogout = () => {
         localStorage.removeItem('access_token');
         navigate('/login');
+    };
+
+    const handleAddTask = (newTask: any) => {
+        console.log('Công việc mới:', newTask);
+        // xử lý thêm task ở đây
     };
 
     // Dữ liệu mẫu cho chi tiết dự án
@@ -208,6 +217,14 @@ const ProjectDetail = () => {
 
                         <div className="task-list-section">
                             <h3>DANH SÁCH CÔNG VIỆC</h3>
+
+                            <button className="add-project-btn" onClick={() => setShowAddTaskPopup(true)}>+ Thêm công việc</button>
+                            {showAddTaskPopup && (
+                                <AddTaskPopup
+                                    onClose={() => setShowAddTaskPopup(false)}
+                                    onSubmit={handleAddTask}
+                                />
+                            )}
                             <div className="stats-table">
                                 <div className="table-header">
                                     <div>Tên công việc</div>

@@ -1,16 +1,17 @@
-import React, { useState } from 'react';
+import  { useState } from 'react';
 import Sidebar from '../components/Sidebar';
 import '../style/project.css';
 import Header from '../components/Header';
 import { useNavigate } from 'react-router-dom';
 import Profile from '../pages/Profile';
-
+import AddProjectPopup from '../components/AddProjectPopup';
 
 const Projects = () => {
-  const [selectedTimeframe, setSelectedTimeframe] = useState('Tháng này');
   const navigate = useNavigate();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
+  const [showAddPopup, setShowAddPopup] = useState(false);
+
 
   const toggleDropdown = () => {
     setIsDropdownOpen(!isDropdownOpen);
@@ -130,7 +131,12 @@ const Projects = () => {
 
           <div className="projects-container">
             <div className="projects-header">
-              <h1>Dự án</h1>
+              {/* <h1>Dự án</h1> */}
+
+              <button className="add-project-btn" onClick={() => setShowAddPopup(true)}>
+                + Thêm mới dự án
+              </button>
+
               <div className="project-filters">
                 <div className="filter-item active">Tất cả</div>
                 <div className="filter-item">Đang thực hiện</div>
@@ -174,6 +180,9 @@ const Projects = () => {
           </div>
         )}
       </div>
+      {showAddPopup && (
+        <AddProjectPopup onClose={() => setShowAddPopup(false)} />
+      )}
     </div>
   );
 };
