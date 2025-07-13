@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import '../style/dashboard.css';
 import Profile from './Profile';
 import Sidebar from '../components/Sidebar';
+import Header from '../components/Header';
 
 const Dashboard: React.FC = () => {
   const [selectedTimeframe, setSelectedTimeframe] = useState('Tháng này');
@@ -70,59 +71,19 @@ const Dashboard: React.FC = () => {
       {/* Sidebar */}
       <Sidebar />
 
+      
+
       {/* Main Content */}
       <div className="main-content">
         {/* Header */}
-        <div className="header">
-          <div className="header-left">
-            <button className="back-button">‹</button>
-            <div className="header-title">
-              <span className="header-icon">🏠</span>
-              <span>Trang chủ</span>
-            </div>
-          </div>
-          <div className="header-right">
-            <div className="search-container">
-              <input type="text" placeholder="Tìm kiếm" className="search-input" />
-              <span className="search-icon">🔍</span>
-            </div>
-            <div className="user-menu">
-              <span className="notification-icon">🔔</span>
-              {/* <div className="user-avatar">QM</div> */}
-              <div
-                className="user-avatar cursor-pointer"
-                onClick={toggleDropdown}
-              >
-                QM
-              </div>
-              <div className="dropdown">
-                <span className="menu-icon">⋮</span>
-                {isDropdownOpen && (
-                  <div className="dropdown-menu">
-                    <div
-                      className="dropdown-item"
-                      onClick={handleProfile}
-                    >
-                      Thông tin cá nhân
-                    </div>
-                    <div
-                      className="dropdown-item"
-                      onClick={handleChangePassword}
-                    >
-                      Đổi mật khẩu
-                    </div>
-                    <div
-                      className="dropdown-item"
-                      onClick={handleLogout}
-                    >
-                      Đăng xuất
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-        </div>
+        
+        <Header
+          onProfileClick={handleProfile}
+          onChangePassword={handleChangePassword}
+          onLogout={handleLogout}
+          isDropdownOpen={isDropdownOpen}
+          toggleDropdown={toggleDropdown}
+        />
 
         {/* Content */}
         {showProfile ? (

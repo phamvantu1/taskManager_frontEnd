@@ -1,8 +1,39 @@
 import React, { useState } from 'react';
 import Sidebar from '../components/Sidebar';
-import '../style/dashboard.css';
+import '../style/project.css';
+import Header from '../components/Header';
+import { useNavigate } from 'react-router-dom';
+import Profile from '../pages/Profile';
+
 
 const Projects = () => {
+  const [selectedTimeframe, setSelectedTimeframe] = useState('Tháng này');
+  const navigate = useNavigate();
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [showProfile, setShowProfile] = useState(false);
+
+  const toggleDropdown = () => {
+    setIsDropdownOpen(!isDropdownOpen);
+  };
+
+  const handleChangePassword = () => {
+    console.log('Change password clicked');
+    setIsDropdownOpen(false);
+  };
+
+  const handleProfile = () => {
+    setShowProfile(true);
+    setIsDropdownOpen(false);
+  };
+
+  const handleBackToDashboard = () => {
+    setShowProfile(false);
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem('access_token');
+    navigate('/login');
+  };
   const [projects] = useState([
     {
       id: 1,
@@ -112,63 +143,138 @@ const Projects = () => {
         { label: "5%", checked: false },
         { label: "29/05/2025", checked: false }
       ]
+    },
+    {
+      id: 10,
+      name: "đa pai test cấp pd 33",
+      unit: "Phòng Phát triển phần mềm 2",
+      status: "Hoàn thành",
+      progress: "5%",
+      items: [
+        { label: "0  01/0", checked: false },
+        { label: "5%", checked: false },
+        { label: "29/05/2025", checked: false }
+      ]
+    },
+    {
+      id: 11,
+      name: "đa pai test cấp pd 33",
+      unit: "Phòng Phát triển phần mềm 2",
+      status: "Hoàn thành",
+      progress: "5%",
+      items: [
+        { label: "0  01/0", checked: false },
+        { label: "5%", checked: false },
+        { label: "29/05/2025", checked: false }
+      ]
+    },
+    {
+      id: 12,
+      name: "đa pai test cấp pd 33",
+      unit: "Phòng Phát triển phần mềm 2",
+      status: "Hoàn thành",
+      progress: "5%",
+      items: [
+        { label: "0  01/0", checked: false },
+        { label: "5%", checked: false },
+        { label: "29/05/2025", checked: false }
+      ]
+    },
+    {
+      id: 13,
+      name: "đa pai test cấp pd 33",
+      unit: "Phòng Phát triển phần mềm 2",
+      status: "Hoàn thành",
+      progress: "5%",
+      items: [
+        { label: "0  01/0", checked: false },
+        { label: "5%", checked: false },
+        { label: "29/05/2025", checked: false }
+      ]
+    },
+    {
+      id: 14,
+      name: "đa pai test cấp pd 33",
+      unit: "Phòng Phát triển phần mềm 2",
+      status: "Hoàn thành",
+      progress: "5%",
+      items: [
+        { label: "0  01/0", checked: false },
+        { label: "5%", checked: false },
+        { label: "29/05/2025", checked: false }
+      ]
+    },
+    {
+      id: 15,
+      name: "đa pai test cấp pd 33",
+      unit: "Phòng Phát triển phần mềm 2",
+      status: "Hoàn thành",
+      progress: "5%",
+      items: [
+        { label: "0  01/0", checked: false },
+        { label: "5%", checked: false },
+        { label: "29/05/2025", checked: false }
+      ]
     }
   ]);
 
   return (
     <div className="dashboard-container">
       <Sidebar />
-      
+
       <div className="main-content">
-        <div className="header">
-          <div className="search-bar">
-            <input type="text" placeholder="Tìm kiếm dự án..." />
-            <button>🔍</button>
-          </div>
-          <div className="user-info">
-            <span>Admin</span>
-            <div className="avatar">A</div>
-          </div>
-        </div>
-        
-        <div className="projects-container">
-          <div className="projects-header">
-            <h1>Dự án</h1>
-            <div className="project-filters">
-              <div className="filter-item active">Tất cả</div>
-              <div className="filter-item">Đang thực hiện</div>
-              <div className="filter-item">Hoàn thành</div>
-              <div className="filter-item">Trễ hạn</div>
+
+        <Header
+          onProfileClick={handleProfile}
+          onChangePassword={handleChangePassword}
+          onLogout={handleLogout}
+          isDropdownOpen={isDropdownOpen}
+          toggleDropdown={toggleDropdown}
+        />
+
+        {showProfile ? (
+          <Profile onBack={handleBackToDashboard} />
+        ) : (
+
+          <div className="projects-container">
+            <div className="projects-header">
+              <h1>Dự án</h1>
+              <div className="project-filters">
+                <div className="filter-item active">Tất cả</div>
+                <div className="filter-item">Đang thực hiện</div>
+                <div className="filter-item">Hoàn thành</div>
+                <div className="filter-item">Trễ hạn</div>
+              </div>
             </div>
-          </div>
-          
-          <div className="projects-grid">
-            {projects.map(project => (
-              <div className="project-card" key={project.id}>
-                <div className="project-header">
-                  <h3>{project.name}</h3>
-                  <div className={`status-badge ${project.status === 'Hoàn thành' ? 'completed' : 'delayed'}`}>
-                    {project.status}
+
+            <div className="projects-grid">
+              {projects.map(project => (
+                <div className="project-card" key={project.id}>
+                  <div className="project-header">
+                    <h3>{project.name}</h3>
+                    <div className={`status-badge ${project.status === 'Hoàn thành' ? 'completed' : 'delayed'}`}>
+                      {project.status}
+                    </div>
+                  </div>
+                  <p className="project-unit">{project.unit}</p>
+
+                  <div className="project-items">
+                    {project.items.map((item, index) => (
+                      <div className="project-item" key={index}>
+                        <input
+                          type="checkbox"
+                          checked={item.checked}
+                          onChange={() => { }}
+                        />
+                        <span>{item.label}</span>
+                      </div>
+                    ))}
                   </div>
                 </div>
-                <p className="project-unit">{project.unit}</p>
-                
-                <div className="project-items">
-                  {project.items.map((item, index) => (
-                    <div className="project-item" key={index}>
-                      <input 
-                        type="checkbox" 
-                        checked={item.checked} 
-                        onChange={() => {}} 
-                      />
-                      <span>{item.label}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
-        </div>
+        )}
       </div>
     </div>
   );
