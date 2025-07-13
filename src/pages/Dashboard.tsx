@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../style/dashboard.css';
 import Profile from './Profile';
+import Sidebar from '../components/Sidebar';
 
 const Dashboard: React.FC = () => {
   const [selectedTimeframe, setSelectedTimeframe] = useState('Tháng này');
@@ -67,47 +68,7 @@ const Dashboard: React.FC = () => {
   return (
     <div className="dashboard-container">
       {/* Sidebar */}
-      <div className="sidebar">
-        <div className="sidebar-header">
-          <div className="logo">
-            <span className="logo-icon">📱</span>
-            <span className="logo-text">mobifone</span>
-          </div>
-        </div>
-
-        <div className="sidebar-title">Trang chủ</div>
-
-        <nav className="sidebar-nav">
-          <div className="nav-item active">
-            <span className="nav-icon">📊</span>
-            <span>Dashboard</span>
-          </div>
-          <div className="nav-item">
-            <span className="nav-icon">📈</span>
-            <span>Tiến độ Tuần</span>
-          </div>
-          <div className="nav-item">
-            <span className="nav-icon">📁</span>
-            <span>Dự án</span>
-          </div>
-          <div className="nav-item">
-            <span className="nav-icon">👥</span>
-            <span>Công việc</span>
-          </div>
-          <div className="nav-item">
-            <span className="nav-icon">👤</span>
-            <span>Quản trị</span>
-          </div>
-          <div className="nav-item">
-            <span className="nav-icon">📋</span>
-            <span>Danh mục</span>
-          </div>
-          <div className="nav-item">
-            <span className="nav-icon">📊</span>
-            <span>Báo cáo</span>
-          </div>
-        </nav>
-      </div>
+      <Sidebar />
 
       {/* Main Content */}
       <div className="main-content">

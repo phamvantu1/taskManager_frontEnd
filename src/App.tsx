@@ -28,6 +28,7 @@ import ForgotPassword from './pages/ForgotPassword';
 import VerifyOTP from './pages/VerifyOTP';
 import ResetPassword from './pages/ResetPassword';
 import Dashboard from './pages/Dashboard';
+import Projects from './pages/Projects';
 
 
 
@@ -41,6 +42,7 @@ function App() {
         <Route path="/verify-otp" element={<VerifyOTP />} />
         <Route path="/reset-password" element={<ResetPassword />} />
         <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/projects" element={<Projects onBack={() => {}} />} />
         <Route path="*" element={<Login switchToRegister={() => {}} />} />
       </Routes>
     </Router>
