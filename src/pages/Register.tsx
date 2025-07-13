@@ -1,7 +1,12 @@
 import React, { useState } from 'react';
 import InputField from '../components/InputField';
+import '../style/form.css';
 
-const Register: React.FC = () => {
+interface RegisterProps {
+  switchToLogin: () => void;
+}
+
+const Register: React.FC<RegisterProps> = ({ switchToLogin }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [firstName, setFirstName] = useState('');
@@ -18,27 +23,27 @@ const Register: React.FC = () => {
       if (!response.ok) throw new Error('Register failed');
 
       const data = await response.json();
-      alert('Register successful!');
+      alert('Đăng ký thành công!');
       console.log(data);
+      switchToLogin();
     } catch (err) {
-      alert('Register failed!');
+      alert('Đăng ký thất bại!');
       console.error(err);
     }
   };
 
   return (
-    <div className="max-w-sm mx-auto mt-20 p-6 border rounded-md shadow-md">
-      <h2 className="text-xl font-bold mb-4">Register</h2>
-      <InputField label="First Name" value={firstName} onChange={setFirstName} />
-      <InputField label="Last Name" value={lastName} onChange={setLastName} />
+    <div className="auth-container">
+      <h2 className="auth-title">Đăng ký</h2>
+      <InputField label="Họ" value={lastName} onChange={setLastName} />
+      <InputField label="Tên" value={firstName} onChange={setFirstName} />
       <InputField label="Email" value={email} onChange={setEmail} />
-      <InputField label="Password" type="password" value={password} onChange={setPassword} />
-      <button
-        onClick={handleRegister}
-        className="w-full bg-green-600 text-white py-2 rounded hover:bg-green-700"
-      >
-        Register
-      </button>
+      <InputField label="Mật khẩu" type="password" value={password} onChange={setPassword} />
+      <button onClick={handleRegister} className="auth-button">Đăng ký</button>
+      <p className="auth-footer">
+        Đã có tài khoản?{' '}
+        <button onClick={switchToLogin}>Đăng nhập</button>
+      </p>
     </div>
   );
 };

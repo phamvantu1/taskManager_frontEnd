@@ -1,0 +1,98 @@
+/* Reset & Base */
+* {
+  box-sizing: border-box;
+  font-family: Arial, sans-serif;
+}
+
+body, html {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  background-color: #f0f2f5;
+}
+
+/* Centering the form container */
+.auth-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  padding: 20px;
+}
+
+/* Form Title */
+.auth-title {
+  font-size: 28px;
+  margin-bottom: 20px;
+  color: #333;
+}
+
+/* Input Field Group */
+.input-group {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 15px;
+  width: 100%;
+  max-width: 300px;
+}
+
+.input-label {
+  margin-bottom: 6px;
+  font-weight: bold;
+  color: #555;
+}
+
+.input-box {
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 16px;
+  transition: border 0.2s;
+}
+
+.input-box:focus {
+  border-color: #3498db;
+  outline: none;
+}
+
+/* Auth Button */
+.auth-button {
+  width: 100%;
+  max-width: 300px;
+  padding: 12px;
+  margin-top: 10px;
+  background-color: #3498db;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.auth-button:hover {
+  background-color: #2980b9;
+}
+
+/* Auth Footer */
+.auth-footer {
+  margin-top: 15px;
+  font-size: 14px;
+  color: #555;
+}
+
+.auth-footer button {
+  margin-left: 5px;
+  background: none;
+  border: none;
+  color: #3498db;
+  cursor: pointer;
+  font-size: 14px;
+  padding: 0;
+  text-decoration: underline;
+}
+
+.auth-footer button:hover {
+  color: #1d6fa5;
+}
