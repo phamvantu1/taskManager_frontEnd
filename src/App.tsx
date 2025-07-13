@@ -42,7 +42,7 @@ function App() {
         <Route path="/verify-otp" element={<VerifyOTP />} />
         <Route path="/reset-password" element={<ResetPassword />} />
         <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/projects" element={<Projects onBack={() => {}} />} />
+        <Route path="/projects" element={<Projects />} />
         <Route path="*" element={<Login switchToRegister={() => {}} />} />
       </Routes>
     </Router>

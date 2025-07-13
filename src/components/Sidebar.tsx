@@ -1,5 +1,5 @@
 import React from 'react';
-import '../style/project.css';
+import '../style/sidebar.css';
 import { useNavigate } from 'react-router-dom';
 
 const Sidebar: React.FC = () => {
