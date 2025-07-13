@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import InputField from '../components/InputField';
 import '../style/form.css';
-
+import { useNavigate } from 'react-router-dom';
 interface LoginProps {
   switchToRegister: () => void;
 }
@@ -9,6 +9,7 @@ interface LoginProps {
 const Login: React.FC<LoginProps> = ({ switchToRegister }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const navigate = useNavigate();
 
   const handleLogin = async () => {
     try {
@@ -17,16 +18,17 @@ const Login: React.FC<LoginProps> = ({ switchToRegister }) => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),
       });
-  
+
       if (!response.ok) throw new Error('Login failed');
-  
+
       const result = await response.json();
       const accessToken = result.data?.access_token;
-  
+
       if (accessToken) {
         localStorage.setItem('access_token', accessToken);
         alert('Login successful!');
         console.log('Access Token:', accessToken);
+        navigate('/dashboard');
       } else {
         throw new Error('Access token not found');
       }
@@ -35,7 +37,7 @@ const Login: React.FC<LoginProps> = ({ switchToRegister }) => {
       console.error(err);
     }
   };
-  
+
 
   return (
     <div className="auth-container">
@@ -46,6 +48,9 @@ const Login: React.FC<LoginProps> = ({ switchToRegister }) => {
       <p className="auth-footer">
         Chưa có tài khoản?{' '}
         <button onClick={switchToRegister}>Đăng ký</button>
+      </p>
+      <p className="auth-footer">
+        <button onClick={() => navigate("/forgot-password")}>Quên mật khẩu?</button>
       </p>
     </div>
   );
