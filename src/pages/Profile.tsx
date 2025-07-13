@@ -1,5 +1,5 @@
 import React from 'react';
-import '../style/dashboard.css';
+import '../style/Profile.css';
 
 interface ProfileProps {
   onBack: () => void;
