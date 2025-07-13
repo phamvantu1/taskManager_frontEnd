@@ -107,114 +107,6 @@ const Projects = () => {
         { label: "5%", checked: false },
         { label: "31/05/2025", checked: false }
       ]
-    },
-    {
-      id: 7,
-      name: "cử dục",
-      unit: "Phòng Phát triển phần mềm 2",
-      status: "Hoàn thành",
-      progress: "5%",
-      items: [
-        { label: "0  01/0", checked: false },
-        { label: "5%", checked: false },
-        { label: "3006/2025", checked: false }
-      ]
-    },
-    {
-      id: 8,
-      name: "Dự án test log dự án 1",
-      unit: "Đơn vị test listing",
-      status: "Hoàn thành",
-      progress: "5%",
-      items: [
-        { label: "0  01/0", checked: false },
-        { label: "5%", checked: false },
-        { label: "31/05/2025", checked: false }
-      ]
-    },
-    {
-      id: 9,
-      name: "đa pai test cấp pd 33",
-      unit: "Phòng Phát triển phần mềm 2",
-      status: "Hoàn thành",
-      progress: "5%",
-      items: [
-        { label: "0  01/0", checked: false },
-        { label: "5%", checked: false },
-        { label: "29/05/2025", checked: false }
-      ]
-    },
-    {
-      id: 10,
-      name: "đa pai test cấp pd 33",
-      unit: "Phòng Phát triển phần mềm 2",
-      status: "Hoàn thành",
-      progress: "5%",
-      items: [
-        { label: "0  01/0", checked: false },
-        { label: "5%", checked: false },
-        { label: "29/05/2025", checked: false }
-      ]
-    },
-    {
-      id: 11,
-      name: "đa pai test cấp pd 33",
-      unit: "Phòng Phát triển phần mềm 2",
-      status: "Hoàn thành",
-      progress: "5%",
-      items: [
-        { label: "0  01/0", checked: false },
-        { label: "5%", checked: false },
-        { label: "29/05/2025", checked: false }
-      ]
-    },
-    {
-      id: 12,
-      name: "đa pai test cấp pd 33",
-      unit: "Phòng Phát triển phần mềm 2",
-      status: "Hoàn thành",
-      progress: "5%",
-      items: [
-        { label: "0  01/0", checked: false },
-        { label: "5%", checked: false },
-        { label: "29/05/2025", checked: false }
-      ]
-    },
-    {
-      id: 13,
-      name: "đa pai test cấp pd 33",
-      unit: "Phòng Phát triển phần mềm 2",
-      status: "Hoàn thành",
-      progress: "5%",
-      items: [
-        { label: "0  01/0", checked: false },
-        { label: "5%", checked: false },
-        { label: "29/05/2025", checked: false }
-      ]
-    },
-    {
-      id: 14,
-      name: "đa pai test cấp pd 33",
-      unit: "Phòng Phát triển phần mềm 2",
-      status: "Hoàn thành",
-      progress: "5%",
-      items: [
-        { label: "0  01/0", checked: false },
-        { label: "5%", checked: false },
-        { label: "29/05/2025", checked: false }
-      ]
-    },
-    {
-      id: 15,
-      name: "đa pai test cấp pd 33",
-      unit: "Phòng Phát triển phần mềm 2",
-      status: "Hoàn thành",
-      progress: "5%",
-      items: [
-        { label: "0  01/0", checked: false },
-        { label: "5%", checked: false },
-        { label: "29/05/2025", checked: false }
-      ]
     }
   ]);
 
@@ -249,7 +141,13 @@ const Projects = () => {
 
             <div className="projects-grid">
               {projects.map(project => (
-                <div className="project-card" key={project.id}>
+                // <div className="project-card" key={project.id}>
+                <div
+                  className="project-card"
+                  key={project.id}
+                  onClick={() => navigate(`/projects/${project.id}`)}
+                  style={{ cursor: 'pointer' }}
+                >
                   <div className="project-header">
                     <h3>{project.name}</h3>
                     <div className={`status-badge ${project.status === 'Hoàn thành' ? 'completed' : 'delayed'}`}>

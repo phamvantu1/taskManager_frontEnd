@@ -29,6 +29,7 @@ import VerifyOTP from './pages/VerifyOTP';
 import ResetPassword from './pages/ResetPassword';
 import Dashboard from './pages/Dashboard';
 import Projects from './pages/Projects';
+import ProjectDetail from './pages/ProjectDetail';
 
 
 
@@ -43,6 +44,7 @@ function App() {
         <Route path="/reset-password" element={<ResetPassword />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/projects" element={<Projects />} />
+        <Route path="/projects/:projectId" element={<ProjectDetail />} />
         <Route path="*" element={<Login switchToRegister={() => {}} />} />
       </Routes>
     </Router>
