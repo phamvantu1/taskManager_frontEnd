@@ -33,26 +33,22 @@ const Header: React.FC<HeaderProps> = ({
         </div>
         <div className="user-menu">
           <span className="notification-icon">🔔</span>
-          <div className="user-avatar cursor-pointer" onClick={toggleDropdown}>
-            QM
-          </div>
-          <div className="dropdown">
-            <span className="menu-icon">⋮</span>
+
+          <div className="user-avatar-container">
+            <div className="user-avatar cursor-pointer" onClick={toggleDropdown}>
+              QM
+            </div>
+
             {isDropdownOpen && (
               <div className="dropdown-menu">
-                <div className="dropdown-item" onClick={onProfileClick}>
-                  Thông tin cá nhân
-                </div>
-                <div className="dropdown-item" onClick={onChangePassword}>
-                  Đổi mật khẩu
-                </div>
-                <div className="dropdown-item" onClick={onLogout}>
-                  Đăng xuất
-                </div>
+                <div className="dropdown-item" onClick={onProfileClick}>Thông tin cá nhân</div>
+                <div className="dropdown-item" onClick={onChangePassword}>Đổi mật khẩu</div>
+                <div className="dropdown-item" onClick={onLogout}>Đăng xuất</div>
               </div>
             )}
           </div>
         </div>
+
       </div>
     </div>
   );

@@ -7,6 +7,7 @@
     align-items: center;
     border-bottom: 1px solid #e2e8f0;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    margin-right: 30px;
   }
   
   .header-left {
@@ -84,6 +85,35 @@
     align-items: center;
     gap: 16px;
   }
+  .user-avatar-container {
+    position: relative;
+  }
+  
+  .dropdown-menu {
+    position: absolute;
+    top: 110%; /* hoặc 100% nếu không có margin */
+    right: 0;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    width: 180px;
+    z-index: 1000;
+    padding: 8px 0;
+    border: 1px solid #e5e7eb;
+  }
+  
+  .dropdown-item {
+    padding: 10px 16px;
+    font-size: 14px;
+    color: #374151;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  
+  .dropdown-item:hover {
+    background-color: #f3f4f6;
+  }
+  
   
   .notification-icon {
     font-size: 20px;
@@ -94,7 +124,7 @@
   .user-avatar {
     width: 40px;
     height: 40px;
-    background: #10b981;
+    background: #2f2e8a;
     border-radius: 50%;
     display: flex;
     align-items: center;
