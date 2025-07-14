@@ -48,7 +48,7 @@ const ProjectDetail = () => {
     const projectDetails = {
         id: "1",
         name: "Do test 1306",
-        
+
         unit: "Phòng Phát triển phần mềm 2",
         collaboratingUnits: "Ban Cổ vấn cấp cao, Ban Công nghệ",
         startDate: "15/04/2024",
@@ -64,12 +64,6 @@ const ProjectDetail = () => {
         // workGroups: ["Công việc lập lại", "Tài liệu", "Thảo luận", "Báo cáo", "Roadmap", "Quay lại"]
     };
 
-    const progressStats = [
-        { label: "Đang thực hiện", value: "95%" },
-        { label: "Hoàn thành đúng hạn", value: "5%" },
-        { label: "Hoàn thành quá hạn", value: "0%" },
-        { label: "Quá hạn", value: "0%" }
-    ];
 
     const tasks = [
         {
@@ -108,8 +102,8 @@ const ProjectDetail = () => {
         { label: 'Đang xử lý', value: 128 },
         { label: 'Hoàn thành', value: 21 },
         { label: 'Quá hạn', value: 10 }
-      ];
-      
+    ];
+
 
     return (
         <div className="dashboard-container">
@@ -142,46 +136,46 @@ const ProjectDetail = () => {
 
                         <div className="overview-section">
                             <h2>Tổng quan</h2>
-                          
-                               
-                                <div className="project-info-column">
-                                    <h3>Tên dự án</h3>
-                                    <div className="project-detail-info">
-                                        <div className="info-item">
-                                            <span className="info-label">Loại dự án</span>
-                                            <span className="info-value">{projectDetails.projectType}</span>
-                                        </div>
-                                        <div className="info-item">
-                                            <span className="info-label">Đơn vị quản lý</span>
-                                            <span className="info-value">{projectDetails.unit}</span>
-                                        </div>
-                                        <div className="info-item">
-                                            <span className="info-label">Đơn vị phối hợp</span>
-                                            <span className="info-value">{projectDetails.collaboratingUnits}</span>
-                                        </div>
-                                        <div className="info-item">
-                                            <span className="info-label">Quản lý</span>
-                                            <span className="info-value">{projectDetails.manager}</span>
-                                        </div>
-                                        <div className="info-item">
-                                            <span className="info-label">Thành viên</span>
-                                            <span className="info-value">{projectDetails.members}</span>
-                                        </div>
-                                        <div className="info-item">
-                                            <span className="info-label">Người theo dõi</span>
-                                            <span className="info-value">{projectDetails.followers}</span>
-                                        </div>
-                                        <div className="info-item">
-                                            <span className="info-label">Ngày bắt đầu</span>
-                                            <span className="info-value">{projectDetails.startDate}</span>
-                                        </div>
-                                        <div className="info-item">
-                                            <span className="info-label">Ngày kết thúc</span>
-                                            <span className="info-value">{projectDetails.endDate}</span>
-                                        </div>
+
+
+                            <div className="project-info-column">
+                                <h3>Tên dự án</h3>
+                                <div className="project-detail-info">
+                                    <div className="info-item">
+                                        <span className="info-label">Loại dự án</span>
+                                        <span className="info-value">{projectDetails.projectType}</span>
+                                    </div>
+                                    <div className="info-item">
+                                        <span className="info-label">Đơn vị quản lý</span>
+                                        <span className="info-value">{projectDetails.unit}</span>
+                                    </div>
+                                    <div className="info-item">
+                                        <span className="info-label">Đơn vị phối hợp</span>
+                                        <span className="info-value">{projectDetails.collaboratingUnits}</span>
+                                    </div>
+                                    <div className="info-item">
+                                        <span className="info-label">Quản lý</span>
+                                        <span className="info-value">{projectDetails.manager}</span>
+                                    </div>
+                                    <div className="info-item">
+                                        <span className="info-label">Thành viên</span>
+                                        <span className="info-value">{projectDetails.members}</span>
+                                    </div>
+                                    <div className="info-item">
+                                        <span className="info-label">Người theo dõi</span>
+                                        <span className="info-value">{projectDetails.followers}</span>
+                                    </div>
+                                    <div className="info-item">
+                                        <span className="info-label">Ngày bắt đầu</span>
+                                        <span className="info-value">{projectDetails.startDate}</span>
+                                    </div>
+                                    <div className="info-item">
+                                        <span className="info-label">Ngày kết thúc</span>
+                                        <span className="info-value">{projectDetails.endDate}</span>
                                     </div>
                                 </div>
-                            
+                            </div>
+
                         </div>
 
                         <div className="project-progress-section">
@@ -198,15 +192,15 @@ const ProjectDetail = () => {
                             </div>
 
                             <div className="project-progress-section">
-  <h2>Thống kê công việc</h2>
-  <BarChartStats data={taskSummary} />
-</div>
+                                <h2>Thống kê công việc</h2>
+                                <BarChartStats data={taskSummary} />
+                            </div>
 
 
 
 
 
-                            
+
                         </div>
 
                         <div className="task-list-section">

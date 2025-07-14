@@ -112,7 +112,7 @@ const Projects = () => {
   ]);
 
   return (
-    <div className="dashboard-container">
+    <div className="project-container">
       <Sidebar />
 
       <div className="main-content">

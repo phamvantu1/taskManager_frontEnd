@@ -30,6 +30,7 @@ import ResetPassword from './pages/ResetPassword';
 import Dashboard from './pages/Dashboard';
 import Projects from './pages/Projects';
 import ProjectDetail from './pages/ProjectDetail';
+import TaskListPage from './pages/TaskListPage';
 
 
 
@@ -45,6 +46,7 @@ function App() {
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/projects" element={<Projects />} />
         <Route path="/projects/:projectId" element={<ProjectDetail />} />
+        <Route path="/taskListPage" element={<TaskListPage />} />
         <Route path="*" element={<Login switchToRegister={() => {}} />} />
       </Routes>
     </Router>

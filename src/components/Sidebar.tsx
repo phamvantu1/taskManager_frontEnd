@@ -22,7 +22,7 @@ const Sidebar: React.FC = () => {
           <span className="nav-icon">📊</span>
           <span>Dashboard</span>
         </div>
-       
+
         <div
           className="nav-item"
           onClick={() => navigate('/projects')}
@@ -31,7 +31,7 @@ const Sidebar: React.FC = () => {
           <span className="nav-icon">📁</span>
           <span>Dự án</span>
         </div>
-        <div className="nav-item">
+        <div className="nav-item" onClick={() => navigate('/taskListPage')}>
           <span className="nav-icon">👥</span>
           <span>Công việc</span>
         </div>
