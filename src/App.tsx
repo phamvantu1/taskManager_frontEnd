@@ -31,6 +31,9 @@ import Dashboard from './pages/Dashboard';
 import Projects from './pages/Projects';
 import ProjectDetail from './pages/ProjectDetail';
 import TaskListPage from './pages/TaskListPage';
+import MemberListPage from './pages/MemberListPage';
+import DepartmentListPage from './pages/DepartmentListPage';
+import ReportPage from './pages/ReportPage';
 
 
 
@@ -47,6 +50,9 @@ function App() {
         <Route path="/projects" element={<Projects />} />
         <Route path="/projects/:projectId" element={<ProjectDetail />} />
         <Route path="/taskListPage" element={<TaskListPage />} />
+        <Route path="/memberlistpage" element={<MemberListPage />} />
+        <Route path="/department" element={<DepartmentListPage />} />
+        <Route path="/report" element={<ReportPage />} />
         <Route path="*" element={<Login switchToRegister={() => {}} />} />
       </Routes>
     </Router>

@@ -1,10 +1,10 @@
-import React from 'react';
+import React, { useState } from 'react';
 import '../style/sidebar.css';
 import { useNavigate } from 'react-router-dom';
 
 const Sidebar: React.FC = () => {
-
   const navigate = useNavigate();
+  const [adminOpen, setAdminOpen] = useState(false);
 
   return (
     <div className="sidebar">
@@ -35,15 +35,22 @@ const Sidebar: React.FC = () => {
           <span className="nav-icon">👥</span>
           <span>Công việc</span>
         </div>
+
         <div className="nav-item">
-          <span className="nav-icon">👤</span>
-          <span>Quản trị</span>
+          <div onClick={() => setAdminOpen(!adminOpen)} style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <span className="nav-icon">👤</span>
+            <span>Quản trị {adminOpen ? '▴' : '▾'}</span>
+          </div>
+
+          {adminOpen && (
+            <div className="dropdown-menu">
+              <div className="dropdown-item" onClick={() => navigate('/department')}>Phòng ban</div>
+              <div className="dropdown-item" onClick={() => navigate('/memberlistpage')}>Người dùng</div>
+            </div>
+          )}
         </div>
-        <div className="nav-item">
-          <span className="nav-icon">📋</span>
-          <span>Danh mục</span>
-        </div>
-        <div className="nav-item">
+
+        <div className="nav-item" onClick={() => navigate('/report')}>
           <span className="nav-icon">📊</span>
           <span>Báo cáo</span>
         </div>
