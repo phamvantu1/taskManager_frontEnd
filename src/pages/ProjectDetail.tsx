@@ -5,14 +5,15 @@ import '../style/projectdetail.css';
 import Profile from '../pages/Profile';
 import { useNavigate, useParams } from 'react-router-dom';
 import AddTaskPopup from '../components/AddTaskPopupProps';
+import PieChartStats from '../components/PieChartStats';
+import BarChartStats from '../components/PieChartStats';
+
 
 const ProjectDetail = () => {
     const navigate = useNavigate();
 
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const [showProfile, setShowProfile] = useState(false);
-
-
     const [showAddTaskPopup, setShowAddTaskPopup] = useState(false);
 
     const toggleDropdown = () => {
@@ -46,29 +47,28 @@ const ProjectDetail = () => {
     // Dữ liệu mẫu cho chi tiết dự án
     const projectDetails = {
         id: "1",
-        name: "Test dự án",
-        description: "Dự án với dõi tác/ khách hàng",
+        name: "Do test 1306",
+        
         unit: "Phòng Phát triển phần mềm 2",
-        collaboratingUnits: "Phòng Phát triển phần mềm 1, Phòng PTPM3, Ban kiểm thứ 2",
+        collaboratingUnits: "Ban Cổ vấn cấp cao, Ban Công nghệ",
         startDate: "15/04/2024",
         endDate: "30/04/2024",
         daysLeft: "Từ 439 ngày",
         status: "Đang thực hiện",
-        progress: 100,
-        progressStatus: "Quá hạn",
+        progress: 21,
+        progressStatus: "Đang thực hiện",
         manager: "Nguyễn Văn A",
         members: "10 người",
         followers: "5 người",
         projectType: "Dự án phát triển phần mềm",
-        workGroups: "Nhóm phát triển, Nhóm kiểm thử"
+        // workGroups: ["Công việc lập lại", "Tài liệu", "Thảo luận", "Báo cáo", "Roadmap", "Quay lại"]
     };
 
-    const statusOptions = [
-        "Cho duyệt thực hiện",
-        "Đang thực hiện",
-        "Cho duyệt hoàn thành",
-        "Hoàn thành đúng hạn",
-        "Hoàn thành quá hạn"
+    const progressStats = [
+        { label: "Đang thực hiện", value: "95%" },
+        { label: "Hoàn thành đúng hạn", value: "5%" },
+        { label: "Hoàn thành quá hạn", value: "0%" },
+        { label: "Quá hạn", value: "0%" }
     ];
 
     const tasks = [
@@ -97,6 +97,19 @@ const ProjectDetail = () => {
             status: "Chưa bắt đầu"
         }
     ];
+
+    const memberStats = [
+        { name: "Nguyễn Văn A", totalTasks: 15, completed: 12, overdue: 3 },
+        { name: "Trần Thị B", totalTasks: 10, completed: 8, overdue: 2 },
+        { name: "Lê Văn C", totalTasks: 8, completed: 7, overdue: 1 }
+    ];
+
+    const taskSummary = [
+        { label: 'Đang xử lý', value: 128 },
+        { label: 'Hoàn thành', value: 21 },
+        { label: 'Quá hạn', value: 10 }
+      ];
+      
 
     return (
         <div className="dashboard-container">
@@ -127,92 +140,73 @@ const ProjectDetail = () => {
                             </div>
                         </div>
 
-                        <p className="project-description">{projectDetails.description}</p>
-
-                        <div className="project-info-grid">
-                            <div className="project-info-column">
-                                <div className="info-item">
-                                    <span className="info-label">Đơn vị quản lý</span>
-                                    <span className="info-value">{projectDetails.unit}</span>
+                        <div className="overview-section">
+                            <h2>Tổng quan</h2>
+                          
+                               
+                                <div className="project-info-column">
+                                    <h3>Tên dự án</h3>
+                                    <div className="project-detail-info">
+                                        <div className="info-item">
+                                            <span className="info-label">Loại dự án</span>
+                                            <span className="info-value">{projectDetails.projectType}</span>
+                                        </div>
+                                        <div className="info-item">
+                                            <span className="info-label">Đơn vị quản lý</span>
+                                            <span className="info-value">{projectDetails.unit}</span>
+                                        </div>
+                                        <div className="info-item">
+                                            <span className="info-label">Đơn vị phối hợp</span>
+                                            <span className="info-value">{projectDetails.collaboratingUnits}</span>
+                                        </div>
+                                        <div className="info-item">
+                                            <span className="info-label">Quản lý</span>
+                                            <span className="info-value">{projectDetails.manager}</span>
+                                        </div>
+                                        <div className="info-item">
+                                            <span className="info-label">Thành viên</span>
+                                            <span className="info-value">{projectDetails.members}</span>
+                                        </div>
+                                        <div className="info-item">
+                                            <span className="info-label">Người theo dõi</span>
+                                            <span className="info-value">{projectDetails.followers}</span>
+                                        </div>
+                                        <div className="info-item">
+                                            <span className="info-label">Ngày bắt đầu</span>
+                                            <span className="info-value">{projectDetails.startDate}</span>
+                                        </div>
+                                        <div className="info-item">
+                                            <span className="info-label">Ngày kết thúc</span>
+                                            <span className="info-value">{projectDetails.endDate}</span>
+                                        </div>
+                                    </div>
                                 </div>
-
-                                <div className="info-item">
-                                    <span className="info-label">Đơn vị phối hợp</span>
-                                    <span className="info-value">{projectDetails.collaboratingUnits}</span>
-                                </div>
-
-                                <div className="info-item">
-                                    <span className="info-label">Ngày bắt đầu</span>
-                                    <span className="info-value">{projectDetails.startDate}</span>
-                                </div>
-
-                                <div className="info-item">
-                                    <span className="info-label">Ngày kết thúc</span>
-                                    <span className="info-value">{projectDetails.endDate}</span>
-                                </div>
-
-                                <div className="info-item">
-                                    <span className="info-label">Thời gian còn lại</span>
-                                    <span className="info-value">{projectDetails.daysLeft}</span>
-                                </div>
-                            </div>
-
-                            <div className="project-info-column">
-                                <div className="info-item">
-                                    <span className="info-label">Quản lý</span>
-                                    <span className="info-value">{projectDetails.manager}</span>
-                                </div>
-
-                                <div className="info-item">
-                                    <span className="info-label">Thành viên</span>
-                                    <span className="info-value">{projectDetails.members}</span>
-                                </div>
-
-                                <div className="info-item">
-                                    <span className="info-label">Người theo dõi</span>
-                                    <span className="info-value">{projectDetails.followers}</span>
-                                </div>
-
-                                <div className="info-item">
-                                    <span className="info-label">Loại dự án</span>
-                                    <span className="info-value">{projectDetails.projectType}</span>
-                                </div>
-
-                                <div className="info-item">
-                                    <span className="info-label">Nhóm công việc</span>
-                                    <span className="info-value">{projectDetails.workGroups}</span>
-                                </div>
-                            </div>
+                            
                         </div>
 
-                        <div className="progress-section">
-                            <h3>Tiến độ dự án</h3>
+                        <div className="project-progress-section">
+                            <h2>Trích bộ Dự ÁN</h2>
+                            <div className="progress-header">
+                                <h3>Triển độ Dự ÁN</h3>
+                                <div className="task-count">{projectDetails.progress} Công việc</div>
+                            </div>
                             <div className="progress-bar">
                                 <div
                                     className="progress-fill"
                                     style={{ width: `${projectDetails.progress}%` }}
                                 ></div>
                             </div>
-                            <div className="progress-text">
-                                {projectDetails.progress}% {projectDetails.progressStatus}
-                            </div>
-                        </div>
 
-                        <div className="status-section">
-                            <h3>Trạng thái dự án</h3>
-                            <div className="status-options">
-                                {statusOptions.map((option, index) => (
-                                    <label key={index} className="status-option">
-                                        <input
-                                            type="radio"
-                                            name="project-status"
-                                            checked={projectDetails.status === option}
-                                            onChange={() => { }}
-                                        />
-                                        {option}
-                                    </label>
-                                ))}
-                            </div>
+                            <div className="project-progress-section">
+  <h2>Thống kê công việc</h2>
+  <BarChartStats data={taskSummary} />
+</div>
+
+
+
+
+
+                            
                         </div>
 
                         <div className="task-list-section">
@@ -248,7 +242,7 @@ const ProjectDetail = () => {
                         </div>
 
                         <div className="member-stats-section">
-                            <h3>THÔNG KÊ THEO THÀNH VIÊN</h3>
+                            <h3>THỐNG KÊ THEO THÀNH VIÊN</h3>
                             <div className="stats-table">
                                 <div className="table-header">
                                     <div>Thành viên</div>
@@ -256,24 +250,14 @@ const ProjectDetail = () => {
                                     <div>Hoàn thành</div>
                                     <div>Trễ hạn</div>
                                 </div>
-                                <div className="table-row">
-                                    <div>Nguyễn Văn A</div>
-                                    <div>15</div>
-                                    <div>12</div>
-                                    <div>3</div>
-                                </div>
-                                <div className="table-row">
-                                    <div>Trần Thị B</div>
-                                    <div>10</div>
-                                    <div>8</div>
-                                    <div>2</div>
-                                </div>
-                                <div className="table-row">
-                                    <div>Lê Văn C</div>
-                                    <div>8</div>
-                                    <div>7</div>
-                                    <div>1</div>
-                                </div>
+                                {memberStats.map((member, index) => (
+                                    <div className="table-row" key={index}>
+                                        <div>{member.name}</div>
+                                        <div>{member.totalTasks}</div>
+                                        <div>{member.completed}</div>
+                                        <div>{member.overdue}</div>
+                                    </div>
+                                ))}
                             </div>
                         </div>
                     </div>

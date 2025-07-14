@@ -1,210 +1,321 @@
 /* Project Detail */
 .project-detail-container {
-    overflow-y: auto;
-    padding: 30px;
-  }
-  
-  .back-button {
-    background: none;
-    border: none;
-    color: #3b82f6;
-    font-size: 16px;
-    cursor: pointer;
-    padding: 10px 0;
-    margin-bottom: 20px;
-    display: flex;
-    align-items: center;
-  }
-  
-  .back-button:hover {
-    text-decoration: underline;
-  }
-  
-  .project-header {
-    display: flex;
-    align-items: center;
-    margin-bottom: 15px;
-  }
-  
-  .project-header h1 {
-    font-size: 28px;
-    margin-right: 20px;
-  }
-  
-  .status-badge {
-    padding: 6px 15px;
-    border-radius: 20px;
-    font-size: 14px;
-    background-color: #dcfce7;
-    color: #16a34a;
-  }
-  
-  .status-badge.overdue {
-    background-color: #fee2e2;
-    color: #dc2626;
-  }
-  
-  .project-description {
-    font-size: 16px;
-    color: #475569;
-    margin-bottom: 30px;
-  }
-  
-  .project-info-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 30px;
-    margin-bottom: 30px;
-  }
-  
-  .project-info-column {
-    background-color: white;
-    border-radius: 10px;
-    padding: 20px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-  }
-  
-  .info-item {
-    display: flex;
-    justify-content: space-between;
-    padding: 12px 0;
-    border-bottom: 1px solid #f1f5f9;
-  }
-  
-  .info-item:last-child {
-    border-bottom: none;
-  }
-  
-  .info-label {
-    font-weight: 500;
-    color: #64748b;
-  }
-  
-  .info-value {
-    font-weight: 500;
-    color: #1e293b;
-    text-align: right;
-  }
-  
-  .progress-section, .status-section, .member-stats-section {
-    background-color: white;
-    border-radius: 10px;
-    padding: 20px;
-    margin-bottom: 25px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-  }
-  
-  .progress-section h3, .status-section h3, .member-stats-section h3 {
-    margin-bottom: 15px;
-    font-size: 18px;
-    color: #1e293b;
-  }
-  
-  .progress-bar {
-    height: 10px;
-    background-color: #e2e8f0;
-    border-radius: 5px;
-    margin: 15px 0;
-    overflow: hidden;
-  }
-  
-  .progress-fill {
-    height: 100%;
-    background-color: #3b82f6;
-    border-radius: 5px;
-  }
-  
-  .progress-text {
-    font-weight: 500;
-    color: #475569;
-  }
-  
-  .status-options {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 15px;
-  }
-  
-  .status-option {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 10px 15px;
-    background-color: #f1f5f9;
-    border-radius: 6px;
-  }
-  
-  .status-option input[type="radio"] {
-    width: 18px;
-    height: 18px;
-  }
-  
-  .stats-table {
-    border: 1px solid #e2e8f0;
-    border-radius: 8px;
-    overflow: hidden;
-  }
-  
-  .table-header, .table-row {
-    display: grid;
-    grid-template-columns: 2fr 1fr 1fr 1fr;
-  }
-  
-  .table-header {
-    background-color: #f8fafc;
-    font-weight: 600;
-    color: #334155;
-  }
-  
-  .table-header > div, .table-row > div {
-    padding: 12px 15px;
-    border-bottom: 1px solid #e2e8f0;
-  }
-  
-  .table-row:last-child > div {
-    border-bottom: none;
-  }
+  overflow-y: auto;
+  padding: 30px;
+}
 
-  .task-list-section {
-    background-color: white;
-    border-radius: 10px;
-    padding: 20px;
-    margin-bottom: 25px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-  }
-  
-  .task-list-section h3 {
-    margin-bottom: 15px;
-    font-size: 18px;
-    color: #1e293b;
-  }
-  
-  .task-list-section .stats-table .table-header,
-  .task-list-section .stats-table .table-row {
-    grid-template-columns: 2fr 1.5fr 1.5fr 1.5fr 1.5fr 1.5fr;
-  }  
+.back-button {
+  background: none;
+  border: none;
+  color: #3b82f6;
+  font-size: 16px;
+  cursor: pointer;
+  padding: 10px 0;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+}
 
-  .add-project-btn {
-    padding: 10px 20px;
-    background-color: #3b82f6; /* xanh dương */
-    color: #ffffff;
-    font-size: 14px;
-    font-weight: 600;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: background-color 0.2s ease, box-shadow 0.2s ease;
-    box-shadow: 0 2px 6px rgba(59, 130, 246, 0.3);
-    margin-bottom: 20px;
-  }
-  
-  .add-project-btn:hover {
-    background-color: #2563eb; /* xanh dương đậm hơn */
-    box-shadow: 0 4px 10px rgba(59, 130, 246, 0.4);
-  }
-  
-  .add-project-btn:active {
-    background-color: #1d4ed8;
-    transform: scale(0.98);
-  }
-  
+.back-button:hover {
+  text-decoration: underline;
+}
+
+.project-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.project-header h1 {
+  font-size: 28px;
+  margin-right: 20px;
+}
+
+.status-badge {
+  padding: 6px 15px;
+  border-radius: 20px;
+  font-size: 14px;
+  background-color: #dcfce7;
+  color: #16a34a;
+}
+
+.status-badge.overdue {
+  background-color: #fee2e2;
+  color: #dc2626;
+}
+
+.project-description {
+  font-size: 16px;
+  color: #475569;
+  margin-bottom: 30px;
+}
+
+/* Overview Section */
+.overview-section {
+  background-color: white;
+  border-radius: 10px;
+  padding: 20px;
+  margin-bottom: 25px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.overview-section h2 {
+  font-size: 20px;
+  color: #1e293b;
+  margin-bottom: 20px;
+  border-bottom: 1px solid #e2e8f0;
+  padding-bottom: 10px;
+}
+
+.overview-content {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 30px;
+}
+
+.work-groups-column, .project-info-column {
+  background-color: #f8fafc;
+  border-radius: 8px;
+  padding: 15px;
+}
+
+.work-groups-column h3, .project-info-column h3 {
+  font-size: 18px;
+  color: #1e293b;
+  margin-bottom: 15px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.work-groups-column ul {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+}
+
+.work-groups-column ul li {
+  padding: 8px 0;
+  border-bottom: 1px solid #e2e8f0;
+  font-size: 15px;
+}
+
+.work-groups-column ul li:last-child {
+  border-bottom: none;
+}
+
+.project-detail-info .info-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px 0;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.project-detail-info .info-item:last-child {
+  border-bottom: none;
+}
+
+.info-label {
+  font-weight: 500;
+  color: #64748b;
+  font-size: 14px;
+}
+
+.info-value {
+  font-weight: 500;
+  color: #1e293b;
+  text-align: right;
+  font-size: 14px;
+}
+
+/* Project Progress Section */
+.project-progress-section {
+  background-color: white;
+  border-radius: 10px;
+  padding: 20px;
+  margin-bottom: 25px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.project-progress-section h2 {
+  font-size: 20px;
+  color: #1e293b;
+  margin-bottom: 20px;
+  border-bottom: 1px solid #e2e8f0;
+  padding-bottom: 10px;
+}
+
+.progress-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.progress-header h3 {
+  font-size: 16px;
+  color: #1e293b;
+  margin: 0;
+}
+
+.task-count {
+  background-color: #dbeafe;
+  color: #1d4ed8;
+  padding: 5px 10px;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.progress-bar {
+  height: 10px;
+  background-color: #e2e8f0;
+  border-radius: 5px;
+  margin: 15px 0;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background-color: #3b82f6;
+  border-radius: 5px;
+}
+
+/* .progress-stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 15px;
+  margin-top: 20px;
+} */
+
+.progress-stats {
+  background-color: #fff;
+  border-radius: 10px;
+  padding: 20px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  font-family: 'Inter', sans-serif;
+}
+
+.custom-legend {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding-left: 20px;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.legend-color {
+  width: 12px;
+  height: 12px;
+  border-radius: 4px;
+}
+
+.legend-text {
+  font-size: 14px;
+  color: #334155;
+  font-weight: 500;
+}
+
+
+.progress-stat-item {
+  background-color: #f1f5f9;
+  border-radius: 8px;
+  padding: 12px;
+  text-align: center;
+}
+
+.stat-value {
+  font-size: 18px;
+  font-weight: 600;
+  color: #1e293b;
+  margin-bottom: 5px;
+}
+
+.stat-label {
+  font-size: 13px;
+  color: #64748b;
+}
+
+/* Task List Section */
+.task-list-section {
+  background-color: white;
+  border-radius: 10px;
+  padding: 20px;
+  margin-bottom: 25px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.task-list-section h3 {
+  margin-bottom: 15px;
+  font-size: 18px;
+  color: #1e293b;
+  border-bottom: 1px solid #e2e8f0;
+  padding-bottom: 10px;
+}
+
+.add-project-btn {
+  padding: 10px 20px;
+  background-color: #3b82f6;
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 600;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: 0 2px 6px rgba(59, 130, 246, 0.3);
+  margin-bottom: 20px;
+}
+
+.stats-table {
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.table-header, .table-row {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr 1fr 1fr;
+}
+
+.table-header {
+  background-color: #f8fafc;
+  font-weight: 600;
+  color: #334155;
+}
+
+.table-header > div, .table-row > div {
+  padding: 12px 15px;
+  border-bottom: 1px solid #e2e8f0;
+  font-size: 14px;
+}
+
+.table-row:last-child > div {
+  border-bottom: none;
+}
+
+/* Member Stats Section */
+.member-stats-section {
+  background-color: white;
+  border-radius: 10px;
+  padding: 20px;
+  margin-bottom: 25px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.member-stats-section h3 {
+  margin-bottom: 15px;
+  font-size: 18px;
+  color: #1e293b;
+  border-bottom: 1px solid #e2e8f0;
+  padding-bottom: 10px;
+}
+
+.member-stats-section .stats-table .table-header,
+.member-stats-section .stats-table .table-row {
+  grid-template-columns: 2fr 1fr 1fr 1fr;
+}

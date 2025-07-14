@@ -22,11 +22,7 @@ const Sidebar: React.FC = () => {
           <span className="nav-icon">📊</span>
           <span>Dashboard</span>
         </div>
-        <div className="nav-item">
-          <span className="nav-icon">📈</span>
-          <span>Tiến độ Tuần</span>
-        </div>
-
+       
         <div
           className="nav-item"
           onClick={() => navigate('/projects')}
