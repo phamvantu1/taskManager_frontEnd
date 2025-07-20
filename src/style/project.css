@@ -193,3 +193,52 @@
   background-color: #1d4ed8;
   transform: scale(0.98);
 }
+
+/* Pagination - Modern Purple Theme */
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 30px;
+  gap: 8px;
+}
+
+.pagination button {
+  padding: 10px 18px;
+  font-size: 15px;
+  font-weight: 600;
+  background: linear-gradient(to bottom, #9c76fc, #7e5af2);
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 3px 6px rgba(126, 90, 242, 0.2);
+  min-width: 42px;
+  text-align: center;
+}
+
+.pagination button:hover:not(:disabled) {
+  background: linear-gradient(to bottom, #8b68f8, #6d4af0);
+  transform: translateY(-2px);
+  box-shadow: 0 5px 12px rgba(126, 90, 242, 0.3);
+}
+
+.pagination button:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+.pagination button:disabled {
+  background: #f0f0f0;
+  color: #c0b4d6;
+  box-shadow: none;
+  cursor: not-allowed;
+}
+
+.pagination span {
+  font-size: 15px;
+  font-weight: 500;
+  color: #6d4af0;
+  padding: 0 12px;
+  text-shadow: 0 1px 1px rgba(0,0,0,0.05);
+}

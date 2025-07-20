@@ -16,6 +16,12 @@ export interface UserInfo {
     message?: string;
     data: T;
   }
+
+  export interface User {
+    id: number;
+    firstName: string;
+    lastName: string;
+  }
   
   export const getUserDetails = async (): Promise<UserInfo | null> => {
     try {
@@ -59,4 +65,22 @@ export interface UserInfo {
         'Content-Type': 'application/json',
       },
     });
+  };
+
+
+  export const fetchUsers = async (): Promise<User[]> => {
+    const token = localStorage.getItem('access_token');
+    const response = await fetch('http://localhost:8080/api/users/get-all-users?page=0&size=100', {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+  
+    if (!response.ok) {
+      throw new Error('Lỗi khi lấy danh sách người dùng');
+    }
+  
+    const json = await response.json();
+    return json.data.content || [];
   };

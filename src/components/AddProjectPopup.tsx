@@ -1,25 +1,47 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import '../style/AddProjectPopup.css';
+import { fetchUsers, type User } from '../api/userApi';
+import { createProject, type ProjectPayload } from '../api/projectApi';
 
 interface AddProjectPopupProps {
   onClose: () => void;
-  onSubmit?: (data: any) => void; // bạn có thể thêm logic xử lý sau
+  onSubmit?: (data: any) => void;
 }
 
 const AddProjectPopup: React.FC<AddProjectPopupProps> = ({ onClose, onSubmit }) => {
-  const handleSubmit = (e: React.FormEvent) => {
+  const [users, setUsers] = useState<User[]>([]);
+
+  useEffect(() => {
+    fetchUsers()
+      .then(setUsers)
+      .catch((err) => {
+        console.error(err);
+        alert('Không thể tải danh sách người dùng');
+      });
+  }, []);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const form = e.target as HTMLFormElement;
-    const formData = {
-      name: form.name.valueOf,
-      type: form.type.value,
-      manager: form.manager.value,
-      members: form.members.value.split(',').map((m: string) => m.trim()),
-      start: form.start.value,
-      end: form.end.value,
+
+    const formData: ProjectPayload = {
+      name: (form.name as unknown as HTMLInputElement).value,
+      description: (form.description as HTMLInputElement).value,
+      type: (form.type as HTMLInputElement).value,
+      ownerId: (form.manager as HTMLInputElement).value,
+      startTime: (form.start as HTMLInputElement).value,
+      endTime: (form.end as HTMLInputElement).value,
     };
-    if (onSubmit) onSubmit(formData);
-    onClose();
+
+    try {
+      const result = await createProject(formData);
+      alert('Tạo dự án thành công!');
+      if (onSubmit) onSubmit(result);
+      onClose();
+    } catch (error: any) {
+      console.error(error);
+      alert(error.message || 'Có lỗi xảy ra khi tạo dự án.');
+    }
   };
 
   return (
@@ -32,19 +54,26 @@ const AddProjectPopup: React.FC<AddProjectPopupProps> = ({ onClose, onSubmit }) 
             <input type="text" name="name" required />
           </label>
           <label>
+            Mô tả:
+            <textarea name="description" placeholder="Mô tả dự án..." rows={3}></textarea>
+          </label>
+          <label>
             Loại dự án:
             <select name="type">
-              <option>Nội bộ</option>
-              <option>Khách hàng</option>
+              <option value="Nội bộ">Nội bộ</option>
+              <option value="Khách hàng">Khách hàng</option>
             </select>
           </label>
           <label>
             Quản lý dự án:
-            <input type="text" name="manager" required />
-          </label>
-          <label>
-            Thành viên:
-            <input type="text" name="members" placeholder="Ngăn cách bằng dấu phẩy" />
+            <select name="manager" required>
+              <option value="">-- Chọn người quản lý --</option>
+              {users.map((user) => (
+                <option key={user.id} value={user.id}>
+                  {user.firstName} {user.lastName}
+                </option>
+              ))}
+            </select>
           </label>
           <label>
             Ngày bắt đầu:
