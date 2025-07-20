@@ -63,3 +63,41 @@
   .profile-back-btn:hover {
     background-color: #1d4ed8;
   }
+
+  .profile-update-btn {
+    margin-top: 20px;
+    padding: 10px 20px;
+    background-color: #10b981; /* Màu xanh lá */
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: background-color 0.3s ease;
+  }
+  
+  .profile-update-btn:hover {
+    background-color: #059669; /* Màu xanh đậm hơn khi hover */
+  }
+
+  .profile-save-btn {
+    margin-top: 20px;
+    padding: 10px 20px;
+    background-color: #b93710; /* Màu xanh lá */
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: background-color 0.3s ease;
+  }
+  
+  .profile-save-btn:hover {
+    background-color: #b93710; /* Màu xanh đậm hơn khi hover */
+  }
+
+  .profile-buttons {
+    display: flex;
+    justify-content: space-between; /* Đặt các nút ở hai đầu */
+    margin-top: 20px;
+  }
