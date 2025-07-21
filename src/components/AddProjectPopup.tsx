@@ -84,8 +84,8 @@ const AddProjectPopup: React.FC<AddProjectPopupProps> = ({ onClose, onSubmit }) 
             <input type="date" name="end" />
           </label>
           <div className="popup-actions">
-            <button type="submit">Tạo</button>
             <button type="button" onClick={onClose}>Hủy</button>
+            <button type="submit">Tạo</button>
           </div>
         </form>
       </div>

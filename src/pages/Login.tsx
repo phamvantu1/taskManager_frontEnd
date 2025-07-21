@@ -2,11 +2,9 @@ import React, { useState } from 'react';
 import InputField from '../components/InputField';
 import '../style/form.css';
 import { useNavigate } from 'react-router-dom';
-interface LoginProps {
-  switchToRegister: () => void;
-}
 
-const Login: React.FC<LoginProps> = ({ switchToRegister }) => {
+
+const Login: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const navigate = useNavigate();
@@ -47,7 +45,7 @@ const Login: React.FC<LoginProps> = ({ switchToRegister }) => {
       <button onClick={handleLogin} className="auth-button">Đăng nhập</button>
       <p className="auth-footer">
         Chưa có tài khoản?{' '}
-        <button onClick={switchToRegister}>Đăng ký</button>
+        <button onClick={() => navigate('/register')}>Đăng ký</button>
       </p>
       <p className="auth-footer">
         <button onClick={() => navigate("/forgot-password")}>Quên mật khẩu?</button>
