@@ -72,6 +72,7 @@ const Projects = () => {
               </div>
             </div>
 
+            <div className="projects-grid-wrapper" style={{ flexGrow: 1, overflowY: 'auto' }}>
             <div className="projects-grid">
               {projects.map(project => (
                 <div
@@ -97,6 +98,8 @@ const Projects = () => {
                   </div>
                 </div>
               ))}
+            </div>
+
             </div>
 
             {totalPages > 1 && (

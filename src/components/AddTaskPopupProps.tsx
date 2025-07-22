@@ -1,42 +1,99 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import '../style/addtaskpopup.css';
+import { taskApi, type TaskRequest } from '../api/taskApi';
+import { getUserDetails, type UserInfo , fetchUsers, type User  } from '../api/userApi';
 
 interface AddTaskPopupProps {
   onClose: () => void;
   onSubmit: (task: any) => void;
+  projectId: number;
 }
 
-const AddTaskPopup: React.FC<AddTaskPopupProps> = ({ onClose, onSubmit }) => {
+const AddTaskPopup: React.FC<AddTaskPopupProps> = ({ onClose, onSubmit, projectId }) => {
+  const [currentUser, setCurrentUser] = useState<UserInfo | null>(null);
   const [taskData, setTaskData] = useState({
-    name: '',
+    title: '',
     description: '',
-    assigner: '',
-    assignee: '',
-    startDate: '',
-    endDate: '',
-    complexity: '',
+    createdById: '',
+    assigneeId: '',
+    startTime: '',
+    endTime: '',
+    lever: '',
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     setTaskData({ ...taskData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = () => {
-    onSubmit(taskData);
-    onClose();
+  const handleSubmit = async () => {
+    const token = localStorage.getItem('access_token');
+    if (!token) {
+      alert('Chưa đăng nhập');
+      return;
+    }
+
+    // Map complexity to lever (you can customize this)
+    let lever = 1;
+    if (taskData.lever === 'Trung bình') lever = 2;
+    if (taskData.lever === 'Cao') lever = 3;
+
+    const payload: TaskRequest = {
+      title: taskData.title,
+      description: taskData.description,
+      startTime: `${taskData.startTime}`,
+      endTime: `${taskData.endTime}`,
+      assigneeId: 1, // nếu bạn có danh sách user thì nên thay bằng ID người được chọn
+      projectId: projectId,
+      createdById: Number(taskData.createdById),
+      lever: lever,
+    };
+
+    try {
+      const response = await taskApi.createTask(payload, token);
+      console.log('Tạo thành công:', response);
+      onSubmit(response.data); // hoặc bạn có thể refresh danh sách task
+      onClose();
+    } catch (error) {
+      console.error('Lỗi tạo công việc:', error);
+      alert('Không thể tạo công việc!');
+    }
   };
+
+  useEffect(() => {
+    const fetchCurrentUser = async () => {
+      const user = await getUserDetails();
+      if (user) {
+        setCurrentUser(user);
+        setTaskData((prev) => ({
+          ...prev,
+          createdById: String(user.id), // set mặc định createdById
+        }));
+      }
+    };
+
+    fetchCurrentUser();
+  }, []);
 
   return (
     <div className="popup-overlay">
       <div className="popup-content">
         <h2>Thêm công việc mới</h2>
-        <input name="name" placeholder="Tên công việc" value={taskData.name} onChange={handleChange} />
+        <input name="name" placeholder="Tên công việc" value={taskData.title} onChange={handleChange} />
         <textarea name="description" placeholder="Mô tả" value={taskData.description} onChange={handleChange} />
-        <input name="assigner" placeholder="Người giao" value={taskData.assigner} onChange={handleChange} />
-        <input name="assignee" placeholder="Người thực hiện" value={taskData.assignee} onChange={handleChange} />
-        <input name="startDate" type="date" value={taskData.startDate} onChange={handleChange} />
-        <input name="endDate" type="date" value={taskData.endDate} onChange={handleChange} />
-        <select name="complexity" value={taskData.complexity} onChange={handleChange}>
+
+        {/* Chọn người giao */}
+        {currentUser && (
+          <select name="createdById" value={taskData.createdById} disabled>
+            <option value={currentUser.id}>
+              {currentUser.firstName} {currentUser.lastName} - {currentUser.email}
+            </option>
+          </select>
+        )}
+
+        <input name="assigneeId" placeholder="Người thực hiện" value={taskData.assigneeId} onChange={handleChange} />
+        <input name="startTime" type="date" value={taskData.startTime} onChange={handleChange} />
+        <input name="endTime" type="date" value={taskData.endTime} onChange={handleChange} />
+        <select name="lever" value={taskData.lever} onChange={handleChange}>
           <option value="">Chọn độ phức tạp</option>
           <option value="Thấp">Thấp</option>
           <option value="Trung bình">Trung bình</option>

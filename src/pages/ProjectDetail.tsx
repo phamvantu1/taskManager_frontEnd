@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import  { useState, useEffect } from 'react';
 import Sidebar from '../components/Sidebar';
 import Header from '../components/Header';
 import '../style/projectdetail.css';
@@ -193,10 +193,6 @@ const ProjectDetail = () => {
                             </div>
 
 
-
-
-
-
                         </div>
 
                         <div className="task-list-section">
@@ -207,6 +203,7 @@ const ProjectDetail = () => {
                                 <AddTaskPopup
                                     onClose={() => setShowAddTaskPopup(false)}
                                     onSubmit={handleAddTask}
+                                    projectId={Number(projectId)}
                                 />
                             )}
                             <div className="stats-table">
