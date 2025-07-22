@@ -2,40 +2,36 @@ import React, { useState } from 'react';
 import InputField from '../components/InputField';
 import '../style/form.css';
 import { useNavigate } from 'react-router-dom';
-
+import { login } from '../api/authApi';
+import { toast } from 'react-toastify';
 
 const Login: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const navigate = useNavigate();
 
+
   const handleLogin = async () => {
     try {
-      const response = await fetch('http://localhost:8080/api/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
-      });
-
-      if (!response.ok) throw new Error('Login failed');
-
-      const result = await response.json();
+      const result = await login({ email, password });
       const accessToken = result.data?.access_token;
 
       if (accessToken) {
         localStorage.setItem('access_token', accessToken);
-        alert('Login successful!');
-        console.log('Access Token:', accessToken);
-        navigate('/dashboard');
+        toast.success("Đăng nhập thành công!");
+
+        setTimeout(() => {
+          navigate('/dashboard');
+        }, 1000); // đợi 1 giây
+
       } else {
-        throw new Error('Access token not found');
+        throw new Error('Không tìm thấy access token');
       }
     } catch (err) {
-      alert('Login failed!');
+      toast.error("Đăng nhập thất bại. Vui lòng kiểm tra lại.");
       console.error(err);
     }
   };
-
 
   return (
     <div className="auth-container">
