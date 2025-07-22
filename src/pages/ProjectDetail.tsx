@@ -1,4 +1,4 @@
-import  { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import Sidebar from '../components/Sidebar';
 import Header from '../components/Header';
 import '../style/projectdetail.css';
@@ -8,6 +8,7 @@ import AddTaskPopup from '../components/AddTaskPopupProps';
 import BarChartStats from '../components/PieChartStats';
 import { projectApi } from '../api/projectApi';
 import type { ProjectDetail as ProjectDetailType } from '../api/projectApi';
+import { getAllTasks } from '../api/taskApi';
 
 const ProjectDetail = () => {
     const navigate = useNavigate();
@@ -18,6 +19,20 @@ const ProjectDetail = () => {
 
     const [projectDetails, setProjectDetails] = useState<ProjectDetailType | null>(null);
     const [loading, setLoading] = useState<boolean>(true);
+    const [tasks, setTasks] = useState<any[]>([]);
+
+    const [taskPage, setTaskPage] = useState(0);
+    const [hasMoreTasks, setHasMoreTasks] = useState(true);
+    const [isFetchingTasks, setIsFetchingTasks] = useState(false);
+    const [visibleTaskCount, setVisibleTaskCount] = useState(5);
+
+
+
+    const [filters, setFilters] = useState({
+        textSearch: '',
+        startTime: '',
+        endTime: '',
+    });
     const { projectId } = useParams();
 
     const toggleDropdown = () => {
@@ -44,37 +59,10 @@ const ProjectDetail = () => {
     };
 
     const handleAddTask = (newTask: any) => {
-        console.log('Công việc mới:', newTask);
+        fetchProject();
         // xử lý thêm task ở đây
     };
 
-
-    const tasks = [
-        {
-            name: "Thiết kế giao diện",
-            assigner: "Nguyễn Văn A",
-            assignee: "Trần Thị B",
-            startDate: "15/04/2024",
-            endDate: "20/04/2024",
-            status: "Hoàn thành"
-        },
-        {
-            name: "Xây dựng API",
-            assigner: "Nguyễn Văn A",
-            assignee: "Lê Văn C",
-            startDate: "16/04/2024",
-            endDate: "25/04/2024",
-            status: "Đang thực hiện"
-        },
-        {
-            name: "Kiểm thử hệ thống",
-            assigner: "Nguyễn Văn A",
-            assignee: "Phạm Văn D",
-            startDate: "20/04/2024",
-            endDate: "30/04/2024",
-            status: "Chưa bắt đầu"
-        }
-    ];
 
     const memberStats = [
         { name: "Nguyễn Văn A", totalTasks: 15, completed: 12, overdue: 3 },
@@ -88,25 +76,97 @@ const ProjectDetail = () => {
         { label: 'Quá hạn', value: 10 }
     ];
 
-    useEffect(() => {
-        const fetchProject = async () => {
-            try {
-                const token = localStorage.getItem('access_token');
-                if (!token) {
-                    navigate('/login');
-                    return;
-                }
-                const res = await projectApi.getProjectInfo(Number(projectId), token) as { data: ProjectDetailType };
-                setProjectDetails(res.data); 
-            } catch (error) {
-                console.error('Error fetching project details:', error);
-            } finally {
-                setLoading(false);
+    const fetchProject = async () => {
+        try {
+            const token = localStorage.getItem('access_token');
+            if (!token) {
+                navigate('/login');
+                return;
             }
-        };
 
+            const res = await projectApi.getProjectInfo(Number(projectId), token) as { data: ProjectDetailType };
+            setProjectDetails(res.data);
+
+            // Gọi API lấy task
+            const taskRes = await getAllTasks.getAllTasks(token, {
+                page: 0,
+                size: 10,
+                textSearch: '',
+                startTime: '',
+                endTime: '',
+                projectId: Number(projectId),
+            });
+
+            setTasks(taskRes.data.content);
+        } catch (error) {
+            console.error('Error fetching project details or tasks:', error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const fetchTasks = async (pageToFetch = 0, append = false) => {
+        try {
+            const token = localStorage.getItem('access_token');
+            if (!token) {
+                navigate('/login');
+                return;
+            }
+
+            setIsFetchingTasks(true);
+            const taskRes = await getAllTasks.getAllTasks(token, {
+                page: pageToFetch,
+                size: 10,
+                textSearch: filters.textSearch,
+                startTime: filters.startTime,
+                endTime: filters.endTime,
+                projectId: Number(projectId),
+            });
+
+            const newTasks = taskRes.data.content;
+            const totalPages = taskRes.data.totalPages;
+
+            setTasks(prev => append ? [...prev, ...newTasks] : newTasks);
+            setHasMoreTasks(pageToFetch < totalPages - 1);
+            setTaskPage(pageToFetch);
+        } catch (error) {
+            console.error(error);
+        } finally {
+            setIsFetchingTasks(false);
+        }
+    };
+
+
+
+    useEffect(() => {
         fetchProject();
     }, [projectId]);
+
+    useEffect(() => {
+        const observer = new IntersectionObserver(
+            entries => {
+                if (entries[0].isIntersecting) {
+                    // Nếu còn task để render
+                    if (visibleTaskCount < tasks.length) {
+                        setVisibleTaskCount(prev => prev + 5);
+                    }
+                    // Nếu hết task render mà còn task trong API thì gọi thêm
+                    else if (hasMoreTasks && !isFetchingTasks) {
+                        fetchTasks(taskPage + 1, true);
+                    }
+                }
+            },
+            { threshold: 1 }
+        );
+
+        const sentinel = document.querySelector('#task-list-sentinel');
+        if (sentinel) observer.observe(sentinel);
+
+        return () => observer.disconnect();
+    }, [visibleTaskCount, tasks, hasMoreTasks, isFetchingTasks]);
+
+
+
 
     if (loading) return <div>Đang tải...</div>;
     if (!projectDetails) return <div>Không tìm thấy thông tin dự án.</div>;
@@ -169,7 +229,7 @@ const ProjectDetail = () => {
                                         <span className="info-label">Mô tả</span>
                                         <span className="info-value">{projectDetails.description}</span>
                                     </div>
-                                   
+
                                 </div>
                             </div>
                         </div>
@@ -198,7 +258,38 @@ const ProjectDetail = () => {
                         <div className="task-list-section">
                             <h3>DANH SÁCH CÔNG VIỆC</h3>
 
-                            <button className="add-project-btn" onClick={() => setShowAddTaskPopup(true)}>+ Thêm công việc</button>
+                            <div className="task-controls">
+                                <div className="filter-section">
+                                    <input
+                                        type="text"
+                                        placeholder="Tìm kiếm công việc..."
+                                        value={filters.textSearch}
+                                        onChange={(e) => setFilters({ ...filters, textSearch: e.target.value })}
+                                    />
+                                    <input
+                                        type="date"
+                                        value={filters.startTime}
+                                        onChange={(e) => setFilters({ ...filters, startTime: e.target.value })}
+                                    />
+                                    <input
+                                        type="date"
+                                        value={filters.endTime}
+                                        onChange={(e) => setFilters({ ...filters, endTime: e.target.value })}
+                                    />
+                                    <button
+                                        onClick={() => {
+                                            setVisibleTaskCount(5); // reset hiển thị
+                                            fetchTasks(0, false);   // fetch lại
+                                        }}
+                                    >
+                                        Lọc
+                                    </button>
+                                </div>
+
+                                <button className="add-project-btn" onClick={() => setShowAddTaskPopup(true)}>
+                                    + Thêm công việc
+                                </button>
+                            </div>
                             {showAddTaskPopup && (
                                 <AddTaskPopup
                                     onClose={() => setShowAddTaskPopup(false)}
@@ -207,25 +298,56 @@ const ProjectDetail = () => {
                                 />
                             )}
                             <div className="stats-table">
-                                <div className="table-header">
-                                    <div>Tên công việc</div>
-                                    <div>Người giao</div>
-                                    <div>Người thực hiện</div>
-                                    <div>Ngày bắt đầu</div>
-                                    <div>Ngày kết thúc</div>
-                                    <div>Trạng thái</div>
+                                <div
+                                    className="task-scroll-container"
+                                    style={{
+                                        maxHeight: '300px',
+                                        overflowY: 'auto',
+                                        border: '1px solid #ddd',
+                                        borderRadius: '4px',
+                                    }}
+                                    onScroll={(e) => {
+                                        const target = e.currentTarget;
+                                        if (
+                                            target.scrollTop + target.clientHeight >= target.scrollHeight - 50 &&
+                                            hasMoreTasks &&
+                                            !isFetchingTasks
+                                        ) {
+                                            fetchTasks(taskPage + 1, true);
+                                        }
+                                    }}
+                                >
+                                    <div className="task-list-wrapper">
+  <div className="table-header">
+    <div>Tên công việc</div>
+    <div>Người giao</div>
+    <div>Người thực hiện</div>
+    <div>Ngày bắt đầu</div>
+    <div>Ngày kết thúc</div>
+    <div>Trạng thái</div>
+  </div>
+
+  {tasks.length > 0 ? (
+    <>
+      {tasks.map((task, index) => (
+        <div className="table-row" key={index}>
+          <div>{task.title}</div>
+          <div>{task.nameCreatedBy || '---'}</div>
+          <div>{task.nameAssignedTo || '---'}</div>
+          <div>{task.startTime?.split('T')[0]}</div>
+          <div>{task.endTime?.split('T')[0]}</div>
+          <div>{task.status}</div>
+        </div>
+      ))}
+      {isFetchingTasks && <div style={{ padding: '10px' }}>Đang tải thêm...</div>}
+    </>
+  ) : (
+    <div style={{ padding: '10px' }}>Không có công việc nào</div>
+  )}
+</div>
                                 </div>
-                                {tasks.map((task, index) => (
-                                    <div className="table-row" key={index}>
-                                        <div>{task.name}</div>
-                                        <div>{task.assigner}</div>
-                                        <div>{task.assignee}</div>
-                                        <div>{task.startDate}</div>
-                                        <div>{task.endDate}</div>
-                                        <div>{task.status}</div>
-                                    </div>
-                                ))}
                             </div>
+
                         </div>
 
                         <div className="member-stats-section">

@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import '../style/addtaskpopup.css';
 import { taskApi, type TaskRequest } from '../api/taskApi';
-import { getUserDetails, type UserInfo , fetchUsers, type User  } from '../api/userApi';
+import { getUserDetails, type UserInfo, fetchUsers, type User } from '../api/userApi';
+import { toast } from 'react-toastify';
+
 
 interface AddTaskPopupProps {
   onClose: () => void;
@@ -11,6 +13,7 @@ interface AddTaskPopupProps {
 
 const AddTaskPopup: React.FC<AddTaskPopupProps> = ({ onClose, onSubmit, projectId }) => {
   const [currentUser, setCurrentUser] = useState<UserInfo | null>(null);
+  const [userList, setUserList] = useState<User[]>([]);
   const [taskData, setTaskData] = useState({
     title: '',
     description: '',
@@ -42,7 +45,7 @@ const AddTaskPopup: React.FC<AddTaskPopupProps> = ({ onClose, onSubmit, projectI
       description: taskData.description,
       startTime: `${taskData.startTime}`,
       endTime: `${taskData.endTime}`,
-      assigneeId: 1, // nếu bạn có danh sách user thì nên thay bằng ID người được chọn
+      assigneeId: Number(taskData.assigneeId),
       projectId: projectId,
       createdById: Number(taskData.createdById),
       lever: lever,
@@ -51,11 +54,13 @@ const AddTaskPopup: React.FC<AddTaskPopupProps> = ({ onClose, onSubmit, projectI
     try {
       const response = await taskApi.createTask(payload, token);
       console.log('Tạo thành công:', response);
+      toast.success('Tạo công việc thành công!');
       onSubmit(response.data); // hoặc bạn có thể refresh danh sách task
       onClose();
-    } catch (error) {
+    } catch (error: any) {
+      const message = error?.message || 'Không thể tạo công việc!';
+      toast.error(message);
       console.error('Lỗi tạo công việc:', error);
-      alert('Không thể tạo công việc!');
     }
   };
 
@@ -71,6 +76,16 @@ const AddTaskPopup: React.FC<AddTaskPopupProps> = ({ onClose, onSubmit, projectI
       }
     };
 
+    const fetchData = async () => {
+      try {
+        const users = await fetchUsers();
+        setUserList(users);
+      } catch (err) {
+        console.error('Lỗi khi load danh sách người dùng:', err);
+      }
+    };
+
+    fetchData();
     fetchCurrentUser();
   }, []);
 
@@ -78,7 +93,8 @@ const AddTaskPopup: React.FC<AddTaskPopupProps> = ({ onClose, onSubmit, projectI
     <div className="popup-overlay">
       <div className="popup-content">
         <h2>Thêm công việc mới</h2>
-        <input name="name" placeholder="Tên công việc" value={taskData.title} onChange={handleChange} />
+        <input name="title" placeholder="Tên công việc" value={taskData.title} onChange={handleChange} />
+
         <textarea name="description" placeholder="Mô tả" value={taskData.description} onChange={handleChange} />
 
         {/* Chọn người giao */}
@@ -90,7 +106,14 @@ const AddTaskPopup: React.FC<AddTaskPopupProps> = ({ onClose, onSubmit, projectI
           </select>
         )}
 
-        <input name="assigneeId" placeholder="Người thực hiện" value={taskData.assigneeId} onChange={handleChange} />
+        <select name="assigneeId" value={taskData.assigneeId} onChange={handleChange}>
+          <option value="">Chọn người thực hiện</option>
+          {userList.map((user) => (
+            <option key={user.id} value={user.id}>
+              {user.firstName} {user.lastName} - {user.email}
+            </option>
+          ))}
+        </select>
         <input name="startTime" type="date" value={taskData.startTime} onChange={handleChange} />
         <input name="endTime" type="date" value={taskData.endTime} onChange={handleChange} />
         <select name="lever" value={taskData.lever} onChange={handleChange}>

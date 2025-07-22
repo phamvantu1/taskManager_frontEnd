@@ -18,10 +18,14 @@ export interface LoginRequest {
       body: JSON.stringify(payload),
     });
   
+    const data = await response.json();
+  
     if (!response.ok) {
-      throw new Error('Login failed');
+      // Nếu BE trả về message, ném lỗi kèm message
+      throw new Error(data.message || 'Login failed');
     }
   
-    return response.json();
+    return data;
   };
+  
   

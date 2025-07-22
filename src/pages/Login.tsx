@@ -27,9 +27,10 @@ const Login: React.FC = () => {
       } else {
         throw new Error('Không tìm thấy access token');
       }
-    } catch (err) {
-      toast.error("Đăng nhập thất bại. Vui lòng kiểm tra lại.");
-      console.error(err);
+    } catch (err: any) {
+      const message = err?.message || 'Đăng nhập thất bại. Vui lòng kiểm tra lại.';
+      toast.error(message);
+      console.error('hah', message);
     }
   };
 
