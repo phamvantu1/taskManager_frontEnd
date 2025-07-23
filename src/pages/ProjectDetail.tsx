@@ -472,7 +472,7 @@ const ProjectDetail = () => {
                                 >
                                     {memberStats.length > 0 ? (
                                         <>
-                                            {memberStats.slice(0, visibleMemberCount).map((member, index) => (
+                                            {memberStats.map((member, index) => (
                                                 <div className="table-row" key={index}>
                                                     <div>{member.fullName || '---'}</div>
                                                     <div>{member.totalTasks}</div>
