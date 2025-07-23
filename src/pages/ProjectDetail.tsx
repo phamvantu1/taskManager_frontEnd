@@ -9,6 +9,7 @@ import BarChartStats from '../components/PieChartStats';
 import { projectApi } from '../api/projectApi';
 import type { ProjectDetail as ProjectDetailType } from '../api/projectApi';
 import { getAllTasks, getDashboardTasksByProject } from '../api/taskApi';
+import { getProjectMembersStats } from '../api/userApi';
 
 const ProjectDetail = () => {
     const navigate = useNavigate();
@@ -28,6 +29,15 @@ const ProjectDetail = () => {
     const [isFetchingTasks, setIsFetchingTasks] = useState(false);
     const [visibleTaskCount, setVisibleTaskCount] = useState(5);
     const [taskNumber, setTaskNumber] = useState(0);
+
+    const [memberSearch, setMemberSearch] = useState('');
+    const [visibleMemberCount, setVisibleMemberCount] = useState(5);
+
+
+    const [memberStats, setMemberStats] = useState<any[]>([]);
+    const [memberPage, setMemberPage] = useState(0);
+    const [hasMoreMembers, setHasMoreMembers] = useState(true);
+
 
 
 
@@ -64,15 +74,32 @@ const ProjectDetail = () => {
     const handleAddTask = (newTask: any) => {
         fetchProject();
         fetchTaskDashboard();
+        fetchMemberStats();
         // xử lý thêm task ở đây
     };
 
+    const filteredMembers = memberStats.filter((member) =>
+        member.fullName?.toLowerCase().includes(memberSearch.toLowerCase())
+    );
 
-    const memberStats = [
-        { name: "Nguyễn Văn A", totalTasks: 15, completed: 12, overdue: 3 },
-        { name: "Trần Thị B", totalTasks: 10, completed: 8, overdue: 2 },
-        { name: "Lê Văn C", totalTasks: 8, completed: 7, overdue: 1 }
-    ];
+    const displayedMembers = filteredMembers.slice(memberPage * 5, memberPage * 5 + 5);
+
+
+
+    const fetchMemberStats = async (pageToFetch = 0, append = false) => {
+        try {
+            const res = await getProjectMembersStats(Number(projectId), pageToFetch, 5, memberSearch);
+            const content = res.content || [];
+            const totalPages = res.totalPages || 0;
+
+            setMemberStats(prev => append ? [...prev, ...content] : content);
+            setHasMoreMembers(pageToFetch < totalPages - 1);
+            setMemberPage(pageToFetch);
+        } catch (err) {
+            console.error('Lỗi khi fetch thống kê thành viên:', err);
+        }
+    };
+
 
 
     const fetchProject = async () => {
@@ -171,6 +198,7 @@ const ProjectDetail = () => {
     useEffect(() => {
         fetchProject();
         fetchTaskDashboard();
+        fetchMemberStats();
     }, [projectId]);
 
     useEffect(() => {
@@ -195,6 +223,38 @@ const ProjectDetail = () => {
 
         return () => observer.disconnect();
     }, [visibleTaskCount, tasks, hasMoreTasks, isFetchingTasks]);
+
+    useEffect(() => {
+        const container = document.querySelector('.member-scroll-container');
+
+        const handleScroll = () => {
+            if (
+                container &&
+                container.scrollTop + container.clientHeight >= container.scrollHeight - 10 &&
+                hasMoreMembers
+            ) {
+                fetchMemberStats(memberPage + 1, true);
+            }
+        };
+
+        if (container) {
+            container.addEventListener('scroll', handleScroll);
+        }
+
+        return () => {
+            if (container) {
+                container.removeEventListener('scroll', handleScroll);
+            }
+        };
+    }, [memberPage, hasMoreMembers, memberSearch]);
+
+
+    useEffect(() => {
+        setMemberPage(0);
+        fetchMemberStats(0, false);
+    }, [memberSearch]);
+
+
 
 
 
@@ -287,7 +347,7 @@ const ProjectDetail = () => {
                         </div>
 
                         <div className="task-list-section">
-                            <h3>DANH SÁCH CÔNG VIỆC ( {taskNumber} ) </h3>
+                            <h3>DANH SÁCH CÔNG VIỆC ( Số lượng : {taskNumber} ) </h3>
 
                             <div className="task-controls">
                                 <div className="filter-section">
@@ -373,7 +433,7 @@ const ProjectDetail = () => {
                                                 {isFetchingTasks && <div style={{ padding: '10px' }}>Đang tải thêm...</div>}
                                             </>
                                         ) : (
-                                            <div style={{ padding: '10px' , textAlign: 'center'}}>Không có công việc nào</div>
+                                            <div style={{ padding: '10px', textAlign: 'center' }}>Không có công việc nào</div>
                                         )}
                                     </div>
                                 </div>
@@ -390,14 +450,40 @@ const ProjectDetail = () => {
                                     <div>Hoàn thành</div>
                                     <div>Trễ hạn</div>
                                 </div>
-                                {memberStats.map((member, index) => (
-                                    <div className="table-row" key={index}>
-                                        <div>{member.name}</div>
-                                        <div>{member.totalTasks}</div>
-                                        <div>{member.completed}</div>
-                                        <div>{member.overdue}</div>
-                                    </div>
-                                ))}
+                                <div
+                                    className="member-scroll-container"
+                                    style={{
+                                        maxHeight: '300px',
+                                        overflowY: 'auto',
+                                        border: '1px solid #ddd',
+                                        borderRadius: '4px',
+                                    }}
+                                >
+                                    <input
+                                        type="text"
+                                        placeholder="Tìm kiếm thành viên..."
+                                        value={memberSearch}
+                                        onChange={(e) => setMemberSearch(e.target.value)}
+                                    />
+                                    {memberStats.length > 0 ? (
+                                        <>
+                                            {memberStats.map((member, index) => (
+                                                <div className="table-row" key={index}>
+                                                    <div>{member.fullName || '---'}</div>
+                                                    <div>{member.totalTasks}</div>
+                                                    <div>{member.completedTasks}</div>
+                                                    <div>{member.overdueTasks}</div>
+                                                </div>
+                                            ))}
+                                            {hasMoreMembers && <div style={{ padding: '10px' }}>Đang tải thêm...</div>}
+                                        </>
+                                    ) : (
+                                        <div style={{ padding: '10px', textAlign: 'center' }}>Không có dữ liệu thành viên</div>
+                                    )}
+                                </div>
+
+
+
                             </div>
                         </div>
                     </div>

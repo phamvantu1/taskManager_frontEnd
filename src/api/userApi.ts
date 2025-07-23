@@ -85,3 +85,30 @@ export interface UserInfo {
     const json = await response.json();
     return json.data.content || [];
   };
+
+
+export const getProjectMembersStats = async (
+    projectId: number,
+    page = 0,
+    size = 5,
+    textSearch = ''
+): Promise<any> => {
+    const token = localStorage.getItem('access_token');
+    const response = await fetch(
+        `http://localhost:8080/api/projects/get-user-by-project?projectId=${projectId}&page=${page}&size=${size}&textSearch=${textSearch}`,
+        {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+            },
+        }
+    );
+
+    if (!response.ok) {
+        throw new Error('Lỗi khi lấy thống kê thành viên dự án');
+    }
+
+    const json = await response.json();
+    return json.data; // Trả cả content, totalPages...
+};
+
