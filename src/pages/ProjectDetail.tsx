@@ -31,7 +31,9 @@ const ProjectDetail = () => {
     const [taskNumber, setTaskNumber] = useState(0);
 
     const [memberSearch, setMemberSearch] = useState('');
+
     const [visibleMemberCount, setVisibleMemberCount] = useState(5);
+
 
 
     const [memberStats, setMemberStats] = useState<any[]>([]);
@@ -224,35 +226,35 @@ const ProjectDetail = () => {
         return () => observer.disconnect();
     }, [visibleTaskCount, tasks, hasMoreTasks, isFetchingTasks]);
 
+
     useEffect(() => {
-        const container = document.querySelector('.member-scroll-container');
+        const observer = new IntersectionObserver(
+            (entries) => {
+                if (entries[0].isIntersecting) {
+                    console.log('Sentinel visible – triggering load more');
+                    if (visibleMemberCount < memberStats.length) {
+                        setVisibleMemberCount((prev) => prev + 5);
+                    } else if (hasMoreMembers) {
+                        fetchMemberStats(memberPage + 1, true);
+                    }
+                }
+            },
+            { threshold: 1 }
+        );
 
-        const handleScroll = () => {
-            if (
-                container &&
-                container.scrollTop + container.clientHeight >= container.scrollHeight - 10 &&
-                hasMoreMembers
-            ) {
-                fetchMemberStats(memberPage + 1, true);
-            }
-        };
+        const sentinel = document.querySelector('#member-list-sentinel');
+        if (sentinel) observer.observe(sentinel);
 
-        if (container) {
-            container.addEventListener('scroll', handleScroll);
-        }
-
-        return () => {
-            if (container) {
-                container.removeEventListener('scroll', handleScroll);
-            }
-        };
-    }, [memberPage, hasMoreMembers, memberSearch]);
+        return () => observer.disconnect();
+    }, [visibleMemberCount, memberStats, hasMoreMembers, memberPage]);
 
 
     useEffect(() => {
         setMemberPage(0);
+        setVisibleMemberCount(5); // reset hiển thị lại 5 bản ghi
         fetchMemberStats(0, false);
     }, [memberSearch]);
+
 
 
 
@@ -450,24 +452,27 @@ const ProjectDetail = () => {
                                     <div>Hoàn thành</div>
                                     <div>Trễ hạn</div>
                                 </div>
+
+                                <input
+                                    type="text"
+                                    placeholder="Tìm kiếm thành viên..."
+                                    value={memberSearch}
+                                    onChange={(e) => setMemberSearch(e.target.value)}
+                                    style={{ marginBottom: '8px', padding: '6px', width: '100%' }}
+                                />
+
                                 <div
                                     className="member-scroll-container"
                                     style={{
-                                        maxHeight: '300px',
+                                        maxHeight: '250px',
                                         overflowY: 'auto',
                                         border: '1px solid #ddd',
                                         borderRadius: '4px',
                                     }}
                                 >
-                                    <input
-                                        type="text"
-                                        placeholder="Tìm kiếm thành viên..."
-                                        value={memberSearch}
-                                        onChange={(e) => setMemberSearch(e.target.value)}
-                                    />
                                     {memberStats.length > 0 ? (
                                         <>
-                                            {memberStats.map((member, index) => (
+                                            {memberStats.slice(0, visibleMemberCount).map((member, index) => (
                                                 <div className="table-row" key={index}>
                                                     <div>{member.fullName || '---'}</div>
                                                     <div>{member.totalTasks}</div>
@@ -475,6 +480,8 @@ const ProjectDetail = () => {
                                                     <div>{member.overdueTasks}</div>
                                                 </div>
                                             ))}
+                                            {/* 👇 Thêm dòng này để IntersectionObserver hoạt động */}
+                                            <div id="member-list-sentinel" style={{ height: '1px' }}></div>
                                             {hasMoreMembers && <div style={{ padding: '10px' }}>Đang tải thêm...</div>}
                                         </>
                                     ) : (
@@ -486,6 +493,7 @@ const ProjectDetail = () => {
 
                             </div>
                         </div>
+
                     </div>
                 )}
             </div>

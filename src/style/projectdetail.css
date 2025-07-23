@@ -277,6 +277,27 @@
 /* 
  */
 
+.table-row {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr;
+  padding: 8px 12px;
+  border-bottom: 1px solid #eee;
+}
+
+.table-header {
+  background-color: #f5f5f5;
+  font-weight: bold;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+.table-row:nth-child(even) {
+  background-color: #fafafa;
+}
+
+
+
 
 .table-header {
   display: flex;
