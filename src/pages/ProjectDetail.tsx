@@ -10,6 +10,7 @@ import { projectApi } from '../api/projectApi';
 import type { ProjectDetail as ProjectDetailType } from '../api/projectApi';
 import { getAllTasks, getDashboardTasksByProject } from '../api/taskApi';
 import { getProjectMembersStats } from '../api/userApi';
+import TaskDetailPopup from '../components/TaskDetailPopup'; // import popup
 
 const ProjectDetail = () => {
     const navigate = useNavigate();
@@ -30,16 +31,18 @@ const ProjectDetail = () => {
     const [visibleTaskCount, setVisibleTaskCount] = useState(5);
     const [taskNumber, setTaskNumber] = useState(0);
 
-    const [memberSearch, setMemberSearch] = useState('');
-
     const [visibleMemberCount, setVisibleMemberCount] = useState(5);
-
-
 
     const [memberStats, setMemberStats] = useState<any[]>([]);
     const [memberPage, setMemberPage] = useState(0);
     const [hasMoreMembers, setHasMoreMembers] = useState(true);
 
+
+    const [searchInput, setSearchInput] = useState('');
+    const [memberSearch, setMemberSearch] = useState('');
+
+    const [selectedTask, setSelectedTask] = useState<any>(null); // task được chọn
+    const [showTaskDetailPopup, setShowTaskDetailPopup] = useState(false);
 
 
 
@@ -80,11 +83,6 @@ const ProjectDetail = () => {
         // xử lý thêm task ở đây
     };
 
-    const filteredMembers = memberStats.filter((member) =>
-        member.fullName?.toLowerCase().includes(memberSearch.toLowerCase())
-    );
-
-    const displayedMembers = filteredMembers.slice(memberPage * 5, memberPage * 5 + 5);
 
 
 
@@ -164,6 +162,26 @@ const ProjectDetail = () => {
         }
     };
 
+    const handleTaskClick = async (taskId: number) => {
+        try {
+            const token = localStorage.getItem('access_token');
+            const res = await fetch(`http://localhost:8080/api/tasks/get-details/${taskId}`, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+
+            const result = await res.json();
+            if (result.code === 'SUCCESS') {
+                setSelectedTask(result.data);
+                setShowTaskDetailPopup(true);
+            }
+        } catch (error) {
+            console.error('Lỗi khi lấy chi tiết công việc:', error);
+        }
+    };
+
+
     const fetchTaskDashboard = async () => {
         try {
             const token = localStorage.getItem('access_token');
@@ -194,7 +212,6 @@ const ProjectDetail = () => {
             console.error('Lỗi khi fetch thống kê công việc:', err);
         }
     };
-
 
 
     useEffect(() => {
@@ -423,7 +440,12 @@ const ProjectDetail = () => {
                                         {tasks.length > 0 ? (
                                             <>
                                                 {tasks.map((task, index) => (
-                                                    <div className="table-row" key={index}>
+                                                    <div
+                                                        className="table-row"
+                                                        key={index}
+                                                        onClick={() => handleTaskClick(task.id)} // 👈 Thêm click
+                                                        style={{ cursor: 'pointer' }}
+                                                    >
                                                         <div>{task.title}</div>
                                                         <div>{task.nameCreatedBy || '---'}</div>
                                                         <div>{task.nameAssignedTo || '---'}</div>
@@ -445,6 +467,30 @@ const ProjectDetail = () => {
 
                         <div className="member-stats-section">
                             <h3>THỐNG KÊ THEO THÀNH VIÊN</h3>
+                            <div style={{ display: 'flex', gap: '8px', marginBottom: '8px' }}>
+
+                                <div style={{ display: 'flex', gap: '8px', marginBottom: '8px' }}>
+                                    <input
+                                        type="text"
+                                        placeholder="Tìm kiếm thành viên..."
+                                        value={searchInput}
+                                        onChange={(e) => setSearchInput(e.target.value)}
+                                        style={{ marginBottom: '8px', padding: '6px', width: '100%' }}
+                                    />
+                                    <button
+                                        onClick={() => {
+                                            setMemberSearch(searchInput); // Gán giá trị input vào memberSearch
+                                            fetchMemberStats(0, false);   // Gọi lại API từ trang đầu
+                                        }}
+                                        style={{ marginBottom: '12px', padding: '6px 12px', cursor: 'pointer' }}
+                                    >
+                                        Tìm
+                                    </button>
+                                </div>
+
+
+                            </div>
+
                             <div className="stats-table">
                                 <div className="table-header">
                                     <div>Thành viên</div>
@@ -452,14 +498,6 @@ const ProjectDetail = () => {
                                     <div>Hoàn thành</div>
                                     <div>Trễ hạn</div>
                                 </div>
-
-                                <input
-                                    type="text"
-                                    placeholder="Tìm kiếm thành viên..."
-                                    value={memberSearch}
-                                    onChange={(e) => setMemberSearch(e.target.value)}
-                                    style={{ marginBottom: '8px', padding: '6px', width: '100%' }}
-                                />
 
                                 <div
                                     className="member-scroll-container"
@@ -489,15 +527,21 @@ const ProjectDetail = () => {
                                     )}
                                 </div>
 
-
-
                             </div>
                         </div>
 
                     </div>
                 )}
             </div>
+            {showTaskDetailPopup && selectedTask && (
+                <TaskDetailPopup
+                    task={selectedTask}
+                    onClose={() => setShowTaskDetailPopup(false)}
+                />
+            )}
+
         </div>
+
     );
 };
 
