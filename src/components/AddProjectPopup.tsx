@@ -2,13 +2,14 @@ import React, { useEffect, useState } from 'react';
 import '../style/AddProjectPopup.css';
 import { fetchUsers, type User } from '../api/userApi';
 import { createProject, type ProjectPayload } from '../api/projectApi';
+import { toast } from 'react-toastify';
 
 interface AddProjectPopupProps {
   onClose: () => void;
-  onSubmit?: (data: any) => void;
+   onAddSuccess?: () => void; 
 }
 
-const AddProjectPopup: React.FC<AddProjectPopupProps> = ({ onClose, onSubmit }) => {
+const AddProjectPopup: React.FC<AddProjectPopupProps> = ({ onClose, onAddSuccess  }) => {
   const [users, setUsers] = useState<User[]>([]);
 
   useEffect(() => {
@@ -35,13 +36,14 @@ const AddProjectPopup: React.FC<AddProjectPopupProps> = ({ onClose, onSubmit }) 
 
     try {
       const result = await createProject(formData);
-      alert('Tạo dự án thành công!');
-      if (onSubmit) onSubmit(result);
+      toast.success("Thêm mới dự án thành công!");
+      if (onAddSuccess) onAddSuccess();
       onClose();
-    } catch (error: any) {
-      console.error(error);
-      alert(error.message || 'Có lỗi xảy ra khi tạo dự án.');
-    }
+    } catch (err: any) {
+          const message = err?.message || 'Tạo dự án thất bại. Vui lòng kiểm tra lại.';
+          toast.error(message);
+          
+        }
   };
 
   return (

@@ -114,3 +114,14 @@ export interface TaskRequest {
   };
   
   
+  export const getDashboardTasksByProject = async (token: string, projectId: number) => {
+  const res = await axios.get(`http://localhost:8080/api/tasks/dashboard-tasks-by-project`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+    params: {
+      projectId,
+    },
+  });
+  return res.data;
+};

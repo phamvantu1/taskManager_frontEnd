@@ -17,6 +17,7 @@ interface BarChartStatsProps {
 
 const BarChartStats: React.FC<BarChartStatsProps> = ({ data }) => {
   const barColors: Record<string, string> = {
+    'Chưa bắt đầu': '#a3a3a3', // gray-400
     'Đang xử lý': '#60a5fa',       // blue-400
     'Hoàn thành': '#fdba74',       // orange-300
     'Quá hạn': '#f87171'           // red-400

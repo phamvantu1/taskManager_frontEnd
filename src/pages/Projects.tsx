@@ -6,6 +6,7 @@ import { useNavigate } from 'react-router-dom';
 import Profile from '../pages/Profile';
 import AddProjectPopup from '../components/AddProjectPopup';
 
+
 import { getAllProjects } from '../api/projectApi';
 
 const Projects = () => {
@@ -29,16 +30,17 @@ const Projects = () => {
     navigate('/login');
   };
 
+  const fetchProjects = async () => {
+    try {
+      const pageData = await getAllProjects(page, pageSize);
+      setProjects(pageData.content);
+      setTotalPages(pageData.totalPages);
+    } catch (error) {
+      console.error('Lỗi khi lấy danh sách dự án:', error);
+    }
+  };
+
   useEffect(() => {
-    const fetchProjects = async () => {
-      try {
-        const pageData = await getAllProjects(page, pageSize);
-        setProjects(pageData.content);
-        setTotalPages(pageData.totalPages);
-      } catch (error) {
-        console.error('Lỗi khi lấy danh sách dự án:', error);
-      }
-    };
 
     fetchProjects();
   }, [page]);
@@ -73,32 +75,32 @@ const Projects = () => {
             </div>
 
             <div className="projects-grid-wrapper" style={{ flexGrow: 1, overflowY: 'auto' }}>
-            <div className="projects-grid">
-              {projects.map(project => (
-                <div
-                  className="project-card"
-                  key={project.id}
-                  onClick={() => navigate(`/projects/${project.id}`)}
-                  style={{ cursor: 'pointer' }}
-                >
-                  <div className="project-header">
-                    <h3>{project.name || 'Không tên'}</h3>
-                    <div className={`status-badge ${project.status === 'DONE' ? 'completed' : 'delayed'}`}>
-                      {project.status}
+              <div className="projects-grid">
+                {projects.map(project => (
+                  <div
+                    className="project-card"
+                    key={project.id}
+                    onClick={() => navigate(`/projects/${project.id}`)}
+                    style={{ cursor: 'pointer' }}
+                  >
+                    <div className="project-header">
+                      <h3>{project.name || 'Không tên'}</h3>
+                      <div className={`status-badge ${project.status === 'DONE' ? 'completed' : 'delayed'}`}>
+                        {project.status}
+                      </div>
+                    </div>
+                    <p className="project-unit">Phân loại : {project.type}</p>
+                    <div className="project-items">
+                      <div className="project-item">
+                        <span> Ngày bắt đầu : {project.startTime}</span>
+                      </div>
+                      <div className="project-item">
+                        <span> Ngày kết thúc :  {project.endTime}</span>
+                      </div>
                     </div>
                   </div>
-                  <p className="project-unit">Phân loại : {project.type}</p>
-                  <div className="project-items">
-                    <div className="project-item">                  
-                      <span> Ngày bắt đầu : {project.startTime}</span>
-                    </div>
-                    <div className="project-item">
-                      <span> Ngày kết thúc :  {project.endTime}</span>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
 
             </div>
 
@@ -126,8 +128,15 @@ const Projects = () => {
       </div>
 
       {showAddPopup && (
-        <AddProjectPopup onClose={() => setShowAddPopup(false)} />
+        <AddProjectPopup
+          onClose={() => setShowAddPopup(false)}
+          onAddSuccess={() => {
+            fetchProjects(); // reload danh sách
+            setShowAddPopup(false); // đóng popup
+          }}
+        />
       )}
+
 
     </div>
   );

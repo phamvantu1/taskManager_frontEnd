@@ -8,7 +8,7 @@ import AddTaskPopup from '../components/AddTaskPopupProps';
 import BarChartStats from '../components/PieChartStats';
 import { projectApi } from '../api/projectApi';
 import type { ProjectDetail as ProjectDetailType } from '../api/projectApi';
-import { getAllTasks } from '../api/taskApi';
+import { getAllTasks, getDashboardTasksByProject } from '../api/taskApi';
 
 const ProjectDetail = () => {
     const navigate = useNavigate();
@@ -21,10 +21,13 @@ const ProjectDetail = () => {
     const [loading, setLoading] = useState<boolean>(true);
     const [tasks, setTasks] = useState<any[]>([]);
 
+    const [taskStats, setTaskStats] = useState<{ label: string; value: number }[]>([]);
+
     const [taskPage, setTaskPage] = useState(0);
     const [hasMoreTasks, setHasMoreTasks] = useState(true);
     const [isFetchingTasks, setIsFetchingTasks] = useState(false);
     const [visibleTaskCount, setVisibleTaskCount] = useState(5);
+    const [taskNumber, setTaskNumber] = useState(0);
 
 
 
@@ -60,6 +63,7 @@ const ProjectDetail = () => {
 
     const handleAddTask = (newTask: any) => {
         fetchProject();
+        fetchTaskDashboard();
         // xử lý thêm task ở đây
     };
 
@@ -70,11 +74,6 @@ const ProjectDetail = () => {
         { name: "Lê Văn C", totalTasks: 8, completed: 7, overdue: 1 }
     ];
 
-    const taskSummary = [
-        { label: 'Đang xử lý', value: 128 },
-        { label: 'Hoàn thành', value: 21 },
-        { label: 'Quá hạn', value: 10 }
-    ];
 
     const fetchProject = async () => {
         try {
@@ -136,10 +135,42 @@ const ProjectDetail = () => {
         }
     };
 
+    const fetchTaskDashboard = async () => {
+        try {
+            const token = localStorage.getItem('access_token');
+            if (!token || !projectId) return;
+
+            const rawStats = await getDashboardTasksByProject(token, Number(projectId)) as {
+                data: {
+                    IN_PROGRESS?: number;
+                    COMPLETED?: number;
+                    PENDING?: number;
+                    OVERDUE?: number;
+                    TOTAL?: number;
+                };
+            };
+
+            const stats = rawStats.data;
+            setTaskNumber(stats.TOTAL || 0);
+
+            const mappedStats = [
+                { label: 'Chưa bắt đầu', value: stats.PENDING || 0 },
+                { label: 'Đang xử lý', value: stats.IN_PROGRESS || 0 },
+                { label: 'Hoàn thành', value: stats.COMPLETED || 0 },
+                { label: 'Quá hạn', value: stats.OVERDUE || 0 },
+            ];
+
+            setTaskStats(mappedStats);
+        } catch (err) {
+            console.error('Lỗi khi fetch thống kê công việc:', err);
+        }
+    };
+
 
 
     useEffect(() => {
         fetchProject();
+        fetchTaskDashboard();
     }, [projectId]);
 
     useEffect(() => {
@@ -249,14 +280,14 @@ const ProjectDetail = () => {
 
                             <div className="project-progress-section">
                                 <h2>Thống kê công việc</h2>
-                                <BarChartStats data={taskSummary} />
+                                <BarChartStats data={taskStats} />
                             </div>
 
 
                         </div>
 
                         <div className="task-list-section">
-                            <h3>DANH SÁCH CÔNG VIỆC</h3>
+                            <h3>DANH SÁCH CÔNG VIỆC ( {taskNumber} ) </h3>
 
                             <div className="task-controls">
                                 <div className="filter-section">
@@ -318,33 +349,33 @@ const ProjectDetail = () => {
                                     }}
                                 >
                                     <div className="task-list-wrapper">
-  <div className="table-header">
-    <div>Tên công việc</div>
-    <div>Người giao</div>
-    <div>Người thực hiện</div>
-    <div>Ngày bắt đầu</div>
-    <div>Ngày kết thúc</div>
-    <div>Trạng thái</div>
-  </div>
+                                        <div className="table-header">
+                                            <div>Tên công việc</div>
+                                            <div>Người giao</div>
+                                            <div>Người thực hiện</div>
+                                            <div>Ngày bắt đầu</div>
+                                            <div>Ngày kết thúc</div>
+                                            <div>Trạng thái</div>
+                                        </div>
 
-  {tasks.length > 0 ? (
-    <>
-      {tasks.map((task, index) => (
-        <div className="table-row" key={index}>
-          <div>{task.title}</div>
-          <div>{task.nameCreatedBy || '---'}</div>
-          <div>{task.nameAssignedTo || '---'}</div>
-          <div>{task.startTime?.split('T')[0]}</div>
-          <div>{task.endTime?.split('T')[0]}</div>
-          <div>{task.status}</div>
-        </div>
-      ))}
-      {isFetchingTasks && <div style={{ padding: '10px' }}>Đang tải thêm...</div>}
-    </>
-  ) : (
-    <div style={{ padding: '10px' }}>Không có công việc nào</div>
-  )}
-</div>
+                                        {tasks.length > 0 ? (
+                                            <>
+                                                {tasks.map((task, index) => (
+                                                    <div className="table-row" key={index}>
+                                                        <div>{task.title}</div>
+                                                        <div>{task.nameCreatedBy || '---'}</div>
+                                                        <div>{task.nameAssignedTo || '---'}</div>
+                                                        <div>{task.startTime?.split('T')[0]}</div>
+                                                        <div>{task.endTime?.split('T')[0]}</div>
+                                                        <div>{task.status}</div>
+                                                    </div>
+                                                ))}
+                                                {isFetchingTasks && <div style={{ padding: '10px' }}>Đang tải thêm...</div>}
+                                            </>
+                                        ) : (
+                                            <div style={{ padding: '10px' , textAlign: 'center'}}>Không có công việc nào</div>
+                                        )}
+                                    </div>
                                 </div>
                             </div>
 
