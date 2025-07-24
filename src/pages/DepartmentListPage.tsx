@@ -79,10 +79,6 @@ const DepartmentListPage = () => {
     setIsDropdownOpen(false);
   };
 
-  const handleBackToDashboard = () => {
-    setShowProfile(false);
-  };
-
   const handleLogout = () => {
     localStorage.removeItem('access_token');
     navigate('/login');
@@ -104,23 +100,22 @@ const DepartmentListPage = () => {
 
         <div className="filter-bar">
           <input type="text" className="search-input" placeholder="Tìm đơn vị" />
-          
+
         </div>
 
         <div className="card-grid">
           {departments.map((dept, index) => (
-            <div key={index} className="dept-card">
-              <div 
-              key={index} 
+            <div
+              key={index}
               className="dept-card"
-              onClick={() => handleDepartmentClick(dept.id)} // Thêm click handler
-              style={{ cursor: 'pointer' }} // Thêm cursor pointer
+              onClick={() => handleDepartmentClick(dept.id)}
+              style={{ cursor: 'pointer' }}
             >
-                <div className="dept-title">{dept.name}</div>
-                
-              </div>
+              <div className="dept-title">{dept.name}</div>
               <div className="dept-meta">
-                <span className="created-by">👤 Người tạo <a href={`mailto:${dept.createdBy}`}>{dept.createdBy}</a></span>
+                <span className="created-by">
+                  👤 Người tạo <a href={`mailto:${dept.createdBy}`} onClick={(e) => e.stopPropagation()}>{dept.createdBy}</a>
+                </span>
                 <span className="created-at">🕒 lúc {dept.createdAt}</span>
               </div>
               <div className="dept-stats">
@@ -135,6 +130,7 @@ const DepartmentListPage = () => {
             </div>
           ))}
         </div>
+
 
         <div className="pagination">
           <button>&lt;</button>

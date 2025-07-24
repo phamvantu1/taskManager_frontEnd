@@ -133,13 +133,6 @@ const DepartmentDetailPage = () => {
         {/* Stats Cards */}
         <div className="stats-grid">
           <div className="stat-card">
-            <div className="stat-icon">🏢</div>
-            <div className="stat-content">
-              <div className="stat-number">{department.teams}</div>
-              <div className="stat-label">Phòng ban</div>
-            </div>
-          </div>
-          <div className="stat-card">
             <div className="stat-icon">📁</div>
             <div className="stat-content">
               <div className="stat-number">{department.projects}</div>
