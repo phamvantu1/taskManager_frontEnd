@@ -6,14 +6,11 @@ import '../style/tasklist.css';
 import { getAllTasks, getDashboardTasksByProject, getTaskDetailById } from '../api/taskApi';
 import TaskListSection from '../components/TaskListSection';
 import TaskDetailPopup from '../components/TaskDetailPopup';
+import AddTaskPopup from '../components/AddTaskPopupProps';
 
 
 
 const TaskListPage = () => {
-    const [searchText, setSearchText] = useState('');
-    const [startDateFilter, setStartDateFilter] = useState('');
-    const [endDateFilter, setEndDateFilter] = useState('');
-    const [statusFilter, setStatusFilter] = useState('');
 
     const [taskStats, setTaskStats] = useState<{ label: string; value: number }[]>([]);
     const [taskNumber, setTaskNumber] = useState(0);
@@ -29,6 +26,7 @@ const TaskListPage = () => {
     const [visibleTaskCount, setVisibleTaskCount] = useState(5);
     const [selectedTask, setSelectedTask] = useState<any>(null); // task được chọn
     const [showTaskDetailPopup, setShowTaskDetailPopup] = useState(false);
+    const [showAddTaskPopup, setShowAddTaskPopup] = useState(false);
 
 
 
@@ -110,6 +108,13 @@ const TaskListPage = () => {
         }
     };
 
+        const handleAddTask = (newTask: any) => {
+       
+        fetchTaskDashboard();
+       
+        // xử lý thêm task ở đây
+    };
+
 
 
     useEffect(() => {
@@ -152,46 +157,7 @@ const TaskListPage = () => {
                     toggleDropdown={() => { }}
                 />
 
-                <div className="filters-container">
-                    <input
-                        type="text"
-                        placeholder="Tìm kiếm công việc    🔍"
-                        className="filter-input"
-                        value={searchText}
-                        onChange={(e) => setSearchText(e.target.value)}
-                    />
-
-                    <div className="date-filter-group">
-                        <label className="date-label">Từ ngày:  </label>
-                        <input
-                            type="date"
-                            className="filter-input"
-                            value={startDateFilter}
-                            onChange={(e) => setStartDateFilter(e.target.value)}
-                        />
-                    </div>
-
-                    <div className="date-filter-group">
-                        <label className="date-label">Đến ngày:  </label>
-                        <input
-                            type="date"
-                            className="filter-input"
-                            value={endDateFilter}
-                            onChange={(e) => setEndDateFilter(e.target.value)}
-                        />
-                    </div>
-
-                    <select
-                        className="filter-input"
-                        value={statusFilter}
-                        onChange={(e) => setStatusFilter(e.target.value)}
-                    >
-                        <option value="">Tất cả trạng thái</option>
-                        <option value="Đang thực hiện">Đang thực hiện</option>
-                        <option value="Hoàn thành">Hoàn thành</option>
-                        <option value="Đã huỷ">Đã huỷ</option>
-                    </select>
-                </div>
+                
 
                 <div className="task-list-page">
                     <h2 className="section-title">Thống kê công việc</h2>
@@ -202,10 +168,20 @@ const TaskListPage = () => {
                     <h2 className="section-title">Danh sách công việc</h2>
                     <TaskListSection
                         tasks={tasks}
+                        filters={filters}
                         setFilters={setFilters}
                         taskNumber={taskNumber}
                         fetchTasks={fetchTasks}
+                         onAddTaskClick={() => setShowAddTaskPopup(true)}
                         onTaskClick={handleTaskClick}
+                        showAddTaskPopup={showAddTaskPopup}
+                         AddTaskPopupComponent={
+                                    <AddTaskPopup
+                                        onClose={() => setShowAddTaskPopup(false)}
+                                        onSubmit={handleAddTask}
+                                        projectId={undefined} // hoặc truyền projectId nếu cần
+                                    />
+                                }
                     />
 
 

@@ -142,9 +142,15 @@ const TaskDetailPopup: React.FC<TaskDetailPopupProps> = ({ task, onClose, onComp
     return (
         <div className="popup-overlay">
             <div className="popup-content">
-                <h2 className="popup-title">Chi tiết công việc</h2>
+                <div className="popup-header">
+                    <button className="close-x-btn" onClick={onClose} title="Đóng">
+                        ×
+                    </button>
+                    <h2 className="popup-title">Chi tiết công việc</h2>
+                </div>
                 
-                <div className="fields-container">
+                <div className="popup-body">
+                    <div className="fields-container">
                     {renderField("Tiêu đề", "title", editedTask.title)}
                     {renderField("Mô tả", "description", editedTask.description)}
                     {renderField("Người tạo", "nameCreatedBy", editedTask.nameCreatedBy)}
@@ -154,18 +160,19 @@ const TaskDetailPopup: React.FC<TaskDetailPopupProps> = ({ task, onClose, onComp
                     {renderSelectField("Trạng thái", "status", editedTask.status, ["Chưa bắt đầu", "Đang thực hiện", "Hoàn thành", "Tạm dừng"])}
                     {renderSelectField("Mức độ", "lever", editedTask.lever, ["Thấp", "Trung bình", "Cao", "Khẩn cấp"])}
                     {renderField("Ngày tạo", "createdAt", editedTask.createdAt)}
-                </div>
+                    </div>
 
-                <div className="action-buttons">
-                    <button className="complete-btn" onClick={handleComplete}>
-                        Hoàn thành
-                    </button>
-                    <button className="save-btn-main" onClick={handleSave}>
-                        Lưu thay đổi
-                    </button>
-                    <button className="close-btn" onClick={onClose}>
-                        Đóng
-                    </button>
+                    <div className="action-buttons">
+                        <button className="complete-btn" onClick={handleComplete}>
+                            Hoàn thành
+                        </button>
+                        <button className="save-btn-main" onClick={handleSave}>
+                            Lưu thay đổi
+                        </button>
+                        <button className="close-btn" onClick={onClose}>
+                            Đóng
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>

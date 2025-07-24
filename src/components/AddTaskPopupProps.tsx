@@ -8,7 +8,7 @@ import { toast } from 'react-toastify';
 interface AddTaskPopupProps {
   onClose: () => void;
   onSubmit: (task: any) => void;
-  projectId: number;
+  projectId?: number;
 }
 
 const AddTaskPopup: React.FC<AddTaskPopupProps> = ({ onClose, onSubmit, projectId }) => {
@@ -46,7 +46,7 @@ const AddTaskPopup: React.FC<AddTaskPopupProps> = ({ onClose, onSubmit, projectI
       startTime: `${taskData.startTime}`,
       endTime: `${taskData.endTime}`,
       assigneeId: Number(taskData.assigneeId),
-      projectId: projectId,
+      projectId: projectId !== undefined ? projectId : 0,
       createdById: Number(taskData.createdById),
       lever: lever,
     };
