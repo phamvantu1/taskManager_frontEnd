@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Sidebar from '../components/Sidebar';
 import Header from '../components/Header';
 import BarChartStats from '../components/PieChartStats';
 import '../style/tasklist.css';
+import { getAllTasks, getDashboardTasksByProject } from '../api/taskApi';
 
 const tasks = [
     {
@@ -53,6 +54,47 @@ const TaskListPage = () => {
     const [startDateFilter, setStartDateFilter] = useState('');
     const [endDateFilter, setEndDateFilter] = useState('');
     const [statusFilter, setStatusFilter] = useState('');
+
+    const [taskStats, setTaskStats] = useState<{ label: string; value: number }[]>([]);
+    const [taskNumber, setTaskNumber] = useState(0);
+
+
+    const fetchTaskDashboard = async () => {
+        try {
+            const token = localStorage.getItem('access_token');
+            if (!token) return;
+
+            const rawStats = await getDashboardTasksByProject(token, undefined) as {
+                data: {
+                    IN_PROGRESS?: number;
+                    COMPLETED?: number;
+                    PENDING?: number;
+                    OVERDUE?: number;
+                    TOTAL?: number;
+                };
+            };
+
+            const stats = rawStats.data;
+            setTaskNumber(stats.TOTAL || 0);
+
+            const mappedStats = [
+                { label: 'Chưa bắt đầu', value: stats.PENDING || 0 },
+                { label: 'Đang xử lý', value: stats.IN_PROGRESS || 0 },
+                { label: 'Hoàn thành', value: stats.COMPLETED || 0 },
+                { label: 'Quá hạn', value: stats.OVERDUE || 0 },
+            ];
+
+            setTaskStats(mappedStats);
+        } catch (err) {
+            console.error('Lỗi khi fetch thống kê công việc:', err);
+        }
+    };
+
+
+
+    useEffect(() => {
+        fetchTaskDashboard();
+    }, []);
 
     return (
         <div className="tasklist-container">
@@ -110,7 +152,7 @@ const TaskListPage = () => {
                 <div className="task-list-page">
                     <h2 className="section-title">Thống kê công việc</h2>
                     <div className="chart-container">
-                        <BarChartStats data={taskSummary} />
+                        <BarChartStats data={taskStats} />
                     </div>
 
                     <h2 className="section-title">Danh sách công việc</h2>
