@@ -8,9 +8,10 @@ import AddTaskPopup from '../components/AddTaskPopupProps';
 import BarChartStats from '../components/PieChartStats';
 import { projectApi } from '../api/projectApi';
 import type { ProjectDetail as ProjectDetailType } from '../api/projectApi';
-import { getAllTasks, getDashboardTasksByProject } from '../api/taskApi';
+import { getAllTasks, getDashboardTasksByProject , getTaskDetailById } from '../api/taskApi';
 import { getProjectMembersStats } from '../api/userApi';
-import TaskDetailPopup from '../components/TaskDetailPopup'; // import popup
+import TaskDetailPopup from '../components/TaskDetailPopup';
+import TaskListSection from '../components/TaskListSection';
 
 const ProjectDetail = () => {
     const navigate = useNavigate();
@@ -162,24 +163,21 @@ const ProjectDetail = () => {
         }
     };
 
-    const handleTaskClick = async (taskId: number) => {
-        try {
-            const token = localStorage.getItem('access_token');
-            const res = await fetch(`http://localhost:8080/api/tasks/get-details/${taskId}`, {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
-            });
+const handleTaskClick = async (taskId: number) => {
+    try {
+        const token = localStorage.getItem('access_token');
+        if (!token) return;
 
-            const result = await res.json();
-            if (result.code === 'SUCCESS') {
-                setSelectedTask(result.data);
-                setShowTaskDetailPopup(true);
-            }
-        } catch (error) {
-            console.error('Lỗi khi lấy chi tiết công việc:', error);
+        const result = await getTaskDetailById(token, taskId) as { code: string; data: any };
+        if (result.code === 'SUCCESS') {
+            setSelectedTask(result.data);
+            setShowTaskDetailPopup(true);
         }
-    };
+    } catch (error) {
+        console.error('Lỗi khi lấy chi tiết công việc:', error);
+    }
+};
+
 
 
     const fetchTaskDashboard = async () => {
@@ -366,102 +364,28 @@ const ProjectDetail = () => {
                         </div>
 
                         <div className="task-list-section">
-                            <h3>DANH SÁCH CÔNG VIỆC ( Số lượng : {taskNumber} ) </h3>
 
-                            <div className="task-controls">
-                                <div className="filter-section">
-                                    <input
-                                        type="text"
-                                        placeholder="Tìm kiếm công việc..."
-                                        value={filters.textSearch}
-                                        onChange={(e) => setFilters({ ...filters, textSearch: e.target.value })}
+                            <TaskListSection
+                                tasks={tasks}
+                                filters={filters}
+                                setFilters={setFilters}
+                                onAddTaskClick={() => setShowAddTaskPopup(true)}
+                                onTaskClick={handleTaskClick}
+                                showAddTaskPopup={showAddTaskPopup}
+                                AddTaskPopupComponent={
+                                    <AddTaskPopup
+                                        onClose={() => setShowAddTaskPopup(false)}
+                                        onSubmit={handleAddTask}
+                                        projectId={Number(projectId)}
                                     />
-                                    <input
-                                        type="date"
-                                        value={filters.startTime}
-                                        onChange={(e) => setFilters({ ...filters, startTime: e.target.value })}
-                                    />
-                                    <input
-                                        type="date"
-                                        value={filters.endTime}
-                                        onChange={(e) => setFilters({ ...filters, endTime: e.target.value })}
-                                    />
-                                    <button
-                                        onClick={() => {
-                                            setVisibleTaskCount(5); // reset hiển thị
-                                            fetchTasks(0, false);   // fetch lại
-                                        }}
-                                    >
-                                        Lọc
-                                    </button>
-                                </div>
+                                }
+                                taskNumber={taskNumber}
+                                fetchTasks={fetchTasks}
+                                taskPage={taskPage}
+                                hasMoreTasks={hasMoreTasks}
+                                isFetchingTasks={isFetchingTasks}
+                            />
 
-                                <button className="add-project-btn" onClick={() => setShowAddTaskPopup(true)}>
-                                    + Thêm công việc
-                                </button>
-                            </div>
-                            {showAddTaskPopup && (
-                                <AddTaskPopup
-                                    onClose={() => setShowAddTaskPopup(false)}
-                                    onSubmit={handleAddTask}
-                                    projectId={Number(projectId)}
-                                />
-                            )}
-                            <div className="stats-table">
-                                <div
-                                    className="task-scroll-container"
-                                    style={{
-                                        maxHeight: '300px',
-                                        overflowY: 'auto',
-                                        border: '1px solid #ddd',
-                                        borderRadius: '4px',
-                                    }}
-                                    onScroll={(e) => {
-                                        const target = e.currentTarget;
-                                        if (
-                                            target.scrollTop + target.clientHeight >= target.scrollHeight - 50 &&
-                                            hasMoreTasks &&
-                                            !isFetchingTasks
-                                        ) {
-                                            fetchTasks(taskPage + 1, true);
-                                        }
-                                    }}
-                                >
-                                    <div className="task-list-wrapper">
-                                        <div className="table-header">
-                                            <div>Tên công việc</div>
-                                            <div>Người giao</div>
-                                            <div>Người thực hiện</div>
-                                            <div>Ngày bắt đầu</div>
-                                            <div>Ngày kết thúc</div>
-                                            <div>Trạng thái</div>
-                                        </div>
-
-                                        {tasks.length > 0 ? (
-                                            <>
-                                                {tasks.map((task, index) => (
-                                                    <div
-                                                        className="table-row"
-                                                        key={index}
-                                                        onClick={() => handleTaskClick(task.id)} // 👈 Thêm click
-                                                        style={{ cursor: 'pointer' }}
-                                                    >
-                                                        <div>{task.title}</div>
-                                                        <div>{task.nameCreatedBy || '---'}</div>
-                                                        <div>{task.nameAssignedTo || '---'}</div>
-                                                        <div>{task.startTime?.split('T')[0]}</div>
-                                                        <div>{task.endTime?.split('T')[0]}</div>
-                                                        <div>{task.status}</div>
-                                                    </div>
-                                                ))}
-                                                {isFetchingTasks && <div style={{ padding: '10px' }}>Đang tải thêm...</div>}
-                                            </>
-                                        ) : (
-                                            <div style={{ padding: '10px', textAlign: 'center' }}>Không có công việc nào</div>
-                                        )}
-                                    </div>
-                                </div>
-                            </div>
 
                         </div>
 

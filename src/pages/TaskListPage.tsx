@@ -3,50 +3,10 @@ import Sidebar from '../components/Sidebar';
 import Header from '../components/Header';
 import BarChartStats from '../components/PieChartStats';
 import '../style/tasklist.css';
-import { getAllTasks, getDashboardTasksByProject } from '../api/taskApi';
+import { getAllTasks, getDashboardTasksByProject, getTaskDetailById } from '../api/taskApi';
+import TaskListSection from '../components/TaskListSection';
+import TaskDetailPopup from '../components/TaskDetailPopup';
 
-const tasks = [
-    {
-        id: 'EWT-253604',
-        name: 'Phối hợp B',
-        assigner: 'Chinh Nguyen Viet',
-        assignee: 'Ban CNTT rà soát hệ thống',
-        endDate: '31/03/2025',
-        overdue: true,
-        status: 'Đang thực hiện',
-        progress: '55%',
-        unit: 'Ban chuyển đổi số'
-    },
-    {
-        id: 'EWT-253605',
-        name: 'Phối hợp B',
-        assigner: 'Chinh Nguyen Viet',
-        assignee: 'Người dùng Ban Chuyển đổi số',
-        endDate: '31/03/2025',
-        overdue: true,
-        status: 'Đang thực hiện',
-        progress: '',
-        unit: 'Ban chuyển đổi số'
-    },
-    {
-        id: 'EWT-253606',
-        name: 'Phối hợp B',
-        assigner: 'Chinh Nguyen Viet',
-        assignee: 'Chinh Nguyen Viet',
-        endDate: '31/03/2025',
-        overdue: true,
-        status: 'Đang thực hiện',
-        progress: '',
-        unit: 'Phòng Phát triển phần mềm 2'
-    }
-];
-
-// Dữ liệu cho biểu đồ
-const taskSummary = [
-    { label: 'Đang xử lý', value: 128 },
-    { label: 'Hoàn thành', value: 21 },
-    { label: 'Quá hạn', value: 10 }
-];
 
 
 const TaskListPage = () => {
@@ -57,6 +17,19 @@ const TaskListPage = () => {
 
     const [taskStats, setTaskStats] = useState<{ label: string; value: number }[]>([]);
     const [taskNumber, setTaskNumber] = useState(0);
+    const [tasks, setTasks] = useState<any[]>([]);
+    const [isFetchingTasks, setIsFetchingTasks] = useState(false);
+    const [filters, setFilters] = useState({
+        textSearch: '',
+        startTime: '',
+        endTime: '',
+    });
+    const [hasMoreTasks, setHasMoreTasks] = useState(true);
+    const [taskPage, setTaskPage] = useState(0);
+    const [visibleTaskCount, setVisibleTaskCount] = useState(5);
+    const [selectedTask, setSelectedTask] = useState<any>(null); // task được chọn
+    const [showTaskDetailPopup, setShowTaskDetailPopup] = useState(false);
+
 
 
     const fetchTaskDashboard = async () => {
@@ -90,11 +63,82 @@ const TaskListPage = () => {
         }
     };
 
+    const fetchTasks = async (pageToFetch = 0, append = false) => {
+        try {
+            const token = localStorage.getItem('access_token');
+            if (!token) {
+
+                return;
+            }
+
+            setIsFetchingTasks(true);
+            const taskRes = await getAllTasks.getAllTasks(token, {
+                page: pageToFetch,
+                size: 10,
+                textSearch: filters.textSearch,
+                startTime: filters.startTime,
+                endTime: filters.endTime,
+                projectId: undefined,
+            });
+
+            const newTasks = taskRes.data.content;
+            const totalPages = taskRes.data.totalPages;
+
+            setTasks(prev => append ? [...prev, ...newTasks] : newTasks);
+            setHasMoreTasks(pageToFetch < totalPages - 1);
+            setTaskPage(pageToFetch);
+        } catch (error) {
+            console.error(error);
+        } finally {
+            setIsFetchingTasks(false);
+        }
+    };
+
+
+    const handleTaskClick = async (taskId: number) => {
+        try {
+            const token = localStorage.getItem('access_token');
+            if (!token) return;
+
+            const result = await getTaskDetailById(token, taskId) as { code: string; data: any };
+            if (result.code === 'SUCCESS') {
+                setSelectedTask(result.data);
+                setShowTaskDetailPopup(true);
+            }
+        } catch (error) {
+            console.error('Lỗi khi lấy chi tiết công việc:', error);
+        }
+    };
+
 
 
     useEffect(() => {
         fetchTaskDashboard();
+        fetchTasks(0, false);
     }, []);
+
+    useEffect(() => {
+        const observer = new IntersectionObserver(
+            entries => {
+                if (entries[0].isIntersecting) {
+                    // Nếu còn task để render
+                    if (visibleTaskCount < tasks.length) {
+                        setVisibleTaskCount(prev => prev + 5);
+                    }
+                    // Nếu hết task render mà còn task trong API thì gọi thêm
+                    else if (hasMoreTasks && !isFetchingTasks) {
+                        fetchTasks(taskPage + 1, true);
+                    }
+                }
+            },
+            { threshold: 1 }
+        );
+
+        const sentinel = document.querySelector('#task-list-sentinel');
+        if (sentinel) observer.observe(sentinel);
+
+        return () => observer.disconnect();
+    }, [visibleTaskCount, tasks, hasMoreTasks, isFetchingTasks]);
 
     return (
         <div className="tasklist-container">
@@ -156,42 +200,23 @@ const TaskListPage = () => {
                     </div>
 
                     <h2 className="section-title">Danh sách công việc</h2>
-                    <div className="task-table-container">
-                        <table className="task-table">
-                            <thead>
-                                <tr>
-                                    <th>Tên công việc</th>
-                                    <th>Người giao</th>
-                                    <th>Người thực hiện</th>
-                                    <th>Ngày kết thúc</th>
-                                    <th>Trạng thái</th>
-                                    <th>Tiến độ</th>
-                                    <th>Đơn vị</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {tasks.map((task, idx) => (
-                                    <tr key={idx}>
-                                        <td>
-                                            <a href="#!" className="task-link">{task.id}</a> {task.name}
-                                        </td>
-                                        <td>{task.assigner}</td>
-                                        <td>{task.assignee}</td>
-                                        <td>
-                                            {task.endDate} {task.overdue && <span className="overdue-label">⚠ Trễ</span>}
-                                        </td>
-                                        <td>
-                                            <span className="status-badge">{task.status}</span>
-                                        </td>
-                                        <td>{task.progress || '-'}</td>
-                                        <td>{task.unit}</td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    </div>
+                    <TaskListSection
+                        tasks={tasks}
+                        setFilters={setFilters}
+                        taskNumber={taskNumber}
+                        fetchTasks={fetchTasks}
+                        onTaskClick={handleTaskClick}
+                    />
+
+
                 </div>
             </div>
+            {showTaskDetailPopup && selectedTask && (
+                <TaskDetailPopup
+                    task={selectedTask}
+                    onClose={() => setShowTaskDetailPopup(false)}
+                />
+            )}
         </div>
     );
 };
