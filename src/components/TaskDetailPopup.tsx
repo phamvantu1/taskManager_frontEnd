@@ -3,6 +3,7 @@ import '../style/TaskDetailPopup.css';
 
 import { fetchUsers, type User } from '../api/userApi';
 import { updateTask } from '../api/taskApi';
+import { toast } from 'react-toastify';
 
 interface TaskDetailPopupProps {
     task: any;
@@ -116,18 +117,18 @@ const TaskDetailPopup: React.FC<TaskDetailPopupProps> = ({ task, onClose, onComp
                 assigneeId: editedTask.assigneeId,
             };
 
-            console.log('Payload being sent:', updatedTask);
-
             const response = await updateTask(editedTask.id, updatedTask, token);
+            onClose(); // Đóng popup sau khi lưu\
+            toast.success('Cập nhật công việc thành công!');
 
-            console.log('Cập nhật thành công:', response);
             if (onSave) {
                 onSave(editedTask);
             }
             setEditingField(null);
-        } catch (err) {
-            console.error('Lỗi khi cập nhật công việc:', err);
-        }
+        } catch (err: any) {
+            const message = err?.message || 'Cập nhật công việc thất bại. Vui lòng thử lại sau.';
+            toast.error(message);
+          }
     };
 
     const handleSaveField = (field: string, value: string) => {
@@ -257,8 +258,11 @@ const TaskDetailPopup: React.FC<TaskDetailPopupProps> = ({ task, onClose, onComp
 
     const renderAssigneeSelectField = () => {
         const isEditing = editingField === 'assigneeId';
+
         const assignedUser = userList.find(user => user.id === editedTask.assigneeId);
-        const assignedUserDisplay = assignedUser ? `${assignedUser.firstName} ${assignedUser.lastName} (${assignedUser.email})` : 'Chưa chọn';
+        const assignedUserDisplay = assignedUser
+            ? `${assignedUser.firstName} ${assignedUser.lastName} (${assignedUser.email})`
+            : task.nameAssignedTo || 'Chưa chọn';
 
         return (
             <div className="field-container">
@@ -307,7 +311,7 @@ const TaskDetailPopup: React.FC<TaskDetailPopupProps> = ({ task, onClose, onComp
         fetchDataUser();
     }, []);
 
-    const statusOptions = ['Chưa bắt đầu', 'Đang thực hiện', 'Hoàn thành', 'Quá hạn'];
+    const statusOptions = ['Chưa bắt đầu', 'Đang thực hiện', 'Hoàn thành'];
     const leverOptions = ['Dễ', 'Trung bình', 'Khó'];
 
     return (
@@ -340,9 +344,7 @@ const TaskDetailPopup: React.FC<TaskDetailPopupProps> = ({ task, onClose, onComp
                         <button className="save-btn-main" onClick={handleSave}>
                             Lưu thay đổi
                         </button>
-                        <button className="close-btn" onClick={onClose}>
-                            Đóng
-                        </button>
+                        
                     </div>
                 </div>
             </div>

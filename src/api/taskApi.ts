@@ -146,8 +146,11 @@ export const updateTask = async (taskId: number, taskData: any, token: string) =
         'Authorization': `Bearer ${token}`
       }
     });
+    
     return response.data;
-  } catch (error: any) {
-    throw error.response?.data || error;
+  }  catch (error: any) {
+    const errorMessage =
+      error?.response?.data?.message || 'Cập nhật công việc thất bại. Vui lòng thử lại sau.';
+    throw new Error(errorMessage);
   }
 };
