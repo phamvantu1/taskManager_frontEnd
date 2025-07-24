@@ -1,8 +1,8 @@
-// src/components/TaskDetailPopup.tsx
 import React, { useState, useEffect } from 'react';
 import '../style/TaskDetailPopup.css';
 
-import { getUserDetails, type UserInfo, fetchUsers, type User } from '../api/userApi';
+import { fetchUsers, type User } from '../api/userApi';
+import { updateTask } from '../api/taskApi';
 
 interface TaskDetailPopupProps {
     task: any;
@@ -22,9 +22,75 @@ const TaskDetailPopup: React.FC<TaskDetailPopupProps> = ({ task, onClose, onComp
         setEditingField(field);
     };
 
-    const handleSaveField = (field: string, value: string) => {
-        setEditedTask({ ...editedTask, [field]: value });
-        setEditingField(null);
+    const mapStatusToNumber = (status: string): number => {
+        switch (status.toLowerCase()) {
+            case 'chưa bắt đầu':
+                return 0;
+            case 'đang thực hiện':
+                return 1;
+            case 'hoàn thành':
+                return 2;
+            case 'quá hạn':
+                return 3;
+            default:
+                return -1;
+        }
+    };
+
+    const mapLeverToNumber = (lever: string): number => {
+        switch (lever.toLowerCase()) {
+            case 'dễ':
+                return 0;
+            case 'trung bình':
+                return 1;
+            case 'khó':
+                return 2;
+            default:
+                return -1;
+        }
+    };
+
+    const mapNumberToStatus = (status: string): string => {
+        switch (status) {
+            case 'PENDING':
+                return 'Chưa bắt đầu';
+            case 'IN_PROGRESS':
+                return 'Đang thực hiện';
+            case 'COMPLETED':
+                return 'Hoàn thành';
+            case 'OVERDUE':
+                return 'Quá hạn';
+            default:
+                return 'Không xác định';
+        }
+    };
+
+    const mapNumberToLever = (lever: number): string => {
+        switch (lever) {
+            case 0:
+                return 'Dễ';
+            case 1:
+                return 'Trung bình';
+            case 2:
+                return 'Khó';
+            default:
+                return 'Không xác định';
+        }
+    };
+
+    const mapVietnameseStatusToBackend = (status: string): string => {
+        switch (status) {
+            case 'Chưa bắt đầu':
+                return 'PENDING';
+            case 'Đang thực hiện':
+                return 'IN_PROGRESS';
+            case 'Hoàn thành':
+                return 'COMPLETED';
+            case 'Quá hạn':
+                return 'OVERDUE';
+            default:
+                return status;
+        }
     };
 
     const handleCancelEdit = () => {
@@ -37,17 +103,58 @@ const TaskDetailPopup: React.FC<TaskDetailPopupProps> = ({ task, onClose, onComp
         }
     };
 
-    const handleSave = () => {
-        if (onSave) {
-            onSave(editedTask);
+    const handleSave = async () => {
+        try {
+            const token = localStorage.getItem('access_token');
+            if (!token) {
+                console.error("Token không tồn tại");
+                return;
+            }
+
+            const updatedTask = {
+                ...editedTask,
+                assigneeId: editedTask.assigneeId,
+            };
+
+            console.log('Payload being sent:', updatedTask);
+
+            const response = await updateTask(editedTask.id, updatedTask, token);
+
+            console.log('Cập nhật thành công:', response);
+            if (onSave) {
+                onSave(editedTask);
+            }
+            setEditingField(null);
+        } catch (err) {
+            console.error('Lỗi khi cập nhật công việc:', err);
         }
+    };
+
+    const handleSaveField = (field: string, value: string) => {
+        let updatedTask = { ...editedTask };
+
+        if (field === 'assigneeId') {
+            console.log('Saving assigneeId hahaha  :', value);
+            const idNum = Number(value);
+            updatedTask.assigneeId = isNaN(idNum) ? null : idNum;
+        } else if (field === 'status') {
+            updatedTask[field] = mapVietnameseStatusToBackend(value);
+        } else if (field === 'lever') {
+            updatedTask[field] = mapLeverToNumber(value);
+        } else {
+            updatedTask[field] = value;
+        }
+
+        setEditedTask(updatedTask);
+        setEditingField(null);
     };
 
     const renderField = (
         label: string,
         field: string,
         value: string,
-        isEditable: boolean = true) => {
+        isEditable: boolean = true
+    ) => {
         const isEditing = editingField === field;
 
         return (
@@ -104,10 +211,7 @@ const TaskDetailPopup: React.FC<TaskDetailPopupProps> = ({ task, onClose, onComp
         );
     };
 
-    const renderSelectField = (label: string,
-        field: string,
-        value: string,
-        options: string[]) => {
+    const renderSelectField = (label: string, field: string, value: string, options: string[]) => {
         const isEditing = editingField === field;
 
         return (
@@ -138,14 +242,12 @@ const TaskDetailPopup: React.FC<TaskDetailPopupProps> = ({ task, onClose, onComp
                     ) : (
                         <div className="value-container">
                             <span className="field-value">{value}</span>
-
                             <button
                                 className="edit-btn"
                                 onClick={() => handleEdit(field)}
                             >
                                 ✏️
                             </button>
-
                         </div>
                     )}
                 </div>
@@ -153,6 +255,44 @@ const TaskDetailPopup: React.FC<TaskDetailPopupProps> = ({ task, onClose, onComp
         );
     };
 
+    const renderAssigneeSelectField = () => {
+        const isEditing = editingField === 'assigneeId';
+        const assignedUser = userList.find(user => user.id === editedTask.assigneeId);
+        const assignedUserDisplay = assignedUser ? `${assignedUser.firstName} ${assignedUser.lastName} (${assignedUser.email})` : 'Chưa chọn';
+
+        return (
+            <div className="field-container">
+                <div className="field-row">
+                    <p className="field-label"><strong>Người thực hiện:</strong></p>
+                    {isEditing ? (
+                        <div className="edit-container">
+                            <select
+                                value={editedTask.assigneeId || ''}
+                                className="edit-select"
+                                onChange={(e) => handleSaveField('assigneeId', e.target.value)}
+                                autoFocus
+                            >
+                                <option value="">-- Chọn người thực hiện --</option>
+                                {userList.map((user) => (
+                                    <option key={user.id} value={user.id}>
+                                        {user.firstName} {user.lastName} ({user.email})
+                                    </option>
+                                ))}
+                            </select>
+                            <div className="edit-buttons">
+                                <button className="cancel-btn" onClick={handleCancelEdit}>✕</button>
+                            </div>
+                        </div>
+                    ) : (
+                        <div className="value-container">
+                            <span className="field-value">{assignedUserDisplay}</span>
+                            <button className="edit-btn" onClick={() => handleEdit('assigneeId')}>✏️</button>
+                        </div>
+                    )}
+                </div>
+            </div>
+        );
+    };
 
     const fetchDataUser = async () => {
         try {
@@ -164,10 +304,11 @@ const TaskDetailPopup: React.FC<TaskDetailPopupProps> = ({ task, onClose, onComp
     };
 
     useEffect(() => {
-
         fetchDataUser();
-
     }, []);
+
+    const statusOptions = ['Chưa bắt đầu', 'Đang thực hiện', 'Hoàn thành', 'Quá hạn'];
+    const leverOptions = ['Dễ', 'Trung bình', 'Khó'];
 
     return (
         <div className="popup-overlay">
@@ -183,12 +324,12 @@ const TaskDetailPopup: React.FC<TaskDetailPopupProps> = ({ task, onClose, onComp
                     <div className="fields-container">
                         {renderField("Tiêu đề", "title", editedTask.title)}
                         {renderField("Mô tả", "description", editedTask.description)}
-                        {renderField("Người giao", "nameCreatedBy", editedTask.nameCreatedBy, false)}
-                        {renderField("Người thực hiện", "nameAssignedTo", editedTask.nameAssignedTo)}
+                        {renderField("Người giao", "createdById", editedTask.nameCreatedBy, false)}
+                        {renderAssigneeSelectField()}
                         {renderField("Ngày bắt đầu", "startTime", editedTask.startTime)}
                         {renderField("Ngày kết thúc", "endTime", editedTask.endTime)}
-                        {renderSelectField("Trạng thái", "status", editedTask.status, ["Chưa bắt đầu", "Đang thực hiện", "Hoàn thành", "Tạm dừng"])}
-                        {renderSelectField("Mức độ", "lever", editedTask.lever, ["Thấp", "Trung bình", "Cao", "Khẩn cấp"])}
+                        {renderSelectField("Trạng thái", "status", mapNumberToStatus(editedTask.status), statusOptions)}
+                        {renderSelectField("Mức độ", "lever", mapNumberToLever(editedTask.lever), leverOptions)}
                         {renderField("Ngày tạo", "createdAt", editedTask.createdAt, false)}
                     </div>
 

@@ -136,3 +136,18 @@ export const getTaskDetailById = async (token: string, taskId: number) => {
   });
   return res.data;
 };
+
+
+export const updateTask = async (taskId: number, taskData: any, token: string) => {
+  try {
+    const response = await axios.put(`${BASE_URL}/update/${taskId}`, taskData, {
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      }
+    });
+    return response.data;
+  } catch (error: any) {
+    throw error.response?.data || error;
+  }
+};
