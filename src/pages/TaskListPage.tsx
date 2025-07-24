@@ -167,22 +167,25 @@ const TaskListPage = () => {
 
                     <h2 className="section-title">Danh sách công việc</h2>
                     <TaskListSection
-                        tasks={tasks}
-                        filters={filters}
-                        setFilters={setFilters}
-                        taskNumber={taskNumber}
-                        fetchTasks={fetchTasks}
-                         onAddTaskClick={() => setShowAddTaskPopup(true)}
-                        onTaskClick={handleTaskClick}
-                        showAddTaskPopup={showAddTaskPopup}
-                         AddTaskPopupComponent={
+                                tasks={tasks}
+                                filters={filters}
+                                setFilters={setFilters}
+                                onAddTaskClick={() => setShowAddTaskPopup(true)}
+                                onTaskClick={handleTaskClick}
+                                showAddTaskPopup={showAddTaskPopup}
+                                AddTaskPopupComponent={
                                     <AddTaskPopup
                                         onClose={() => setShowAddTaskPopup(false)}
                                         onSubmit={handleAddTask}
-                                        projectId={undefined} // hoặc truyền projectId nếu cần
+                                        projectId={undefined} // Thay thế bằng projectId nếu cần
                                     />
                                 }
-                    />
+                                taskNumber={taskNumber}
+                                fetchTasks={fetchTasks}
+                                taskPage={taskPage}
+                                hasMoreTasks={hasMoreTasks}
+                                isFetchingTasks={isFetchingTasks}
+                            />
 
 
                 </div>

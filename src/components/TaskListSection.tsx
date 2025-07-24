@@ -1,5 +1,6 @@
 // components/TaskListSection.tsx
 import React from 'react';
+import '../style/tasklist.css';
 
 
 interface TaskListSectionProps {
@@ -81,7 +82,7 @@ const TaskListSection: React.FC<TaskListSectionProps> = ({
                 <div
                     className="task-scroll-container"
                     style={{
-                        maxHeight: '300px',
+                        maxHeight: '600px',
                         overflowY: 'auto',
                         border: '1px solid #ddd',
                         borderRadius: '4px',

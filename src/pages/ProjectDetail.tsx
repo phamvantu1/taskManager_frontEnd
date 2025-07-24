@@ -29,10 +29,10 @@ const ProjectDetail = () => {
     const [taskPage, setTaskPage] = useState(0);
     const [hasMoreTasks, setHasMoreTasks] = useState(true);
     const [isFetchingTasks, setIsFetchingTasks] = useState(false);
-    const [visibleTaskCount, setVisibleTaskCount] = useState(5);
+    const [visibleTaskCount, setVisibleTaskCount] = useState(10);
     const [taskNumber, setTaskNumber] = useState(0);
 
-    const [visibleMemberCount, setVisibleMemberCount] = useState(5);
+    const [visibleMemberCount, setVisibleMemberCount] = useState(10);
 
     const [memberStats, setMemberStats] = useState<any[]>([]);
     const [memberPage, setMemberPage] = useState(0);
@@ -89,7 +89,7 @@ const ProjectDetail = () => {
 
     const fetchMemberStats = async (pageToFetch = 0, append = false) => {
         try {
-            const res = await getProjectMembersStats(Number(projectId), pageToFetch, 5, memberSearch);
+            const res = await getProjectMembersStats(Number(projectId), pageToFetch, 10, memberSearch);
             const content = res.content || [];
             const totalPages = res.totalPages || 0;
 
@@ -224,7 +224,7 @@ const handleTaskClick = async (taskId: number) => {
                 if (entries[0].isIntersecting) {
                     // Nếu còn task để render
                     if (visibleTaskCount < tasks.length) {
-                        setVisibleTaskCount(prev => prev + 5);
+                        setVisibleTaskCount(prev => prev + 10);
                     }
                     // Nếu hết task render mà còn task trong API thì gọi thêm
                     else if (hasMoreTasks && !isFetchingTasks) {
@@ -248,7 +248,7 @@ const handleTaskClick = async (taskId: number) => {
                 if (entries[0].isIntersecting) {
                     console.log('Sentinel visible – triggering load more');
                     if (visibleMemberCount < memberStats.length) {
-                        setVisibleMemberCount((prev) => prev + 5);
+                        setVisibleMemberCount((prev) => prev + 10);
                     } else if (hasMoreMembers) {
                         fetchMemberStats(memberPage + 1, true);
                     }
@@ -266,7 +266,7 @@ const handleTaskClick = async (taskId: number) => {
 
     useEffect(() => {
         setMemberPage(0);
-        setVisibleMemberCount(5); // reset hiển thị lại 5 bản ghi
+        setVisibleMemberCount(10); // reset hiển thị lại 10 bản ghi
         fetchMemberStats(0, false);
     }, [memberSearch]);
 
@@ -426,7 +426,7 @@ const handleTaskClick = async (taskId: number) => {
                                 <div
                                     className="member-scroll-container"
                                     style={{
-                                        maxHeight: '250px',
+                                        maxHeight: '600px',
                                         overflowY: 'auto',
                                         border: '1px solid #ddd',
                                         borderRadius: '4px',
