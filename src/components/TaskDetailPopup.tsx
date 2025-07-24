@@ -1,6 +1,8 @@
 // src/components/TaskDetailPopup.tsx
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import '../style/TaskDetailPopup.css';
+
+import { getUserDetails, type UserInfo, fetchUsers, type User } from '../api/userApi';
 
 interface TaskDetailPopupProps {
     task: any;
@@ -12,6 +14,7 @@ interface TaskDetailPopupProps {
 const TaskDetailPopup: React.FC<TaskDetailPopupProps> = ({ task, onClose, onComplete, onSave }) => {
     const [editingField, setEditingField] = useState<string | null>(null);
     const [editedTask, setEditedTask] = useState(task);
+    const [userList, setUserList] = useState<User[]>([]);
 
     if (!task) return null;
 
@@ -40,14 +43,18 @@ const TaskDetailPopup: React.FC<TaskDetailPopupProps> = ({ task, onClose, onComp
         }
     };
 
-    const renderField = (label: string, field: string, value: string) => {
+    const renderField = (
+        label: string,
+        field: string,
+        value: string,
+        isEditable: boolean = true) => {
         const isEditing = editingField === field;
-        
+
         return (
             <div className="field-container">
                 <div className="field-row">
                     <p className="field-label"><strong>{label}:</strong></p>
-                    {isEditing ? (
+                    {isEditing && isEditable ? (
                         <div className="edit-container">
                             <input
                                 type="text"
@@ -62,7 +69,7 @@ const TaskDetailPopup: React.FC<TaskDetailPopupProps> = ({ task, onClose, onComp
                                 autoFocus
                             />
                             <div className="edit-buttons">
-                                <button 
+                                <button
                                     className="save-btn"
                                     onClick={(e) => {
                                         const input = e.currentTarget.parentElement?.previousElementSibling as HTMLInputElement;
@@ -71,7 +78,7 @@ const TaskDetailPopup: React.FC<TaskDetailPopupProps> = ({ task, onClose, onComp
                                 >
                                     ✓
                                 </button>
-                                <button 
+                                <button
                                     className="cancel-btn"
                                     onClick={handleCancelEdit}
                                 >
@@ -82,12 +89,14 @@ const TaskDetailPopup: React.FC<TaskDetailPopupProps> = ({ task, onClose, onComp
                     ) : (
                         <div className="value-container">
                             <span className="field-value">{value}</span>
-                            <button 
-                                className="edit-btn"
-                                onClick={() => handleEdit(field)}
-                            >
-                                ✏️
-                            </button>
+                            {isEditable && (
+                                <button
+                                    className="edit-btn"
+                                    onClick={() => handleEdit(field)}
+                                >
+                                    ✏️
+                                </button>
+                            )}
                         </div>
                     )}
                 </div>
@@ -95,9 +104,12 @@ const TaskDetailPopup: React.FC<TaskDetailPopupProps> = ({ task, onClose, onComp
         );
     };
 
-    const renderSelectField = (label: string, field: string, value: string, options: string[]) => {
+    const renderSelectField = (label: string,
+        field: string,
+        value: string,
+        options: string[]) => {
         const isEditing = editingField === field;
-        
+
         return (
             <div className="field-container">
                 <div className="field-row">
@@ -115,7 +127,7 @@ const TaskDetailPopup: React.FC<TaskDetailPopupProps> = ({ task, onClose, onComp
                                 ))}
                             </select>
                             <div className="edit-buttons">
-                                <button 
+                                <button
                                     className="cancel-btn"
                                     onClick={handleCancelEdit}
                                 >
@@ -126,18 +138,36 @@ const TaskDetailPopup: React.FC<TaskDetailPopupProps> = ({ task, onClose, onComp
                     ) : (
                         <div className="value-container">
                             <span className="field-value">{value}</span>
-                            <button 
+
+                            <button
                                 className="edit-btn"
                                 onClick={() => handleEdit(field)}
                             >
                                 ✏️
                             </button>
+
                         </div>
                     )}
                 </div>
             </div>
         );
     };
+
+
+    const fetchDataUser = async () => {
+        try {
+            const users = await fetchUsers();
+            setUserList(users);
+        } catch (err) {
+            console.error('Lỗi khi load danh sách người dùng:', err);
+        }
+    };
+
+    useEffect(() => {
+
+        fetchDataUser();
+
+    }, []);
 
     return (
         <div className="popup-overlay">
@@ -148,18 +178,18 @@ const TaskDetailPopup: React.FC<TaskDetailPopupProps> = ({ task, onClose, onComp
                     </button>
                     <h2 className="popup-title">Chi tiết công việc</h2>
                 </div>
-                
+
                 <div className="popup-body">
                     <div className="fields-container">
-                    {renderField("Tiêu đề", "title", editedTask.title)}
-                    {renderField("Mô tả", "description", editedTask.description)}
-                    {renderField("Người tạo", "nameCreatedBy", editedTask.nameCreatedBy)}
-                    {renderField("Người thực hiện", "nameAssignedTo", editedTask.nameAssignedTo)}
-                    {renderField("Ngày bắt đầu", "startTime", editedTask.startTime)}
-                    {renderField("Ngày kết thúc", "endTime", editedTask.endTime)}
-                    {renderSelectField("Trạng thái", "status", editedTask.status, ["Chưa bắt đầu", "Đang thực hiện", "Hoàn thành", "Tạm dừng"])}
-                    {renderSelectField("Mức độ", "lever", editedTask.lever, ["Thấp", "Trung bình", "Cao", "Khẩn cấp"])}
-                    {renderField("Ngày tạo", "createdAt", editedTask.createdAt)}
+                        {renderField("Tiêu đề", "title", editedTask.title)}
+                        {renderField("Mô tả", "description", editedTask.description)}
+                        {renderField("Người giao", "nameCreatedBy", editedTask.nameCreatedBy, false)}
+                        {renderField("Người thực hiện", "nameAssignedTo", editedTask.nameAssignedTo)}
+                        {renderField("Ngày bắt đầu", "startTime", editedTask.startTime)}
+                        {renderField("Ngày kết thúc", "endTime", editedTask.endTime)}
+                        {renderSelectField("Trạng thái", "status", editedTask.status, ["Chưa bắt đầu", "Đang thực hiện", "Hoàn thành", "Tạm dừng"])}
+                        {renderSelectField("Mức độ", "lever", editedTask.lever, ["Thấp", "Trung bình", "Cao", "Khẩn cấp"])}
+                        {renderField("Ngày tạo", "createdAt", editedTask.createdAt, false)}
                     </div>
 
                     <div className="action-buttons">

@@ -64,8 +64,7 @@ const AddTaskPopup: React.FC<AddTaskPopupProps> = ({ onClose, onSubmit, projectI
     }
   };
 
-  useEffect(() => {
-    const fetchCurrentUser = async () => {
+  const fetchCurrentUser = async () => {
       const user = await getUserDetails();
       if (user) {
         setCurrentUser(user);
@@ -76,7 +75,7 @@ const AddTaskPopup: React.FC<AddTaskPopupProps> = ({ onClose, onSubmit, projectI
       }
     };
 
-    const fetchData = async () => {
+     const fetchDataUser = async () => {
       try {
         const users = await fetchUsers();
         setUserList(users);
@@ -85,7 +84,9 @@ const AddTaskPopup: React.FC<AddTaskPopupProps> = ({ onClose, onSubmit, projectI
       }
     };
 
-    fetchData();
+  useEffect(() => {
+    
+    fetchDataUser();
     fetchCurrentUser();
   }, []);
 
