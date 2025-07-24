@@ -1,3 +1,4 @@
+// Sidebar.tsx
 import React, { useState } from 'react';
 import '../style/sidebar.css';
 import { useNavigate } from 'react-router-dom';
@@ -31,21 +32,38 @@ const Sidebar: React.FC = () => {
           <span className="nav-icon">📁</span>
           <span>Dự án</span>
         </div>
+        
         <div className="nav-item" onClick={() => navigate('/taskListPage')}>
           <span className="nav-icon">👥</span>
           <span>Công việc</span>
         </div>
 
-        <div className="nav-item">
-          <div onClick={() => setAdminOpen(!adminOpen)} style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '12px' }}>
+        {/* Dropdown Menu Item */}
+        <div className="nav-item dropdown-parent">
+          <div 
+            onClick={() => setAdminOpen(!adminOpen)} 
+            style={{ 
+              cursor: 'pointer', 
+              display: 'flex', 
+              alignItems: 'center', 
+              gap: '12px',
+              width: '100%'
+            }}
+          >
             <span className="nav-icon">👤</span>
-            <span>Quản trị {adminOpen ? '▴' : '▾'}</span>
+            <span>Quản trị</span>
+            <span className={`dropdown-arrow ${adminOpen ? 'open' : ''}`}>▾</span>
           </div>
 
+          {/* Dropdown Menu - Hiển thị bên dưới */}
           {adminOpen && (
             <div className="dropdown-menu">
-              <div className="dropdown-item" onClick={() => navigate('/department')}>Phòng ban</div>
-              <div className="dropdown-item" onClick={() => navigate('/memberlistpage')}>Người dùng</div>
+              <div className="dropdown-item" onClick={() => navigate('/department')}>
+                Phòng ban
+              </div>
+              <div className="dropdown-item" onClick={() => navigate('/memberlistpage')}>
+                Người dùng
+              </div>
             </div>
           )}
         </div>

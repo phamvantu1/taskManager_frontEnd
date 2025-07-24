@@ -16,6 +16,8 @@ import DepartmentListPage from './pages/DepartmentListPage';
 import ReportPage from './pages/ReportPage';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import DepartmentDetailPage from './pages/getDepartmentDetail '; // Import trang chi tiết phòng ban
+
 
 function App() {
   return (
@@ -34,6 +36,8 @@ function App() {
           <Route path="/memberlistpage" element={<MemberListPage />} />
           <Route path="/department" element={<DepartmentListPage />} />
           <Route path="/report" element={<ReportPage />} />
+          <Route path="/department/:id" element={<DepartmentDetailPage />} /> {/* Route mới cho chi tiết phòng ban */}
+
           <Route path="*" element={<Login />} />
         </Routes>
       </Router>

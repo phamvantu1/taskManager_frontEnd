@@ -1,3 +1,5 @@
+/* sidebar.css */
+
 /* Sidebar */
 .sidebar {
   width: 280px;
@@ -68,36 +70,59 @@
   text-align: center;
 }
 
-/* Dropdown Menu */
-.dropdown-menu {
-  background-color: #334155;
-  border-radius: 6px;
-  margin-top: 4px;
-  width: 100%;
-  overflow: hidden;
-}
-
-.sidebar .dropdown-menu {
-  display: flex;
+/* CÁCH 1: Dropdown hiển thị bên dưới (inline) */
+.dropdown-parent {
   flex-direction: column;
-  margin-top: 4px;
+  align-items: stretch;
+  position: relative; /* Thêm này để chứa dropdown */
 }
 
-.sidebar .dropdown-item {
-  padding: 8px 12px 8px 28px; /* Slight indent for nested appearance */
-  font-size: 14px;
-  color: #cbd5e1;
+.dropdown-arrow {
+  margin-left: auto;
+  transition: transform 0.2s ease;
+}
+
+.dropdown-arrow.open {
+  transform: rotate(180deg);
+}
+
+.dropdown-menu {
+  width: 100%; /* Đảm bảo dropdown không vượt quá width của parent */
+  margin-top: 8px;
+  padding-left: 32px; /* Indent để tạo cảm giác nested */
+  background-color: transparent; /* Trong suốt để giữ style sidebar */
   border-radius: 6px;
+  overflow: hidden;
+  animation: slideDown 0.2s ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.dropdown-item {
+  padding: 10px 16px;
+  font-size: 14px;
+  color: #3470b9;
   transition: background-color 0.2s;
   cursor: pointer;
+  border-radius: 4px;
+  margin: 2px 0; /* Chỉ margin top/bottom */
+  background-color: rgba(202, 11, 11, 0.03); /* Background nhẹ để phân biệt */
 }
 
-.sidebar .dropdown-item:hover {
-  background: rgba(255, 255, 255, 0.05);
-  color: white;
+.dropdown-item:hover {
+  background: rgba(81, 202, 11, 0.05);
+  color: #60a5fa;
 }
 
-/* Remove unused user-menu and user-avatar styles if not needed */
 .user-menu {
   position: relative;
   display: flex;

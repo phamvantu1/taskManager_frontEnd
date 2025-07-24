@@ -1,6 +1,7 @@
 // src/components/Header.tsx
 import React from 'react';
 import '../style/header.css';
+import { useLocation } from 'react-router-dom';
 
 interface HeaderProps {
   onProfileClick: () => void;
@@ -10,6 +11,26 @@ interface HeaderProps {
   toggleDropdown: () => void;
 }
 
+const getPageTitle = (pathname: string): string => {
+  switch (pathname) {
+    case '/dashboard':
+      return 'Tổng quan';
+    case '/projects':
+      return 'Dự án';
+    case '/taskListPage':
+      return 'Công việc';
+    case '/department':
+      return 'Phòng ban';
+    case '/memberlistpage':
+      return 'Người dùng';
+    case '/report':
+      return 'Báo cáo';
+    default:
+      return 'Trang chủ';
+  }
+};
+
+
 const Header: React.FC<HeaderProps> = ({
   onProfileClick,
   onChangePassword,
@@ -17,20 +38,21 @@ const Header: React.FC<HeaderProps> = ({
   isDropdownOpen,
   toggleDropdown,
 }) => {
+
+  const location = useLocation();
+  const pageTitle = getPageTitle(location.pathname);
+
   return (
     <div className="header">
       <div className="header-left">
-        <button className="back-button">‹</button>
+        
         <div className="header-title">
           <span className="header-icon">🏠</span>
-          <span>Trang chủ</span>
+         <span>{pageTitle}</span> {/* HIỂN THỊ TÊN TRANG ĐỘNG */}
         </div>
       </div>
       <div className="header-right">
-        <div className="search-container">
-          <input type="text" placeholder="Tìm kiếm" className="search-input" />
-          <span className="search-icon">🔍</span>
-        </div>
+       
         <div className="user-menu">
           <span className="notification-icon">🔔</span>
 

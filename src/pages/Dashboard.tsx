@@ -43,9 +43,9 @@ const Dashboard: React.FC = () => {
 
   const projectStatusData = [
     { label: 'Đang phát triển', value: 74, color: '#3b82f6' },
-    { label: 'Sắp tới hạn', value: 0, color: '#f59e0b' },
+    { label: 'Sắp tới hạn', value: 10, color: '#f59e0b' },
     { label: 'Hoàn thành', value: 26, color: '#10b981' },
-    { label: 'Quá hạn', value: 0, color: '#ef4444' }
+    { label: 'Quá hạn', value: 10, color: '#ef4444' }
   ];
 
   const toggleDropdown = () => {

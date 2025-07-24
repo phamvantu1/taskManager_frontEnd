@@ -7,6 +7,7 @@ import Sidebar from '../components/Sidebar';
 
 const departments = [
   {
+    id: '1',
     name: 'Đơn Vị A',
     createdBy: 'tham.tranthi@mobifone.vn',
     createdAt: '20/06/2022 00:00',
@@ -15,6 +16,7 @@ const departments = [
     members: ['H'],
   },
   {
+    id: '2',
     name: 'Phòng A kv3',
     createdBy: 'tham.tranthi@mobifone.vn',
     createdAt: '04/08/2022 10:53',
@@ -23,6 +25,7 @@ const departments = [
     members: [],
   },
   {
+    id: '3',
     name: 'Phòng công nghệ kỹ thuật',
     createdBy: 'phuong.levan@mobifone.vn',
     createdAt: '11/08/2022 15:33',
@@ -31,6 +34,7 @@ const departments = [
     members: ['VD', 'NH', 'MT', '+10'],
   },
   {
+    id: '4',
     name: 'Phòng kinh doanh',
     createdBy: 'phuong.levan@mobifone.vn',
     createdAt: '11/08/2022 15:34',
@@ -39,6 +43,7 @@ const departments = [
     members: ['QT', 'HT', 'VK', '+3'],
   },
   {
+    id: '5',
     name: 'Đơn vị Hoài test 22',
     createdBy: 'thung.cao@mobifone.vn',
     createdAt: '06/09/2022 15:12',
@@ -59,6 +64,9 @@ const DepartmentListPage = () => {
 
   const toggleDropdown = () => {
     setIsDropdownOpen(!isDropdownOpen);
+  };
+  const handleDepartmentClick = (departmentId: string) => {
+    navigate(`/department/${departmentId}`);
   };
 
   const handleChangePassword = () => {
@@ -96,18 +104,20 @@ const DepartmentListPage = () => {
 
         <div className="filter-bar">
           <input type="text" className="search-input" placeholder="Tìm đơn vị" />
-          <div className="view-toggle">
-            <button className="active">📦 Bảng</button>
-            <button>📋 List</button>
-          </div>
+          
         </div>
 
         <div className="card-grid">
           {departments.map((dept, index) => (
             <div key={index} className="dept-card">
-              <div className="dept-header">
+              <div 
+              key={index} 
+              className="dept-card"
+              onClick={() => handleDepartmentClick(dept.id)} // Thêm click handler
+              style={{ cursor: 'pointer' }} // Thêm cursor pointer
+            >
                 <div className="dept-title">{dept.name}</div>
-                <div className="more-icon">⋯</div>
+                
               </div>
               <div className="dept-meta">
                 <span className="created-by">👤 Người tạo <a href={`mailto:${dept.createdBy}`}>{dept.createdBy}</a></span>
