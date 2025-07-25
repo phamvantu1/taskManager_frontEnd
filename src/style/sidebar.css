@@ -74,7 +74,7 @@
 .dropdown-parent {
   flex-direction: column;
   align-items: stretch;
-  position: relative; /* Thêm này để chứa dropdown */
+  /* position: relative;  */
 }
 
 .dropdown-arrow {
@@ -86,7 +86,10 @@
   transform: rotate(180deg);
 }
 
-.dropdown-menu {
+.sidebar-dropdown-menu {
+  /* position: absolute; */
+  top: 110%; /* hoặc 100% nếu không có margin */
+  right: 0;
   width: 100%; /* Đảm bảo dropdown không vượt quá width của parent */
   margin-top: 8px;
   padding-left: 32px; /* Indent để tạo cảm giác nested */

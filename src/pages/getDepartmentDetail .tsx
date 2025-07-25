@@ -24,8 +24,9 @@ const getDepartmentDetail = (id: string) => {
       ],
       projects_list: [
         { id: 1, name: 'Dự án A', status: 'Đang thực hiện', progress: 75 },
-        { id: 2, name: 'Dự án B', status: 'Hoàn thành', progress: 100 },
+        { id: 2, name: 'Dự án B', status: 'Hoàn thành', progress: 100, completedDate: '25/12/2024' },
         { id: 3, name: 'Dự án C', status: 'Lên kế hoạch', progress: 25 },
+        { id: 4, name: 'Dự án D', status: 'Hoàn thành', progress: 100, completedDate: '15/11/2024' },
       ]
     },
     {
@@ -178,7 +179,7 @@ const DepartmentDetailPage = () => {
             <div className="overview-content">
               <div className="content-grid">
                 <div className="overview-section">
-                  <h3>Thành viên gần đây</h3>
+                  <h3>Thành viên mới tham gia</h3>
                   <div className="member-list-preview">
                     {department.members.slice(0, 3).map(member => (
                       <div key={member.id} className="member-item">
@@ -211,6 +212,29 @@ const DepartmentDetailPage = () => {
                     ))}
                   </div>
                 </div>
+
+                <div className="overview-section">
+                  <h3>Dự án hoàn thành</h3>
+                  <div className="project-list-preview">
+                    {department.projects_list.filter(p => p.status === 'Hoàn thành').length > 0 ? (
+                      department.projects_list.filter(p => p.status === 'Hoàn thành').map(project => (
+                        <div key={project.id} className="project-item completed">
+                          <div className="project-name">{project.name}</div>
+                          <div className="project-status">
+                            <span className="status-completed">✅ Hoàn thành</span>
+                            <span className="completion-date">{project.completedDate || '25/12/2024'}</span>
+                          </div>
+                        </div>
+                      ))
+                    ) : (
+                      <div className="empty-state">
+                        <div className="empty-icon">📋</div>
+                        <div className="empty-text">Chưa có dự án hoàn thành</div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
               </div>
             </div>
           )}

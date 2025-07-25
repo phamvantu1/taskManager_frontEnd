@@ -100,6 +100,7 @@ const TaskListSection: React.FC<TaskListSectionProps> = ({
                 >
                     <div className="task-list-wrapper">
                         <div className="table-header">
+                        {/* <div className="table-header"> */}
                             <div>Tên công việc</div>
                             <div>Người giao</div>
                             <div>Người thực hiện</div>

@@ -5,6 +5,7 @@ import '../style/dashboard.css';
 import Profile from './Profile';
 import Sidebar from '../components/Sidebar';
 import Header from '../components/Header';
+import BaseDoughnutChart from '../components/BaseDoughnutChart';
 
 const Dashboard: React.FC = () => {
   const [selectedTimeframe, setSelectedTimeframe] = useState('Tháng này');
@@ -41,6 +42,27 @@ const Dashboard: React.FC = () => {
     }
   ];
 
+  const chartData = {
+    labels: ['Đã hoàn thành', 'Đang xử lý', 'Chưa bắt đầu'],
+    datasets: [
+      {
+        label: 'Tiến độ công việc',
+        data: [12, 19, 7],
+        backgroundColor: ['#36A2EB', '#FFCE56', '#FF6384'],
+        borderWidth: 1,
+      },
+    ],
+  };
+
+  const chartOptions = {
+    responsive: true,
+    plugins: {
+      legend: {
+        position: 'bottom' as const,
+      },
+    },
+  };
+
   const projectStatusData = [
     { label: 'Đang phát triển', value: 74, color: '#3b82f6' },
     { label: 'Sắp tới hạn', value: 10, color: '#f59e0b' },
@@ -71,12 +93,12 @@ const Dashboard: React.FC = () => {
       {/* Sidebar */}
       <Sidebar />
 
-      
+
 
       {/* Main Content */}
       <div className="main-content">
         {/* Header */}
-        
+
         <Header
           onProfileClick={handleProfile}
           onChangePassword={handleChangePassword}
@@ -129,46 +151,8 @@ const Dashboard: React.FC = () => {
               {/* Project Status Chart */}
               <div className="chart-card">
                 <h3 className="chart-title">TRẠNG THÁI DỰ ÁN CỦA TỪNG ĐƠN VỊ</h3>
-                <div className="chart-container">
-                  <div className="donut-chart">
-                    <svg width="200" height="200" viewBox="0 0 200 200">
-                      <circle
-                        cx="100"
-                        cy="100"
-                        r="80"
-                        fill="none"
-                        stroke="#10b981"
-                        strokeWidth="40"
-                        strokeDasharray="125 500"
-                        transform="rotate(-90 100 100)"
-                      />
-                      <circle
-                        cx="100"
-                        cy="100"
-                        r="80"
-                        fill="none"
-                        stroke="#3b82f6"
-                        strokeWidth="40"
-                        strokeDasharray="185 500"
-                        strokeDashoffset="-125"
-                        transform="rotate(-90 100 100)"
-                      />
-                      <text x="100" y="95" textAnchor="middle" className="chart-center-number">19</text>
-                      <text x="100" y="115" textAnchor="middle" className="chart-center-text">dự án</text>
-                    </svg>
-                  </div>
-                  <div className="chart-legend">
-                    {projectStatusData.map((item, index) => (
-                      <div key={index} className="legend-item">
-                        <div
-                          className="legend-color"
-                          style={{ backgroundColor: item.color }}
-                        ></div>
-                        <span className="legend-label">{item.value}% {item.label}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
+                <BaseDoughnutChart data={chartData} options={chartOptions} width={300} height={300} />
+
               </div>
 
               {/* Work Progress Chart */}
@@ -195,7 +179,6 @@ const Dashboard: React.FC = () => {
                 <button className="arrow-btn">›</button>
               </div>
             </div>
-
             {/* Work Progress Timeline */}
             <div className="timeline-section">
               <div className="timeline-header">

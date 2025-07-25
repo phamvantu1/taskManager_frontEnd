@@ -32,40 +32,42 @@ const Sidebar: React.FC = () => {
           <span className="nav-icon">📁</span>
           <span>Dự án</span>
         </div>
-        
+
         <div className="nav-item" onClick={() => navigate('/taskListPage')}>
           <span className="nav-icon">👥</span>
           <span>Công việc</span>
         </div>
 
         {/* Dropdown Menu Item */}
-        <div className="nav-item dropdown-parent">
-          <div 
-            onClick={() => setAdminOpen(!adminOpen)} 
-            style={{ 
-              cursor: 'pointer', 
-              display: 'flex', 
-              alignItems: 'center', 
+        <div className="nav-item dropdown-parent ">
+          <div
+          className='flex flex-col'
+            onClick={() => setAdminOpen(!adminOpen)}
+            style={{
+              cursor: 'pointer',
               gap: '12px',
               width: '100%'
             }}
           >
-            <span className="nav-icon">👤</span>
-            <span>Quản trị</span>
-            <span className={`dropdown-arrow ${adminOpen ? 'open' : ''}`}>▾</span>
+            <div className=" flex flex-row justify-start gap-2">
+              <span className="nav-icon">👤</span>
+              <span>Quản trị</span>
+              <span className={`dropdown-arrow ${adminOpen ? 'open' : ''}`}>▾</span>
+            </div>
+            {/* Dropdown Menu - Hiển thị bên dưới */}
+            {adminOpen && (
+              <div className="sidebar-dropdown-menu flex flex-col ">
+                <div className=" text-white p-2 ml-2 hover:bg-[#FFFFFF0D]" onClick={() => navigate('/department')}>
+                  Phòng ban
+                </div>
+                <div className=" text-white p-2 ml-2 hover:bg-[#FFFFFF0D]" onClick={() => navigate('/memberlistpage')}>
+                  Người dùng
+                </div>
+              </div>
+            )}
           </div>
 
-          {/* Dropdown Menu - Hiển thị bên dưới */}
-          {adminOpen && (
-            <div className="dropdown-menu">
-              <div className="dropdown-item" onClick={() => navigate('/department')}>
-                Phòng ban
-              </div>
-              <div className="dropdown-item" onClick={() => navigate('/memberlistpage')}>
-                Người dùng
-              </div>
-            </div>
-          )}
+
         </div>
 
         <div className="nav-item" onClick={() => navigate('/report')}>
