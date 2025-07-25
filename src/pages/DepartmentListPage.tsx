@@ -1,58 +1,13 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../style/departmentlist.css';
 import Header from '../components/Header';
 import Sidebar from '../components/Sidebar';
+import CreateDepartmentPopup from '../components/CreateDepartmentPopup';
+import { createDepartment, getDepartments, type DepartmentRequest } from '../api/departmentApi';
+import { toast } from 'react-toastify';
 
 
-const departments = [
-  {
-    id: '1',
-    name: 'Đơn Vị A',
-    createdBy: 'tham.tranthi@mobifone.vn',
-    createdAt: '20/06/2022 00:00',
-    teams: 0,
-    projects: 0,
-    members: ['H'],
-  },
-  {
-    id: '2',
-    name: 'Phòng A kv3',
-    createdBy: 'tham.tranthi@mobifone.vn',
-    createdAt: '04/08/2022 10:53',
-    teams: 0,
-    projects: 0,
-    members: [],
-  },
-  {
-    id: '3',
-    name: 'Phòng công nghệ kỹ thuật',
-    createdBy: 'phuong.levan@mobifone.vn',
-    createdAt: '11/08/2022 15:33',
-    teams: 0,
-    projects: 0,
-    members: ['VD', 'NH', 'MT', '+10'],
-  },
-  {
-    id: '4',
-    name: 'Phòng kinh doanh',
-    createdBy: 'phuong.levan@mobifone.vn',
-    createdAt: '11/08/2022 15:34',
-    teams: 0,
-    projects: 0,
-    members: ['QT', 'HT', 'VK', '+3'],
-  },
-  {
-    id: '5',
-    name: 'Đơn vị Hoài test 22',
-    createdBy: 'thung.cao@mobifone.vn',
-    createdAt: '06/09/2022 15:12',
-    teams: 0,
-    projects: 0,
-    members: ['C2', 'H1'],
-  },
-  // ... thêm các đơn vị khác nếu cần
-];
 
 const DepartmentListPage = () => {
 
@@ -60,6 +15,12 @@ const DepartmentListPage = () => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
   const [showAddPopup, setShowAddPopup] = useState(false);
+
+  const [departments, setDepartments] = useState<any[]>([]);
+  const [currentPage, setCurrentPage] = useState(0);
+  const [totalPages, setTotalPages] = useState(1);
+  const [searchText, setSearchText] = useState('');
+
 
 
   const toggleDropdown = () => {
@@ -84,6 +45,52 @@ const DepartmentListPage = () => {
     navigate('/login');
   };
 
+
+  const handleCreateDepartment = async (formData: DepartmentRequest) => {
+    try {
+      const token = localStorage.getItem('access_token') || '';
+      const res = await createDepartment(formData, token);
+      const data = (res as { data: { message: string } }).data;
+      toast.success("Thêm mới đơn vị thành công!");
+      setShowAddPopup(false);
+      fetchDepartments(currentPage, searchText); // reload
+      // TODO: refresh lại danh sách nếu cần
+    } catch (err: any) {
+      const message =
+        err?.response?.data?.message || 'Tạo đơn vị thất bại. Vui lòng kiểm tra lại.';
+      toast.error(message);
+    }
+  };
+
+  const fetchDepartments = async (page = 0, search = '') => {
+    try {
+      const token = localStorage.getItem('access_token') || '';
+      const data = await getDepartments(token, page, 10, search);
+      setDepartments(data.content);
+      setTotalPages(data.totalPages);
+      setCurrentPage(data.number);
+    } catch (err: any) {
+      const message = err?.response?.data?.message || 'Không thể tải danh sách đơn vị.';
+      toast.error(message);
+    }
+  };
+
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchText(e.target.value);
+    setCurrentPage(0); // reset về page 0 khi search
+  };
+
+
+
+  useEffect(() => {
+    fetchDepartments(currentPage, searchText);
+  }, [currentPage]); // chỉ gọi lại khi chuyển trang
+
+
+
+
+
+
   return (
     <div className="department-container">
       <Sidebar />
@@ -95,49 +102,70 @@ const DepartmentListPage = () => {
           isDropdownOpen={isDropdownOpen}
           toggleDropdown={toggleDropdown}
         />
-        <h2 className="page-title">Quản lý hệ thống</h2>
-        <div className="subtitle">Danh sách đơn vị</div>
+        <h2 className="page-title">Danh sách đơn vị</h2>
+
 
         <div className="filter-bar">
-          <input type="text" className="search-input" placeholder="Tìm đơn vị" />
-
+          <input
+            type="text"
+            className="search-input"
+            placeholder="Tìm đơn vị"
+            value={searchText}
+            onChange={handleSearchChange}
+          />
+          <button onClick={() => fetchDepartments(0, searchText)}>🔍 Tìm kiếm</button>
+          <button onClick={() => setShowAddPopup(true)}>+ Tạo mới</button>
         </div>
+
+        {showAddPopup && (
+          <CreateDepartmentPopup
+            onClose={() => setShowAddPopup(false)}
+            onSubmit={handleCreateDepartment}
+          />
+        )}
 
         <div className="card-grid">
           {departments.map((dept, index) => (
             <div
-              key={index}
+              key={dept.id}
               className="dept-card"
               onClick={() => handleDepartmentClick(dept.id)}
               style={{ cursor: 'pointer' }}
             >
               <div className="dept-title">{dept.name}</div>
               <div className="dept-meta">
-                <span className="created-by">
-                  👤 Người tạo <a href={`mailto:${dept.createdBy}`} onClick={(e) => e.stopPropagation()}>{dept.createdBy}</a>
+                <span className="created-by">👤 Người tạo {dept.createdByName}</span>
+                <span className="created-at">
+                  🕒 lúc {new Date(dept.createdAt).toLocaleString()}
                 </span>
-                <span className="created-at">🕒 lúc {dept.createdAt}</span>
-              </div>
-              <div className="dept-stats">
-                <span className="badge">🏢 {dept.teams} phòng ban</span>
-                <span className="badge">📁 {dept.projects} dự án</span>
-              </div>
-              <div className="member-avatars">
-                {dept.members.map((m, i) => (
-                  <div key={i} className="avatar-badge">{m}</div>
-                ))}
               </div>
             </div>
           ))}
         </div>
 
 
+
         <div className="pagination">
-          <button>&lt;</button>
-          {[1, 2, 3, 4, 5].map(n => <button key={n}>{n}</button>)}
-          <span>...</span>
-          <button>143 &gt;</button>
+          <button disabled={currentPage === 0} onClick={() => setCurrentPage(currentPage - 1)}>
+            &lt;
+          </button>
+          {[...Array(totalPages).keys()].map((n) => (
+            <button
+              key={n}
+              className={n === currentPage ? 'active' : ''}
+              onClick={() => setCurrentPage(n)}
+            >
+              {n + 1}
+            </button>
+          ))}
+          <button
+            disabled={currentPage + 1 === totalPages}
+            onClick={() => setCurrentPage(currentPage + 1)}
+          >
+            &gt;
+          </button>
         </div>
+
       </div>
 
 
