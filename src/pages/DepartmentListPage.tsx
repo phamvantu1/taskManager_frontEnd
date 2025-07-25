@@ -102,8 +102,7 @@ const DepartmentListPage = () => {
           isDropdownOpen={isDropdownOpen}
           toggleDropdown={toggleDropdown}
         />
-        <h2 className="page-title">Danh sách đơn vị</h2>
-
+    
 
         <div className="filter-bar">
           <input

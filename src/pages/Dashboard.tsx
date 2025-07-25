@@ -6,6 +6,7 @@ import Profile from './Profile';
 import Sidebar from '../components/Sidebar';
 import Header from '../components/Header';
 import BaseDoughnutChart from '../components/BaseDoughnutChart';
+import BaseBarChart from '../components/BaseBarChart';
 
 const Dashboard: React.FC = () => {
   const [selectedTimeframe, setSelectedTimeframe] = useState('Tháng này');
@@ -62,6 +63,34 @@ const Dashboard: React.FC = () => {
       },
     },
   };
+
+
+   const chartDataCot = {
+    labels: ['Tháng 1', 'Tháng 2', 'Tháng 3', 'Tháng 4'],
+    datasets: [
+      {
+        label: 'Doanh thu (triệu VND)',
+        data: [120, 190, 300, 250],
+        backgroundColor: '#42a5f5',
+      },
+    ],
+  };
+
+   const chartOptionsCot = {
+    responsive: true,
+    plugins: {
+      legend: {
+        position: 'top' as const,
+      },
+    },
+    scales: {
+      y: {
+        beginAtZero: true,
+      },
+    },
+  };
+
+
 
   const projectStatusData = [
     { label: 'Đang phát triển', value: 74, color: '#3b82f6' },
@@ -203,16 +232,8 @@ const Dashboard: React.FC = () => {
                   </div>
                 </div>
               </div>
-              <div className="timeline-chart">
-                <div className="chart-placeholder">
-                  <div className="y-axis">
-                    <span>0</span>
-                  </div>
-                  <div className="chart-area">
-                    <div className="empty-chart">Biểu đồ tiến độ công việc</div>
-                  </div>
-                </div>
-              </div>
+              <BaseBarChart data={chartDataCot} options={chartOptionsCot} width={700} height={400} />
+
             </div>
           </div>
         )}
