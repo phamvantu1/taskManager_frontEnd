@@ -2,6 +2,10 @@ import React, { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import Header from '../components/Header';
 import Sidebar from '../components/Sidebar';
+import EditDepartmentPopup from '../components/EditDepartmentPopupProps';
+import OverviewTab from '../components/OverviewTab';
+import MembersTab from '../components/MembersTab';
+import ProjectsTab from '../components/ProjectsTab';
 
 // Mock data - trong thực tế sẽ fetch từ API dựa trên ID
 const getDepartmentDetail = (id: string) => {
@@ -55,6 +59,7 @@ const DepartmentDetailPage = () => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
   const [activeTab, setActiveTab] = useState('overview');
+  const [showEditPopup, setShowEditPopup] = useState(false);
 
   const department = getDepartmentDetail(id || '1');
 
@@ -81,13 +86,10 @@ const DepartmentDetailPage = () => {
     navigate('/department');
   };
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'Hoàn thành': return 'bg-emerald-500';
-      case 'Đang thực hiện': return 'bg-blue-500';
-      case 'Lên kế hoạch': return 'bg-amber-500';
-      default: return 'bg-gray-500';
-    }
+  const handleEditDepartment = async (data: { name: string; description: string; leader_id: number }) => {
+    // Call your API to update the department
+    // e.g., await updateDepartment(department.id, data, token);
+    setShowEditPopup(false);
   };
 
   return (
@@ -103,7 +105,6 @@ const DepartmentDetailPage = () => {
         />
 
         {/* Breadcrumb */}
-        {/* Breadcrumb */}
         <div className="mt-8 mb-6 text-sm text-gray-600">
           <span
             onClick={handleBackToDepartments}
@@ -114,7 +115,6 @@ const DepartmentDetailPage = () => {
           <span className="mx-2">/</span>
           <span className="text-gray-800">{department.name}</span>
         </div>
-
 
         {/* Department Header */}
         <div className="mb-8 flex justify-between items-start border border-white rounded-lg p-4 bg-gray-50">
@@ -129,11 +129,17 @@ const DepartmentDetailPage = () => {
             </div>
           </div>
           <div className="flex gap-2">
-            <button className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600">✏️ Chỉnh sửa</button>
+            <button onClick={() => setShowEditPopup(true)} className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600">✏️ Chỉnh sửa</button>
+            {showEditPopup && (
+              <EditDepartmentPopup
+                onClose={() => setShowEditPopup(false)}
+                onSubmit={handleEditDepartment}
+                department={{ id: department.id, name: department.name, description: department.description, leader_id: Number(department.createdBy) }}
+              />
+            )}
             <button className="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600">🗑️ Xóa</button>
           </div>
         </div>
-
 
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
@@ -179,139 +185,9 @@ const DepartmentDetailPage = () => {
 
         {/* Tab Content */}
         <div>
-          {activeTab === 'overview' && (
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div className="bg-white p-6 rounded-lg shadow">
-                <h3 className="text-lg font-semibold mb-4">Thành viên mới tham gia</h3>
-                <div className="space-y-4">
-                  {department.members.slice(0, 3).map(member => (
-                    <div key={member.id} className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 font-semibold">
-                        {member.avatar}
-                      </div>
-                      <div>
-                        <div className="font-medium">{member.name}</div>
-                        <div className="text-sm text-gray-600">{member.role}</div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <div className="bg-white p-6 rounded-lg shadow">
-                <h3 className="text-lg font-semibold mb-4">Dự án đang thực hiện</h3>
-                <div className="space-y-4">
-                  {department.projects_list.filter(p => p.status === 'Đang thực hiện').map(project => (
-                    <div key={project.id} className="space-y-2">
-                      <div className="font-medium">{project.name}</div>
-                      <div className="flex items-center gap-2">
-                        <div className="w-full bg-gray-200 rounded-full h-2">
-                          <div
-                            className="bg-blue-500 h-2 rounded-full"
-                            style={{ width: `${project.progress}%` }}
-                          ></div>
-                        </div>
-                        <span className="text-sm text-gray-600">{project.progress}%</span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <div className="bg-white p-6 rounded-lg shadow">
-                <h3 className="text-lg font-semibold mb-4">Dự án hoàn thành</h3>
-                <div className="space-y-4">
-                  {department.projects_list.filter(p => p.status === 'Hoàn thành').length > 0 ? (
-                    department.projects_list.filter(p => p.status === 'Hoàn thành').map(project => (
-                      <div key={project.id} className="space-y-2">
-                        <div className="font-medium">{project.name}</div>
-                        <div className="flex items-center gap-2 text-sm">
-                          <span className="text-emerald-500">✅ Hoàn thành</span>
-                          <span className="text-gray-600">{project.completedDate || '25/12/2024'}</span>
-                        </div>
-                      </div>
-                    ))
-                  ) : (
-                    <div className="text-center text-gray-600">
-                      <div className="text-2xl mb-2">📋</div>
-                      <div>Chưa có dự án hoàn thành</div>
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
-          )}
-
-          {activeTab === 'members' && (
-            <div className="bg-white rounded-lg shadow">
-              <div className="p-6 flex justify-between items-center">
-                <h3 className="text-lg font-semibold">Danh sách thành viên ({department.members.length})</h3>
-                <button className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600">
-                  + Thêm thành viên
-                </button>
-              </div>
-              <div className="p-6">
-                <div className="grid grid-cols-4 gap-4 bg-gray-50 p-3 rounded-t-md font-semibold text-gray-700">
-                  <div>Tên</div>
-                  <div>Email</div>
-                  <div>Vai trò</div>
-                  <div>Thao tác</div>
-                </div>
-                {department.members.map(member => (
-                  <div key={member.id} className="grid grid-cols-4 gap-4 p-3 border-b">
-                    <div className="flex items-center gap-2">
-                      <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center text-blue-600">
-                        {member.avatar}
-                      </div>
-                      {member.name}
-                    </div>
-                    <div>{member.email}</div>
-                    <div>
-                      <span className="px-2 py-1 bg-blue-100 text-blue-600 rounded text-sm">{member.role}</span>
-                    </div>
-                    <div className="flex gap-2">
-                      <button className="px-2 py-1 bg-gray-100 rounded hover:bg-gray-200">✏️</button>
-                      <button className="px-2 py-1 bg-gray-100 rounded hover:bg-gray-200">🗑️</button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {activeTab === 'projects' && (
-            <div className="bg-white rounded-lg shadow">
-              <div className="p-6 flex justify-between items-center">
-                <h3 className="text-lg font-semibold">Danh sách dự án ({department.projects_list.length})</h3>
-                <button className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600">
-                  + Tạo dự án
-                </button>
-              </div>
-              <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-4">
-                {department.projects_list.map(project => (
-                  <div key={project.id} className="p-4 bg-gray-50 rounded-lg">
-                    <div className="flex justify-between items-center mb-3">
-                      <h4 className="font-medium">{project.name}</h4>
-                      <span
-                        className={`px-2 py-1 rounded text-white text-sm ${getStatusColor(project.status)}`}
-                      >
-                        {project.status}
-                      </span>
-                    </div>
-                    <div className="space-y-2">
-                      <div className="text-sm text-gray-600">Tiến độ: {project.progress}%</div>
-                      <div className="w-full bg-gray-200 rounded-full h-2">
-                        <div
-                          className="bg-blue-500 h-2 rounded-full"
-                          style={{ width: `${project.progress}%` }}
-                        ></div>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
+          {activeTab === 'overview' && <OverviewTab department={department} />}
+          {activeTab === 'members' && <MembersTab members={department.members} />}
+          {activeTab === 'projects' && <ProjectsTab projects={department.projects_list} />}
         </div>
       </div>
     </div>
