@@ -1,11 +1,14 @@
 import React from 'react';
 
-interface Project {
+export interface Project {
   id: number;
-  name: string;
+  name: string | null;
+  description: string;
+  startTime: string;
+  endTime: string;
   status: string;
-  progress: number;
-  completedDate?: string;
+  type: string;
+  createdAt: string;
 }
 
 interface ProjectsTabProps {
@@ -41,7 +44,7 @@ const ProjectsTab: React.FC<ProjectsTabProps> = ({ projects }) => {
                 {project.status}
               </span>
             </div>
-            <div className="space-y-2">
+            {/* <div className="space-y-2">
               <div className="text-sm text-gray-600">Tiến độ: {project.progress}%</div>
               <div className="w-full bg-gray-200 rounded-full h-2">
                 <div
@@ -49,7 +52,7 @@ const ProjectsTab: React.FC<ProjectsTabProps> = ({ projects }) => {
                   style={{ width: `${project.progress}%` }}
                 ></div>
               </div>
-            </div>
+            </div> */}
           </div>
         ))}
       </div>

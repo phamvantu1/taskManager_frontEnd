@@ -1,67 +1,101 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+
+import { getDepartmentDetail} from '../api/departmentApi';
+
 import Header from '../components/Header';
 import Sidebar from '../components/Sidebar';
 import EditDepartmentPopup from '../components/EditDepartmentPopupProps';
 import OverviewTab from '../components/OverviewTab';
 import MembersTab from '../components/MembersTab';
 import ProjectsTab from '../components/ProjectsTab';
+import { getAllProjects } from '../api/projectApi';
 
-// Mock data - trong thực tế sẽ fetch từ API dựa trên ID
-const getDepartmentDetail = (id: string) => {
-  const departments = [
-    {
-      id: '1',
-      name: 'Đơn Vị A',
-      createdBy: 'tham.tranthi@mobifone.vn',
-      createdAt: '20/06/2022 00:00',
-      description: 'Đơn vị chuyên trách về phát triển sản phẩm và dịch vụ mới của công ty.',
-      teams: 3,
-      projects: 12,
-      members: [
-        { id: 1, name: 'Hoàng Văn A', email: 'hoang.a@mobifone.vn', role: 'Trưởng phòng', avatar: 'H' },
-        { id: 2, name: 'Nguyễn Thị B', email: 'nguyen.b@mobifone.vn', role: 'Phó phòng', avatar: 'N' },
-        { id: 3, name: 'Trần Văn C', email: 'tran.c@mobifone.vn', role: 'Nhân viên', avatar: 'T' },
-        { id: 4, name: 'Lê Thị D', email: 'le.d@mobifone.vn', role: 'Nhân viên', avatar: 'L' },
-      ],
-      projects_list: [
-        { id: 1, name: 'Dự án A', status: 'Đang thực hiện', progress: 75 },
-        { id: 2, name: 'Dự án B', status: 'Hoàn thành', progress: 100, completedDate: '25/12/2024' },
-        { id: 3, name: 'Dự án C', status: 'Lên kế hoạch', progress: 25 },
-        { id: 4, name: 'Dự án D', status: 'Hoàn thành', progress: 100, completedDate: '15/11/2024' },
-      ]
-    },
-    {
-      id: '2',
-      name: 'Phòng A kv3',
-      createdBy: 'tham.tranthi@mobifone.vn',
-      createdAt: '04/08/2022 10:53',
-      description: 'Phòng ban khu vực 3 chuyên trách về vận hành và bảo trì hệ thống.',
-      teams: 2,
-      projects: 8,
-      members: [
-        { id: 1, name: 'Phạm Văn E', email: 'pham.e@mobifone.vn', role: 'Trưởng phòng', avatar: 'P' },
-        { id: 2, name: 'Võ Thị F', email: 'vo.f@mobifone.vn', role: 'Nhân viên', avatar: 'V' },
-      ],
-      projects_list: [
-        { id: 1, name: 'Bảo trì hệ thống', status: 'Đang thực hiện', progress: 60 },
-        { id: 2, name: 'Nâng cấp thiết bị', status: 'Lên kế hoạch', progress: 10 },
-      ]
-    }
-  ];
+interface Department {
+  id: string;
+  name: string;
+  description: string;
+  leaderName: string;
+  createdByName: string;
+  createdAt: string;
+  updatedAt: string;
+  numberOfUsers: number;
+  numberOfProjects: number;
+}
 
-  return departments.find(dept => dept.id === id) || departments[0];
-};
+interface Member {
+  id: number;
+  name: string;
+  email: string;
+  role: string;
+  avatar: string;
+}
+
+export interface Project {
+  id: number;
+  name: string | null;
+  description: string;
+  startTime: string;
+  endTime: string;
+  status: string;
+  type: string;
+  createdAt: string;
+}
 
 const DepartmentDetailPage = () => {
   const navigate = useNavigate();
-  const { id } = useParams<{ id: string }>();
+  const { departmentId } = useParams<{ departmentId: string }>();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
   const [activeTab, setActiveTab] = useState('overview');
   const [showEditPopup, setShowEditPopup] = useState(false);
+  const [department, setDepartment] = useState<Department | null>(null);
+  const [overviewData, setOverviewData] = useState<{ recentMembers: Member[]; ongoingProjects: Project[]; completedProjects: Project[] }>({
+    recentMembers: [],
+    ongoingProjects: [],
+    completedProjects: [],
+  });
+  const [members, setMembers] = useState<Member[]>([]);
+  const [projects, setProjects] = useState<Project[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const department = getDepartmentDetail(id || '1');
+  useEffect(() => {
+    const fetchDepartmentData = async () => {
+      try {
+        setLoading(true);
+        const token = localStorage.getItem('access_token');
+        if (!token) {
+          throw new Error('Không tìm thấy token xác thực');
+        }
+
+        // Fetch department details
+        const deptData = await getDepartmentDetail(departmentId || '1', token);
+        setDepartment({ ...deptData, id: deptData.id.toString() });
+
+        // Fetch overview data for Overview tab
+        // const overview = await getDepartmentOverview(id || '1', token);
+        // setOverviewData(overview);
+
+        // // Fetch members for Members tab
+        // const membersData = await getDepartmentMembers(id || '1', token);
+        // setMembers(membersData);
+
+        // Fetch projects for Projects tab
+       
+        const projectsData = await getAllProjects(Number(departmentId) || 1);
+
+        setProjects(projectsData.content || []);
+      } catch (err) {
+        setError('Không thể tải dữ liệu phòng ban');
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchDepartmentData();
+  }, [departmentId]);
 
   const toggleDropdown = () => {
     setIsDropdownOpen(!isDropdownOpen);
@@ -87,10 +121,29 @@ const DepartmentDetailPage = () => {
   };
 
   const handleEditDepartment = async (data: { name: string; description: string; leader_id: number }) => {
-    // Call your API to update the department
-    // e.g., await updateDepartment(department.id, data, token);
-    setShowEditPopup(false);
+    try {
+      const token = localStorage.getItem('access_token');
+      if (!token) {
+        throw new Error('Không tìm thấy token xác thực');
+      }
+      // TODO: Implement update API call
+      // await updateDepartment(department?.id, data, token);
+      setShowEditPopup(false);
+      if (department) {
+        setDepartment({ ...department, name: data.name, description: data.description });
+      }
+    } catch (err) {
+      console.error('Error updating department:', err);
+    }
   };
+
+  if (loading) {
+    return <div className="flex min-h-screen justify-center items-center">Đang tải...</div>;
+  }
+
+  if (error || !department) {
+    return <div className="flex min-h-screen justify-center items-center text-red-500">{error || 'Không tìm thấy phòng ban'}</div>;
+  }
 
   return (
     <div className="flex min-h-screen bg-gray-100">
@@ -120,24 +173,42 @@ const DepartmentDetailPage = () => {
         <div className="mb-8 flex justify-between items-start border border-white rounded-lg p-4 bg-gray-50">
           <div>
             <h1 className="text-2xl font-bold text-gray-900">{department.name}</h1>
-            <p className="mt-2 text-gray-600">{department.description}</p>
+            <p className="mt-2 text-gray-600">Mô tả: {department.description}</p>
             <div className="mt-3 flex gap-4 text-sm text-gray-600">
               <span>
-                👤 Người tạo: <a href={`mailto:${department.createdBy}`} className="text-blue-600 hover:underline">{department.createdBy}</a>
+                👤 Người tạo:{' '}
+                <a
+                  href={`mailto:${department.createdByName.split('(')[1]?.replace(')', '')}`}
+                  className="text-blue-600 hover:underline"
+                >
+                  {department.createdByName}
+                </a>
               </span>
               <span>🕒 Tạo lúc: {department.createdAt}</span>
             </div>
           </div>
           <div className="flex gap-2">
-            <button onClick={() => setShowEditPopup(true)} className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600">✏️ Chỉnh sửa</button>
+            <button
+              onClick={() => setShowEditPopup(true)}
+              className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
+            >
+              ✏️ Chỉnh sửa
+            </button>
             {showEditPopup && (
               <EditDepartmentPopup
                 onClose={() => setShowEditPopup(false)}
                 onSubmit={handleEditDepartment}
-                department={{ id: department.id, name: department.name, description: department.description, leader_id: Number(department.createdBy) }}
+                department={{
+                  id: department.id,
+                  name: department.name,
+                  description: department.description,
+                  leader_id: 0, // TODO: Replace with actual leader_id when available
+                }}
               />
             )}
-            <button className="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600">🗑️ Xóa</button>
+            <button className="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600">
+              🗑️ Xóa
+            </button>
           </div>
         </div>
 
@@ -146,14 +217,14 @@ const DepartmentDetailPage = () => {
           <div className="bg-white p-4 rounded-lg shadow flex items-center gap-4">
             <div className="text-2xl">📁</div>
             <div>
-              <div className="text-xl font-semibold">{department.projects}</div>
+              <div className="text-xl font-semibold">{department.numberOfProjects}</div>
               <div className="text-gray-600">Dự án</div>
             </div>
           </div>
           <div className="bg-white p-4 rounded-lg shadow flex items-center gap-4">
             <div className="text-2xl">👥</div>
             <div>
-              <div className="text-xl font-semibold">{department.members.length}</div>
+              <div className="text-xl font-semibold">{department.numberOfUsers}</div>
               <div className="text-gray-600">Thành viên</div>
             </div>
           </div>
@@ -185,9 +256,9 @@ const DepartmentDetailPage = () => {
 
         {/* Tab Content */}
         <div>
-          {activeTab === 'overview' && <OverviewTab department={department} />}
-          {activeTab === 'members' && <MembersTab members={department.members} />}
-          {activeTab === 'projects' && <ProjectsTab projects={department.projects_list} />}
+          {activeTab === 'overview' && <OverviewTab department={department} members={overviewData.recentMembers} projects={overviewData.ongoingProjects.concat(overviewData.completedProjects)} />}
+          {activeTab === 'members' && <MembersTab  departmentId={departmentId || '1'} />}
+          {activeTab === 'projects' && <ProjectsTab projects={projects} />}
         </div>
       </div>
     </div>
