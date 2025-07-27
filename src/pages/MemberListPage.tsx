@@ -52,7 +52,7 @@ const MemberListPage = () => {
     const [keyword, setKeyword] = useState('');
     const [unitFilter, setUnitFilter] = useState('');
 
-    const fetchUserDashboard = async (page: number = 0, size: number = 10) => {
+    const fetchUserDashboard = async (page: number = 0, size: number = 10, searchKeyword: string = '', unitFilter: string = '') => {
         setLoading(true);
         try {
             const token = localStorage.getItem('access_token');
@@ -61,8 +61,21 @@ const MemberListPage = () => {
                 return;
             }
 
+            const params = new URLSearchParams({
+                page: page.toString(),
+                size: size.toString()
+            });
+            
+            if (searchKeyword.trim()) {
+                params.append('keyword', searchKeyword.trim());
+            }
+            
+            if (unitFilter.trim()) {
+                params.append('unit', unitFilter.trim());
+            }
+
             const response = await fetch(
-                `http://localhost:8080/api/users/get-user-dashboard?page=${page}&size=${size}`,
+                `http://localhost:8080/api/users/get-user-dashboard?${params.toString()}`,
                 {
                     method: 'GET',
                     headers: {
@@ -98,7 +111,7 @@ const MemberListPage = () => {
     };
 
     useEffect(() => {
-        fetchUserDashboard(currentPage, pageSize);
+        fetchUserDashboard(currentPage, pageSize, keyword, unitFilter);
     }, [currentPage, pageSize]);
 
     const toggleDropdown = () => {
@@ -132,7 +145,20 @@ const MemberListPage = () => {
 
     const handlePageSizeChange = (newSize: number) => {
         setPageSize(newSize);
-        setCurrentPage(0); // Reset to first page when changing page size
+        setCurrentPage(0);
+    };
+
+    const handleSearch = () => {
+        setCurrentPage(0);
+        fetchUserDashboard(0, pageSize, keyword, unitFilter);
+    };
+
+    const handleKeywordChange = (value: string) => {
+        setKeyword(value);
+    };
+
+    const handleUnitFilterChange = (value: string) => {
+        setUnitFilter(value);
     };
 
     const extractEmailFromFullName = (fullName: string) => {
@@ -150,75 +176,58 @@ const MemberListPage = () => {
         return words[0][0] + words[words.length - 1][0];
     };
 
-    const renderUserGroup = (title: string, users: User[], groupRole?: string) => {
-        if (users.length === 0) return null;
+    const renderUserGroup = (title: string, users: User[], groupRole?: string, showPagination: boolean = false) => {
+        if (users.length === 0 && !showPagination) return null;
 
         return (
             <div key={title} className="member-group">
                 <h3 className="group-title">
-                    {title} <span className="count">{users.length}</span>
+                    {title} <span className="count">{showPagination ? totalMembers : users.length}</span>
                 </h3>
-                {users.map((user) => {
-                    const name = extractNameFromFullName(user.fullName);
-                    const email = extractEmailFromFullName(user.fullName);
-                    const role = user.role || groupRole || 'Member';
-                    
-                    return (
-                        <div key={user.id} className="member-row">
-                            <div className="avatar">{getInitials(name)}</div>
-                            <div className="info">
-                                <div className="name">{name} - {email}</div>
-                                <div className="unit">Phòng Phát triển phần mềm 2</div>
+                {users.length === 0 && showPagination ? (
+                    <div className="no-members">Không có thành viên nào</div>
+                ) : (
+                    users.map((user) => {
+                        const name = extractNameFromFullName(user.fullName);
+                        const email = extractEmailFromFullName(user.fullName);
+                        const role = user.role || groupRole || 'Member';
+                        
+                        return (
+                            <div key={user.id} className="member-row">
+                                <div className="avatar">{getInitials(name)}</div>
+                                <div className="info">
+                                    <div className="name">{name} - {email}</div>
+                                    <div className="unit">Phòng Phát triển phần mềm 2</div>
+                                </div>
+                                <span className={`role-badge ${roleColors[role as keyof typeof roleColors] || 'teal'}`}>
+                                    {role}
+                                </span>
+                                <div className="actions">
+                                    <button title="Xem">👁</button>
+                                    <button title="Sửa">✏️</button>
+                                    <button title="Xóa">🗑</button>
+                                </div>
                             </div>
-                            <span className={`role-badge ${roleColors[role as keyof typeof roleColors] || 'teal'}`}>
-                                {role}
-                            </span>
-                            <div className="actions">
-                                <button title="Xem">👁</button>
-                                <button title="Sửa">✏️</button>
-                                <button title="Xóa">🗑</button>
-                            </div>
-                        </div>
-                    );
-                })}
+                        );
+                    })
+                )}
+                
+                {showPagination && renderPagination()}
             </div>
         );
     };
 
     const renderPagination = () => {
-        if (totalPages <= 1) return null;
-
-        const pages = [];
-        const maxVisiblePages = 5;
-        let startPage = Math.max(0, currentPage - Math.floor(maxVisiblePages / 2));
-        let endPage = Math.min(totalPages - 1, startPage + maxVisiblePages - 1);
-
-        if (endPage - startPage < maxVisiblePages - 1) {
-            startPage = Math.max(0, endPage - maxVisiblePages + 1);
-        }
-
-        for (let i = startPage; i <= endPage; i++) {
-            pages.push(
-                <button
-                    key={i}
-                    onClick={() => handlePageChange(i)}
-                    className={`pagination-btn ${currentPage === i ? 'active' : ''}`}
-                >
-                    {i + 1}
-                </button>
-            );
-        }
-
         return (
-            <div className="pagination-container">
-                <div className="pagination-info">
-                    Hiển thị {Math.min(currentPage * pageSize + 1, totalMembers)} - {Math.min((currentPage + 1) * pageSize, totalMembers)} của {totalMembers} thành viên
+            <div className="flex flex-col items-center mt-4">
+                <div className="text-sm text-gray-700 mb-2">
+                    Hiển thị {totalMembers === 0 ? 0 : Math.min(currentPage * pageSize + 1, totalMembers)} - {Math.min((currentPage + 1) * pageSize, totalMembers)} của {totalMembers} thành viên
                 </div>
-                <div className="pagination-controls">
+                <div className="flex items-center gap-2">
                     <select 
                         value={pageSize} 
                         onChange={(e) => handlePageSizeChange(Number(e.target.value))}
-                        className="page-size-select"
+                        className="border border-gray-300 rounded-md px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                     >
                         <option value={5}>5/trang</option>
                         <option value={10}>10/trang</option>
@@ -226,33 +235,55 @@ const MemberListPage = () => {
                         <option value={50}>50/trang</option>
                     </select>
                     
-                    <div className="pagination-buttons">
+                    <div className="flex gap-1">
                         <button
                             onClick={() => handlePageChange(0)}
                             disabled={currentPage === 0}
-                            className="pagination-btn"
+                            className={`px-3 py-1 rounded-md ${currentPage === 0 ? 'bg-gray-200 text-gray-400 cursor-not-allowed' : 'bg-blue-500 text-white hover:bg-blue-600'}`}
                         >
                             ««
                         </button>
                         <button
                             onClick={() => handlePageChange(currentPage - 1)}
                             disabled={currentPage === 0}
-                            className="pagination-btn"
+                            className={`px-3 py-1 rounded-md ${currentPage === 0 ? 'bg-gray-200 text-gray-400 cursor-not-allowed' : 'bg-blue-500 text-white hover:bg-blue-600'}`}
                         >
                             ‹
                         </button>
-                        {pages}
+                        {(() => {
+                            const pages = [];
+                            const maxVisiblePages = 5;
+                            let startPage = Math.max(0, currentPage - Math.floor(maxVisiblePages / 2));
+                            let endPage = Math.min(totalPages - 1, startPage + maxVisiblePages - 1);
+
+                            if (endPage - startPage < maxVisiblePages - 1) {
+                                startPage = Math.max(0, endPage - maxVisiblePages + 1);
+                            }
+
+                            for (let i = startPage; i <= endPage; i++) {
+                                pages.push(
+                                    <button
+                                        key={i}
+                                        onClick={() => handlePageChange(i)}
+                                        className={`px-3 py-1 rounded-md ${currentPage === i ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
+                                    >
+                                        {i + 1}
+                                    </button>
+                                );
+                            }
+                            return pages;
+                        })()}
                         <button
                             onClick={() => handlePageChange(currentPage + 1)}
                             disabled={currentPage >= totalPages - 1}
-                            className="pagination-btn"
+                            className={`px-3 py-1 rounded-md ${currentPage >= totalPages - 1 ? 'bg-gray-200 text-gray-400 cursor-not-allowed' : 'bg-blue-500 text-white hover:bg-blue-600'}`}
                         >
                             ›
                         </button>
                         <button
                             onClick={() => handlePageChange(totalPages - 1)}
                             disabled={currentPage >= totalPages - 1}
-                            className="pagination-btn"
+                            className={`px-3 py-1 rounded-md ${currentPage >= totalPages - 1 ? 'bg-gray-200 text-gray-400 cursor-not-allowed' : 'bg-blue-500 text-white hover:bg-blue-600'}`}
                         >
                             »»
                         </button>
@@ -280,18 +311,20 @@ const MemberListPage = () => {
                         className="filter-input" 
                         placeholder="Từ khóa"
                         value={keyword}
-                        onChange={(e) => setKeyword(e.target.value)}
+                        onChange={(e) => handleKeywordChange(e.target.value)}
+                        onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
                     />
                     <input 
                         type="text" 
                         className="filter-input" 
                         placeholder="Lọc theo đơn vị"
                         value={unitFilter}
-                        onChange={(e) => setUnitFilter(e.target.value)}
+                        onChange={(e) => handleUnitFilterChange(e.target.value)}
+                        onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
                     />
                     <button 
                         className="search-btn"
-                        onClick={() => fetchUserDashboard(0, pageSize)}
+                        onClick={handleSearch}
                     >
                         Tìm kiếm
                     </button>
@@ -304,15 +337,13 @@ const MemberListPage = () => {
                         {renderUserGroup('Quản trị hệ thống', dashboard.admins, 'Admin')}
                         {renderUserGroup('Lãnh đạo đơn vị', dashboard.leaderDepartments, 'Owner')}
                         {renderUserGroup('Quản lý dự án', dashboard.projectManagers, 'Owner')}
-                        {renderUserGroup('Thành viên', dashboard.members, 'Member')}
+                        {renderUserGroup('Thành viên', dashboard.members, 'Member', true)}
                         
-                        {totalMembers === 0 && (
+                        {totalMembers === 0 && dashboard.admins.length === 0 && dashboard.leaderDepartments.length === 0 && dashboard.projectManagers.length === 0 && (
                             <div className="no-data">Không có dữ liệu để hiển thị</div>
                         )}
                     </>
                 )}
-
-                {renderPagination()}
             </div>
         </div>
     );
