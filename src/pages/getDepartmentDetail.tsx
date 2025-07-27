@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import  { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { getDepartmentDetail, getDepartmentDashboard } from '../api/departmentApi';
 import { getAllProjects } from '../api/projectApi';
