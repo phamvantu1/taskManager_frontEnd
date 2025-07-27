@@ -1,15 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-
-import { getDepartmentDetail} from '../api/departmentApi';
-
+import { getDepartmentDetail, getDepartmentDashboard } from '../api/departmentApi';
+import { getAllProjects } from '../api/projectApi';
 import Header from '../components/Header';
 import Sidebar from '../components/Sidebar';
 import EditDepartmentPopup from '../components/EditDepartmentPopupProps';
 import OverviewTab from '../components/OverviewTab';
 import MembersTab from '../components/MembersTab';
 import ProjectsTab from '../components/ProjectsTab';
-import { getAllProjects } from '../api/projectApi';
 
 interface Department {
   id: string;
@@ -27,19 +25,19 @@ interface Member {
   id: number;
   name: string;
   email: string;
-  role: string;
-  avatar: string;
+  role?: string; // Thêm role tùy chọn vì API không trả về role
+  avatar?: string; // Thêm avatar tùy chọn vì API không trả về avatar
 }
 
 export interface Project {
   id: number;
   name: string | null;
-  description: string;
-  startTime: string;
-  endTime: string;
-  status: string;
-  type: string;
-  createdAt: string;
+  description?: string | null; // Tùy chọn vì API không trả về description
+  startTime?: string;
+  endTime?: string;
+  status?: string;
+  type?: string;
+  createdAt?: string;
 }
 
 const DepartmentDetailPage = () => {
@@ -50,16 +48,21 @@ const DepartmentDetailPage = () => {
   const [activeTab, setActiveTab] = useState('overview');
   const [showEditPopup, setShowEditPopup] = useState(false);
   const [department, setDepartment] = useState<Department | null>(null);
-  const [overviewData, setOverviewData] = useState<{ recentMembers: Member[]; ongoingProjects: Project[]; completedProjects: Project[] }>({
+  const [overviewData, setOverviewData] = useState<{
+    recentMembers: Member[];
+    ongoingProjects: Project[];
+    completedProjects: Project[];
+  }>({
     recentMembers: [],
     ongoingProjects: [],
     completedProjects: [],
   });
-  const [members, setMembers] = useState<Member[]>([]);
+
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  // getDepartmentDetail.tsx (only relevant part)
   useEffect(() => {
     const fetchDepartmentData = async () => {
       try {
@@ -73,19 +76,46 @@ const DepartmentDetailPage = () => {
         const deptData = await getDepartmentDetail(departmentId || '1', token);
         setDepartment({ ...deptData, id: deptData.id.toString() });
 
-        // Fetch overview data for Overview tab
-        // const overview = await getDepartmentOverview(id || '1', token);
-        // setOverviewData(overview);
-
-        // // Fetch members for Members tab
-        // const membersData = await getDepartmentMembers(id || '1', token);
-        // setMembers(membersData);
+        // Fetch dashboard data for Overview tab
+        const dashboardData = await getDepartmentDashboard(departmentId || '1', token);
+        setOverviewData({
+          recentMembers: dashboardData.listNewUsers.map((user: any) => ({
+            id: user.id,
+            name: user.name,
+            email: user.email,
+            role: '',
+            avatar: '',
+          })),
+          ongoingProjects: dashboardData.listProjectsInProgress.map((project: any) => ({
+            id: project.id,
+            name: project.name,
+            description: project.description ?? '', // Convert null to empty string
+            startTime: '',
+            endTime: '',
+            status: 'In Progress',
+            type: '',
+            createdAt: '',
+          })),
+          completedProjects: dashboardData.listProjectsCompleted.map((project: any) => ({
+            id: project.id,
+            name: project.name,
+            description: project.description ?? '', // Convert null to empty string
+            startTime: '',
+            endTime: project.completedDate || '',
+            status: 'Completed',
+            type: '',
+            createdAt: '',
+          })),
+        });
 
         // Fetch projects for Projects tab
-       
-        const projectsData = await getAllProjects(Number(departmentId) || 1);
-
-        setProjects(projectsData.content || []);
+        const projectsData = await getAllProjects(currentPage, pageSize, Number(departmentId) || 1);
+        setProjects(
+          (projectsData.content || []).map((project: any) => ({
+            ...project,
+            description: project.description ?? '', // Convert null to empty string
+          }))
+        );
       } catch (err) {
         setError('Không thể tải dữ liệu phòng ban');
         console.error(err);
@@ -256,9 +286,26 @@ const DepartmentDetailPage = () => {
 
         {/* Tab Content */}
         <div>
-          {activeTab === 'overview' && <OverviewTab department={department} members={overviewData.recentMembers} projects={overviewData.ongoingProjects.concat(overviewData.completedProjects)} />}
-          {activeTab === 'members' && <MembersTab  departmentId={departmentId || '1'} />}
-          {activeTab === 'projects' && <ProjectsTab projects={projects} />}
+          {activeTab === 'overview' && (
+            <OverviewTab
+              members={overviewData.recentMembers}
+              projects={overviewData.ongoingProjects.concat(overviewData.completedProjects)}
+            />
+          )}
+          {activeTab === 'members' && <MembersTab departmentId={departmentId || '1'} />}
+          {activeTab === 'projects' && <ProjectsTab
+            projects={projects.map((p) => ({
+              id: p.id,
+              name: p.name ?? '',
+              description: p.description ?? '',
+              startTime: p.startTime ?? '',
+              endTime: p.endTime ?? '',
+              status: p.status ?? '',
+              type: p.type ?? '',
+              createdAt: p.createdAt ?? '',
+            }))}
+          />
+          }
         </div>
       </div>
     </div>

@@ -16,7 +16,7 @@ import DepartmentListPage from './pages/DepartmentListPage';
 import ReportPage from './pages/ReportPage';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import DepartmentDetailPage from './pages/getDepartmentDetail '; // Import trang chi tiết phòng ban
+import DepartmentDetailPage from './pages/getDepartmentDetail'; // Import trang chi tiết phòng ban
 import './index.css'; // Import CSS file for global styles
 
 

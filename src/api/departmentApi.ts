@@ -138,3 +138,22 @@ export const getDepartmentMembers = async (
   );
   return response.data;
 };
+
+// departmentApi.ts
+export const getDepartmentDashboard = async (departmentId: string, token: string) => {
+  const response = await fetch(`http://localhost:8080/api/departments/get-dashboard/${departmentId}`, {
+    method: 'GET',
+    headers: {
+      'Authorization': `Bearer ${token}`,
+      'Accept': 'application/json',
+      'Content-Type': 'application/json',
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error('Không thể lấy dữ liệu tổng quan phòng ban');
+  }
+
+  const result = await response.json();
+  return result.data; // Trả về phần data: { listNewUsers, listProjectsInProgress, listProjectsCompleted }
+};
