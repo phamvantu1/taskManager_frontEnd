@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
+import { toast } from 'react-toastify';
 import { fetchUsers, type User } from '../api/userApi';
+import { updateDepartment } from '../api/departmentApi';
 
 interface EditDepartmentPopupProps {
   onClose: () => void;
@@ -14,19 +16,35 @@ const EditDepartmentPopup: React.FC<EditDepartmentPopupProps> = ({ onClose, onSu
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [users, setUsers] = useState<User[]>([]);
 
+  // Assume token is stored in localStorage; adjust based on your auth implementation
+  const getAuthToken = () => localStorage.getItem('access_token') || '';
+
   const handleSubmit = async () => {
     if (!name.trim()) {
-      alert('Vui lòng nhập tên đơn vị');
+      toast.error('Vui lòng nhập tên đơn vị');
       return;
     }
 
     setIsSubmitting(true);
     try {
-      await onSubmit({ name: name.trim(), description: description.trim(), leader_id: leaderId });
+      const token = getAuthToken();
+      const response = await updateDepartment(department.id, { name: name.trim(), description: description.trim(), leader_id: leaderId }, token);
+
+      if (response.code === 'SUCCESS') {
+        toast.success(response.data.message || 'Cập nhật đơn vị thành công');
+        await onSubmit({ name: name.trim(), description: description.trim(), leader_id: leaderId });
+        onClose();
+      } else {
+        toast.error(response.message || 'Có lỗi khi cập nhật đơn vị');
+      }
+    } catch (error: any) {
+      const errorMessage = error.response?.data?.message || 'Có lỗi khi cập nhật đơn vị';
+      toast.error(errorMessage);
     } finally {
       setIsSubmitting(false);
     }
   };
+
 
   const handleOverlayClick = (e: React.MouseEvent) => {
     if (e.target === e.currentTarget) {
@@ -45,7 +63,7 @@ const EditDepartmentPopup: React.FC<EditDepartmentPopupProps> = ({ onClose, onSu
       .then(setUsers)
       .catch((err) => {
         console.error(err);
-        alert('Không thể tải danh sách người dùng');
+        toast.error('Không thể tải danh sách người dùng');
       });
   }, []);
 
@@ -126,29 +144,32 @@ const EditDepartmentPopup: React.FC<EditDepartmentPopupProps> = ({ onClose, onSu
         </div>
 
         {/* Footer */}
-        <div className="mt-6 flex justify-end gap-2">
-          <button
-            onClick={onClose}
-            disabled={isSubmitting}
-            className="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 disabled:opacity-50"
-            type="button"
-          >
-            Hủy
-          </button>
-          <button
-            onClick={handleSubmit}
-            disabled={isSubmitting || !name.trim()}
-            className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 disabled:opacity-50 flex items-center gap-2"
-            type="button"
-          >
-            {isSubmitting && (
-              <svg className="animate-spin h-5 w-5 text-white" viewBox="0 0 24 24">
-                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
-                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-              </svg>
-            )}
-            <span>{isSubmitting ? 'Đang lưu...' : 'Lưu thay đổi'}</span>
-          </button>
+        <div className="mt-6 flex justify-between gap-2">
+
+          <div className="flex gap-2">
+            <button
+              onClick={onClose}
+              disabled={isSubmitting}
+              className="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 disabled:opacity-50"
+              type="button"
+            >
+              Hủy
+            </button>
+            <button
+              onClick={handleSubmit}
+              disabled={isSubmitting || !name.trim()}
+              className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 disabled:opacity-50 flex items-center gap-2"
+              type="button"
+            >
+              {isSubmitting && (
+                <svg className="animate-spin h-5 w-5 text-white" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                </svg>
+              )}
+              <span>{isSubmitting ? 'Đang lưu...' : 'Lưu thay đổi'}</span>
+            </button>
+          </div>
         </div>
       </div>
     </div>

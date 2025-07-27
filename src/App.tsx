@@ -37,7 +37,7 @@ function App() {
           <Route path="/memberlistpage" element={<MemberListPage />} />
           <Route path="/department" element={<DepartmentListPage />} />
           <Route path="/report" element={<ReportPage />} />
-          <Route path="/department/:id" element={<DepartmentDetailPage />} /> {/* Route mới cho chi tiết phòng ban */}
+          <Route path="/department/:departmentId" element={<DepartmentDetailPage />} /> {/* Route mới cho chi tiết phòng ban */}
 
           <Route path="*" element={<Login />} />
         </Routes>

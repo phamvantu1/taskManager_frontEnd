@@ -32,6 +32,8 @@ const ProjectsTab: React.FC<ProjectsTabProps> = ({ projects, currentPage, totalP
     }
   };
 
+
+
   return (
     <div className="bg-white rounded-lg shadow">
       <div className="p-6 flex justify-between items-center">
@@ -58,14 +60,15 @@ const ProjectsTab: React.FC<ProjectsTabProps> = ({ projects, currentPage, totalP
         )}
       </div>
       {/* Pagination Controls */}
-      {totalPages > 1 && (
-        <div className="p-6 flex justify-between items-center">
+      <div className="p-6 flex justify-between items-center">
+
+
+        <div className="flex gap-4 items-center">
           <button
             onClick={() => onPageChange(currentPage - 1)}
             disabled={currentPage === 0}
-            className={`px-4 py-2 rounded-md ${
-              currentPage === 0 ? 'bg-gray-300 cursor-not-allowed' : 'bg-blue-500 text-white hover:bg-blue-600'
-            }`}
+            className={`px-4 py-2 rounded-md ${currentPage === 0 ? 'bg-gray-300 cursor-not-allowed' : 'bg-blue-500 text-white hover:bg-blue-600'
+              }`}
           >
             Trang trước
           </button>
@@ -75,14 +78,14 @@ const ProjectsTab: React.FC<ProjectsTabProps> = ({ projects, currentPage, totalP
           <button
             onClick={() => onPageChange(currentPage + 1)}
             disabled={currentPage >= totalPages - 1}
-            className={`px-4 py-2 rounded-md ${
-              currentPage >= totalPages - 1 ? 'bg-gray-300 cursor-not-allowed' : 'bg-blue-500 text-white hover:bg-blue-600'
-            }`}
+            className={`px-4 py-2 rounded-md ${currentPage >= totalPages - 1 ? 'bg-gray-300 cursor-not-allowed' : 'bg-blue-500 text-white hover:bg-blue-600'
+              }`}
           >
             Trang sau
           </button>
         </div>
-      )}
+
+      </div>
     </div>
   );
 };

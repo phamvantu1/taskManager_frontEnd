@@ -75,18 +75,23 @@ export interface ProjectPayload {
     return await response.json();
   };
 
-  export const getAllProjects = async (page = 0, size = 10, departmentId?: undefined) => {
+  export const getAllProjects = async (
+    page: number = 0,
+    size: number = 10,
+    departmentId?: number
+  ) => {
     const token = localStorage.getItem('access_token');
     const response = await axios.get<ApiResponse<PagedResponse<Project>>>(
-      `${API_BASE_URL}/get-all-projects?page=${page}&size=${size}&departmentId=${departmentId || ''}`,
+      `${API_BASE_URL}/get-all-projects?page=${page}&size=${size}&departmentId=${departmentId ?? ''}`,
       {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       }
     );
-    return response.data.data; // Trả toàn bộ đối tượng page
+    return response.data.data;
   };
+  
   
 
   const getProjectInfo = async (projectId: number, token: string) => {

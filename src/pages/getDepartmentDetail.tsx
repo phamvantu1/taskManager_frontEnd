@@ -8,6 +8,8 @@ import EditDepartmentPopup from '../components/EditDepartmentPopupProps';
 import OverviewTab from '../components/OverviewTab';
 import MembersTab from '../components/MembersTab';
 import ProjectsTab from '../components/ProjectsTab';
+import { deleteDepartment } from '../api/departmentApi';
+import { toast } from 'react-toastify';
 
 interface Department {
   id: string;
@@ -25,14 +27,14 @@ interface Member {
   id: number;
   name: string;
   email: string;
-  role?: string; // Thêm role tùy chọn vì API không trả về role
-  avatar?: string; // Thêm avatar tùy chọn vì API không trả về avatar
+  role?: string;
+  avatar?: string;
 }
 
 export interface Project {
   id: number;
   name: string | null;
-  description?: string | null; // Tùy chọn vì API không trả về description
+  description?: string | null;
   startTime?: string;
   endTime?: string;
   status?: string;
@@ -46,6 +48,7 @@ const DepartmentDetailPage = () => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
   const [activeTab, setActiveTab] = useState('overview');
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [showEditPopup, setShowEditPopup] = useState(false);
   const [department, setDepartment] = useState<Department | null>(null);
   const [overviewData, setOverviewData] = useState<{
@@ -59,10 +62,37 @@ const DepartmentDetailPage = () => {
   });
 
   const [projects, setProjects] = useState<Project[]>([]);
+  const [currentPage, setCurrentPage] = useState(0);
+  const [pageSize] = useState(10); // Fixed page size, adjust as needed
+  const [totalPages, setTotalPages] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // getDepartmentDetail.tsx (only relevant part)
+  const getAuthToken = () => localStorage.getItem('access_token') || '';
+
+  const handleDelete = async () => {
+    if (!window.confirm('Bạn có chắc muốn xóa đơn vị này?')) {
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      const token = getAuthToken();
+      const response = await deleteDepartment(departmentId || '', token);
+
+      if (response.code === 'SUCCESS') {
+        toast.success('Xóa đơn vị thành công');
+      } else {
+        toast.error(response.message || 'Có lỗi khi xóa đơn vị');
+      }
+    } catch (error: any) {
+      const errorMessage = error.response?.data?.message || 'Có lỗi khi xóa đơn vị';
+      toast.error(errorMessage);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   useEffect(() => {
     const fetchDepartmentData = async () => {
       try {
@@ -89,7 +119,7 @@ const DepartmentDetailPage = () => {
           ongoingProjects: dashboardData.listProjectsInProgress.map((project: any) => ({
             id: project.id,
             name: project.name,
-            description: project.description ?? '', // Convert null to empty string
+            description: project.description ?? '',
             startTime: '',
             endTime: '',
             status: 'In Progress',
@@ -99,7 +129,7 @@ const DepartmentDetailPage = () => {
           completedProjects: dashboardData.listProjectsCompleted.map((project: any) => ({
             id: project.id,
             name: project.name,
-            description: project.description ?? '', // Convert null to empty string
+            description: project.description ?? '',
             startTime: '',
             endTime: project.completedDate || '',
             status: 'Completed',
@@ -108,14 +138,15 @@ const DepartmentDetailPage = () => {
           })),
         });
 
-        // Fetch projects for Projects tab
-        const projectsData = await getAllProjects(currentPage, pageSize, Number(departmentId) || 1);
+        // Fetch projects for Projects tab with pagination
+        const projectsData = await getAllProjects(currentPage, pageSize, Number(departmentId));
         setProjects(
           (projectsData.content || []).map((project: any) => ({
             ...project,
-            description: project.description ?? '', // Convert null to empty string
+            description: project.description ?? '',
           }))
         );
+        setTotalPages(projectsData.totalPages || 0);
       } catch (err) {
         setError('Không thể tải dữ liệu phòng ban');
         console.error(err);
@@ -125,7 +156,13 @@ const DepartmentDetailPage = () => {
     };
 
     fetchDepartmentData();
-  }, [departmentId]);
+  }, [departmentId, currentPage, pageSize]);
+
+  const handlePageChange = (newPage: number) => {
+    if (newPage >= 0 && newPage < totalPages) {
+      setCurrentPage(newPage);
+    }
+  };
 
   const toggleDropdown = () => {
     setIsDropdownOpen(!isDropdownOpen);
@@ -236,8 +273,10 @@ const DepartmentDetailPage = () => {
                 }}
               />
             )}
-            <button className="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600">
+            <button onClick={handleDelete}
+              disabled={isSubmitting} className="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600">
               🗑️ Xóa
+
             </button>
           </div>
         </div>
@@ -304,6 +343,9 @@ const DepartmentDetailPage = () => {
               type: p.type ?? '',
               createdAt: p.createdAt ?? '',
             }))}
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={handlePageChange}
           />
           }
         </div>

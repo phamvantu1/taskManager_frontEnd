@@ -157,3 +157,32 @@ export const getDepartmentDashboard = async (departmentId: string, token: string
   const result = await response.json();
   return result.data; // Trả về phần data: { listNewUsers, listProjectsInProgress, listProjectsCompleted }
 };
+
+export const updateDepartment = async (
+  departmentId: string,
+  departmentData: DepartmentRequest,
+  token: string
+): Promise<ApiResponse<{ message: string }>> => {
+  const response = await axios.put<ApiResponse<{ message: string }>>(`${BASE_URL}/update/${departmentId}`, departmentData, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+      'Content-Type': 'application/json',
+      Accept: 'application/json, text/plain, */*',
+    },
+  });
+  return response.data;
+};
+
+export const deleteDepartment = async (
+  departmentId: string,
+  token: string
+): Promise<ApiResponse<null>> => {
+  const response = await axios.delete<ApiResponse<null>>(`${BASE_URL}/delete/${departmentId}`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+      'Content-Type': 'application/json',
+      Accept: 'application/json, text/plain, */*',
+    },
+  });
+  return response.data;
+};
