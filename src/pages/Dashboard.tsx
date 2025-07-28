@@ -1,15 +1,17 @@
-// File: src/pages/Dashboard.tsx
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import '../style/dashboard.css';
 import Profile from './Profile';
 import Sidebar from '../components/Sidebar';
 import Header from '../components/Header';
 import BaseDoughnutChart from '../components/BaseDoughnutChart';
 import BaseBarChart from '../components/BaseBarChart';
+import ProgressChart from '../components/ProgressChart';
 
 const Dashboard: React.FC = () => {
-  const [selectedTimeframe, setSelectedTimeframe] = useState('Tháng này');
+  const [selectedUnit, setSelectedUnit] = useState('Tất cả đơn vị');
+  const [projectStatusDateRange, setProjectStatusDateRange] = useState({ start: '2025-07-01', end: '2025-07-31' });
+  const [softwareDevYear, setSoftwareDevYear] = useState('2025');
+  const [progressDateRange, setProgressDateRange] = useState({ start: '2025-12-21', end: '2026-01-20' });
   const navigate = useNavigate();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
@@ -64,8 +66,7 @@ const Dashboard: React.FC = () => {
     },
   };
 
-
-   const chartDataCot = {
+  const chartDataCot = {
     labels: ['Tháng 1', 'Tháng 2', 'Tháng 3', 'Tháng 4'],
     datasets: [
       {
@@ -76,7 +77,7 @@ const Dashboard: React.FC = () => {
     ],
   };
 
-   const chartOptionsCot = {
+  const chartOptionsCot = {
     responsive: true,
     plugins: {
       legend: {
@@ -89,8 +90,6 @@ const Dashboard: React.FC = () => {
       },
     },
   };
-
-
 
   const projectStatusData = [
     { label: 'Đang phát triển', value: 74, color: '#3b82f6' },
@@ -118,16 +117,13 @@ const Dashboard: React.FC = () => {
   };
 
   return (
-    <div className="dashboard-container">
+    <div className="flex min-h-screen bg-gray-100">
       {/* Sidebar */}
       <Sidebar />
 
-
-
       {/* Main Content */}
-      <div className="main-content">
+      <div className="flex-1 flex flex-col">
         {/* Header */}
-
         <Header
           onProfileClick={handleProfile}
           onChangePassword={handleChangePassword}
@@ -140,100 +136,107 @@ const Dashboard: React.FC = () => {
         {showProfile ? (
           <Profile onBack={handleBackToDashboard} />
         ) : (
-          <div className="content">
-            {/* Time filter */}
-            <div className="time-filter">
-              <span className="filter-icon">📅</span>
+          <div className="p-6">
+            {/* Unit Filter */}
+            <div className="mb-6">
               <select
-                value={selectedTimeframe}
-                onChange={(e) => setSelectedTimeframe(e.target.value)}
-                className="time-select"
+                className="border rounded-lg px-3 py-2 bg-white"
+                value={selectedUnit}
+                onChange={(e) => setSelectedUnit(e.target.value)}
               >
-                <option>Tháng này</option>
-                <option>Tuần này</option>
-                <option>Năm này</option>
+                <option>Tất cả đơn vị</option>
+                <option>Phòng Phát triển phần mềm 1</option>
+                <option>Phòng Phát triển phần mềm 2</option>
+                <option>Phòng Kiểm thử</option>
+                <option>Phòng Phân tích</option>
               </select>
-              <div className="view-options">
-                <button className="view-btn">📋 Việc của tôi</button>
-                <button className="view-btn">📊 Tổng quan</button>
-              </div>
             </div>
 
             {/* Stats Cards */}
-            <div className="stats-grid">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
               {statsData.map((stat, index) => (
-                <div key={index} className="stat-card">
-                  <div className="stat-header">
-                    <span className="stat-title">{stat.title}</span>
-                    <div className="stat-icon" style={{ backgroundColor: stat.color }}>
-                      {stat.icon}
+                <div key={index} className="bg-white rounded-lg shadow p-4">
+                  <div className="flex justify-between items-center mb-2">
+                    <span className="text-sm font-semibold text-gray-600">{stat.title}</span>
+                    <div className="w-10 h-10 rounded-full flex items-center justify-center" style={{ backgroundColor: stat.color }}>
+                      <span className="text-xl">{stat.icon}</span>
                     </div>
                   </div>
-                  <div className="stat-value">{stat.value}</div>
-                  <div className="stat-subtitle">{stat.subtitle}</div>
+                  <div className="text-2xl font-bold text-gray-800">{stat.value}</div>
+                  <div className="text-sm text-gray-500 whitespace-pre-line">{stat.subtitle}</div>
                 </div>
               ))}
             </div>
 
             {/* Charts Section */}
-            <div className="charts-section">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
               {/* Project Status Chart */}
-              <div className="chart-card">
-                <h3 className="chart-title">TRẠNG THÁI DỰ ÁN CỦA TỪNG ĐƠN VỊ</h3>
-                <BaseDoughnutChart data={chartData} options={chartOptions} width={300} height={300} />
-
+              <div className="bg-white rounded-lg shadow p-4 flex flex-col items-center">
+                <h3 className="text-lg font-semibold mb-4">TRẠNG THÁI DỰ ÁN CỦA TỪNG ĐƠN VỊ</h3>
+                <div className="flex gap-4 mb-4">
+                  <input
+                    type="date"
+                    className="border rounded-lg px-3 py-2"
+                    value={projectStatusDateRange.start}
+                    onChange={(e) => setProjectStatusDateRange({ ...projectStatusDateRange, start: e.target.value })}
+                  />
+                  <input
+                    type="date"
+                    className="border rounded-lg px-3 py-2"
+                    value={projectStatusDateRange.end}
+                    onChange={(e) => setProjectStatusDateRange({ ...projectStatusDateRange, end: e.target.value })}
+                  />
+                </div>
+                <div className="flex justify-center">
+                  <BaseDoughnutChart data={chartData} options={chartOptions} width={300} height={300} />
+                </div>
               </div>
 
               {/* Work Progress Chart */}
-              <div className="chart-card">
-                <h3 className="chart-title">Phòng Phát triển phần mềm 2</h3>
-                <div className="progress-stats">
-                  <div className="progress-item">
-                    <div className="progress-dot" style={{ backgroundColor: '#3b82f6' }}></div>
-                    <span>74% Đang phát triển</span>
-                  </div>
-                  <div className="progress-item">
-                    <div className="progress-dot" style={{ backgroundColor: '#f59e0b' }}></div>
-                    <span>0% Sắp tới hạn</span>
-                  </div>
-                  <div className="progress-item">
-                    <div className="progress-dot" style={{ backgroundColor: '#10b981' }}></div>
-                    <span>26% Hoàn thành</span>
-                  </div>
-                  <div className="progress-item">
-                    <div className="progress-dot" style={{ backgroundColor: '#ef4444' }}></div>
-                    <span>0% Quá hạn</span>
-                  </div>
+              <div className="bg-white rounded-lg shadow p-4 flex flex-col items-center relative">
+                <h3 className="text-lg font-semibold mb-4">Phòng Phát triển phần mềm 2</h3>
+                <div className="mb-4">
+                  <select
+                    className="border rounded-lg px-3 py-2 bg-white"
+                    value={softwareDevYear}
+                    onChange={(e) => setSoftwareDevYear(e.target.value)}
+                  >
+                    <option>2024</option>
+                    <option>2025</option>
+                    <option>2026</option>
+                  </select>
                 </div>
-                <button className="arrow-btn">›</button>
+                <div className="flex justify-center">
+                  <BaseBarChart data={chartDataCot} options={chartOptionsCot} width={700} height={400} />
+                </div>
+                <button className="absolute right-4 top-1/2 transform -translate-y-1/2 text-xl bg-gray-200 rounded-full w-8 h-8 flex items-center justify-center hover:bg-gray-300">
+                  ›
+                </button>
               </div>
             </div>
+
             {/* Work Progress Timeline */}
-            <div className="timeline-section">
-              <div className="timeline-header">
-                <h3>THEO DÕI TIẾN ĐỘ XỬ LÝ CÔNG VIỆC CỦA ĐƠN VỊ</h3>
-                <div className="timeline-filters">
-                  <select className="filter-select">
-                    <option>Ngày</option>
-                  </select>
-                  <select className="filter-select">
-                    <option>Tuần</option>
-                  </select>
-                  <select className="filter-select">
-                    <option>Tháng</option>
-                  </select>
-                  <select className="filter-select">
-                    <option>Năm</option>
-                  </select>
-                  <div className="date-navigation">
-                    <button>‹</button>
-                    <span>07/2025</span>
-                    <button>›</button>
-                  </div>
+            <div className="bg-white rounded-lg shadow p-4">
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-lg font-semibold">THEO DÕI TIẾN ĐỘ XỬ LÝ CÔNG VIỆC CỦA ĐƠN VỊ</h3>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="date"
+                    className="border rounded-lg px-3 py-2"
+                    value={progressDateRange.start}
+                    onChange={(e) => setProgressDateRange({ ...progressDateRange, start: e.target.value })}
+                  />
+                  <input
+                    type="date"
+                    className="border rounded-lg px-3 py-2"
+                    value={progressDateRange.end}
+                    onChange={(e) => setProgressDateRange({ ...progressDateRange, end: e.target.value })}
+                  />
                 </div>
               </div>
-              <BaseBarChart data={chartDataCot} options={chartOptionsCot} width={700} height={400} />
-
+              <div>
+                <ProgressChart />
+              </div>
             </div>
           </div>
         )}
