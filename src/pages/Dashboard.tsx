@@ -9,8 +9,9 @@ import ProgressChart from '../components/ProgressChart';
 
 const Dashboard: React.FC = () => {
   const [selectedUnit, setSelectedUnit] = useState('Tất cả đơn vị');
+  const [selectedProject, setSelectedProject] = useState('Tất cả dự án');
   const [projectStatusDateRange, setProjectStatusDateRange] = useState({ start: '2025-07-01', end: '2025-07-31' });
-  const [softwareDevYear, setSoftwareDevYear] = useState('2025');
+  const [workProgressDateRange, setWorkProgressDateRange] = useState({ start: '2025-12-21', end: '2026-01-20' });
   const [progressDateRange, setProgressDateRange] = useState({ start: '2025-12-21', end: '2026-01-20' });
   const navigate = useNavigate();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -67,10 +68,10 @@ const Dashboard: React.FC = () => {
   };
 
   const chartDataCot = {
-    labels: ['Tháng 1', 'Tháng 2', 'Tháng 3', 'Tháng 4'],
+    labels: ['Chưa xử lý', 'Đang xử lý', 'Hoàn thành', 'Quá hạn'],
     datasets: [
       {
-        label: 'Doanh thu (triệu VND)',
+        label: 'Số lượng công việc',
         data: [120, 190, 300, 250],
         backgroundColor: '#42a5f5',
       },
@@ -172,7 +173,7 @@ const Dashboard: React.FC = () => {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
               {/* Project Status Chart */}
               <div className="bg-white rounded-lg shadow p-4 flex flex-col items-center">
-                <h3 className="text-lg font-semibold mb-4">TRẠNG THÁI DỰ ÁN CỦA TỪNG ĐƠN VỊ</h3>
+                <h3 className="text-lg font-semibold mb-4">TRẠNG THÁI DỰ ÁN CỦA ĐƠN VỊ</h3>
                 <div className="flex gap-4 mb-4">
                   <input
                     type="date"
@@ -194,17 +195,31 @@ const Dashboard: React.FC = () => {
 
               {/* Work Progress Chart */}
               <div className="bg-white rounded-lg shadow p-4 flex flex-col items-center relative">
-                <h3 className="text-lg font-semibold mb-4">Phòng Phát triển phần mềm 2</h3>
-                <div className="mb-4">
+                <h3 className="text-lg font-semibold mb-4">TRẠNG THÁI CÔNG VIỆC CỦA TỪNG DỰ ÁN</h3>
+                <div className="flex gap-4 mb-4">
                   <select
                     className="border rounded-lg px-3 py-2 bg-white"
-                    value={softwareDevYear}
-                    onChange={(e) => setSoftwareDevYear(e.target.value)}
+                    value={selectedProject}
+                    onChange={(e) => setSelectedProject(e.target.value)}
                   >
-                    <option>2024</option>
-                    <option>2025</option>
-                    <option>2026</option>
+                    <option>Tất cả dự án</option>
+                    <option>Dự án A</option>
+                    <option>Dự án B</option>
+                    <option>Dự án C</option>
+                    <option>Dự án D</option>
                   </select>
+                  <input
+                    type="date"
+                    className="border rounded-lg px-3 py-2"
+                    value={workProgressDateRange.start}
+                    onChange={(e) => setWorkProgressDateRange({ ...workProgressDateRange, start: e.target.value })}
+                  />
+                  <input
+                    type="date"
+                    className="border rounded-lg px-3 py-2"
+                    value={workProgressDateRange.end}
+                    onChange={(e) => setWorkProgressDateRange({ ...workProgressDateRange, end: e.target.value })}
+                  />
                 </div>
                 <div className="flex justify-center">
                   <BaseBarChart data={chartDataCot} options={chartOptionsCot} width={700} height={400} />
