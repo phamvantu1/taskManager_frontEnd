@@ -34,9 +34,9 @@ interface Stat {
 const Dashboard: React.FC = () => {
   const [selectedUnit, setSelectedUnit] = useState<string>('Tất cả đơn vị');
   const [selectedProject, setSelectedProject] = useState('Tất cả dự án');
-  const [projectStatusDateRange, setProjectStatusDateRange] = useState({ start: '2025-07-01', end: '2025-07-31' });
-  const [workProgressDateRange, setWorkProgressDateRange] = useState({ start: '2025-12-21', end: '2026-01-20' });
-  const [progressDateRange, setProgressDateRange] = useState({ start: '2025-12-21', end: '2026-01-20' });
+  const [projectStatusDateRange, setProjectStatusDateRange] = useState({ start: '2025-01-01', end: '2025-12-31' });
+  const [workProgressDateRange, setWorkProgressDateRange] = useState({ start: '2025-01-01', end: '2025-12-31' });
+  const [progressDateRange, setProgressDateRange] = useState({ start: '2025-01-01', end: '2025-12-31' });
   const [departments, setDepartments] = useState<Department[]>([]);
   const [statsData, setStatsData] = useState<Stat[]>([]);
   const [loading, setLoading] = useState(false);
@@ -123,6 +123,14 @@ const Dashboard: React.FC = () => {
     }
   };
 
+    const handleSearchProgress = () => {
+    if (progressChartRef.current) {
+      progressChartRef.current.fetchData(1); // Reset to first page
+    }
+  };
+
+   const progressChartRef = React.useRef<{ fetchData: (page: number) => void }>(null);
+
 
   const fetchProjects = async (departmentId: string | null) => {
     setLoading(true);
@@ -139,6 +147,11 @@ const Dashboard: React.FC = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+    const getDepartmentId = () => {
+    const department = departments.find((d) => d.name === selectedUnit);
+    return department ? department.id.toString() : null;
   };
 
 
@@ -199,6 +212,16 @@ const Dashboard: React.FC = () => {
       setLoading(false);
     }
   };
+
+
+  const handleProjectSearch = () => {
+    fetchProjectChartData();
+  };
+
+  const handleTaskSearch = () => {
+    fetchTaskChartData();
+  };
+
 
 
   const handleLogout = () => {
@@ -282,35 +305,22 @@ const Dashboard: React.FC = () => {
   useEffect(() => {
     fetchDepartments();
     fetchStatsData();
+    fetchProjects(null);
+    fetchProjectChartData();
+    fetchTaskChartData();
   }, []);
 
-  useEffect(() => {
-    if (departments.length > 0) {
-      let departmentId: string | null;
-      if (selectedUnit === 'Tất cả đơn vị') {
-        departmentId = null;
-      } else {
-        const department = departments.find((d) => d.name === selectedUnit);
-        departmentId = department ? department.id.toString() : null;
-      }
-      fetchProjects(departmentId);
-      fetchStatsData();
-      fetchProjectChartData();
-      fetchTaskChartData();
-    }
-  }, [selectedUnit, departments]);
+
 
   useEffect(() => {
-    if (departments.length > 0 && projects.length > 0) {
-      fetchTaskChartData();
-    }
-  }, [selectedProject, workProgressDateRange, departments, projects]);
+  if (departments.length > 0) {
+    fetchStatsData();
+    fetchProjects(null);
+    fetchProjectChartData();
+    fetchTaskChartData();
+  }
+}, [selectedUnit]);
 
-  useEffect(() => {
-    if (departments.length > 0) {
-      fetchProjectChartData();
-    }
-  }, [projectStatusDateRange, departments]);
 
 
   return (
@@ -384,6 +394,14 @@ const Dashboard: React.FC = () => {
                     value={projectStatusDateRange.end}
                     onChange={(e) => setProjectStatusDateRange({ ...projectStatusDateRange, end: e.target.value })}
                   />
+
+                  <button
+                    onClick={handleProjectSearch}
+                    className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+                  >
+                    Tìm kiếm
+                  </button>
+
                 </div>
                 <div className="flex justify-center">
                   <BaseDoughnutChart data={chartData} options={chartOptions} width={300} height={300} />
@@ -392,17 +410,24 @@ const Dashboard: React.FC = () => {
               <div className="bg-white rounded-lg shadow p-4 flex flex-col items-center relative">
                 <h3 className="text-lg font-semibold mb-4">TRẠNG THÁI CÔNG VIỆC CỦA TỪNG DỰ ÁN</h3>
                 <div className="flex gap-4 mb-4">
-                  <select
-                    className="border rounded-lg px-3 py-2 bg-white"
-                    value={selectedProject}
-                    onChange={(e) => setSelectedProject(e.target.value)}
-                  >
-                    <option>Tất cả dự án</option>
-                    <option>Dự án A</option>
-                    <option>Dự án B</option>
-                    <option>Dự án C</option>
-                    <option>Dự án D</option>
-                  </select>
+                  {loading ? (
+                    <p>Loading projects...</p>
+                  ) : error ? (
+                    <p className="text-red-500">{error}</p>
+                  ) : (
+                    <select
+                      className="border rounded-lg px-3 py-2 bg-white"
+                      value={selectedProject}
+                      onChange={(e) => setSelectedProject(e.target.value)}
+                    >
+                      <option value="Tất cả dự án">Tất cả dự án</option>
+                      {projects.map((project) => (
+                        <option key={project.id} value={project.name ?? ''}>
+                          {project.name}
+                        </option>
+                      ))}
+                    </select>
+                  )}
                   <input
                     type="date"
                     className="border rounded-lg px-3 py-2"
@@ -415,6 +440,14 @@ const Dashboard: React.FC = () => {
                     value={workProgressDateRange.end}
                     onChange={(e) => setWorkProgressDateRange({ ...workProgressDateRange, end: e.target.value })}
                   />
+
+                  <button
+                    onClick={handleTaskSearch}
+                    className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+                  >
+                    Tìm kiếm
+                  </button>
+
                 </div>
                 <div className="flex justify-center">
                   <BaseBarChart data={chartDataCot} options={chartOptionsCot} width={700} height={400} />
@@ -438,10 +471,20 @@ const Dashboard: React.FC = () => {
                     value={progressDateRange.end}
                     onChange={(e) => setProgressDateRange({ ...progressDateRange, end: e.target.value })}
                   />
+                  <button
+                    onClick={handleSearchProgress}
+                    className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
+                  >
+                    Tìm kiếm
+                  </button>
                 </div>
               </div>
               <div>
-                <ProgressChart />
+                <ProgressChart
+                  ref={progressChartRef}
+                  departmentId={getDepartmentId()}
+                  progressDateRange={progressDateRange}
+                />
               </div>
             </div>
           </div>

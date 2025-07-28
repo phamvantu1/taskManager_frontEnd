@@ -8,6 +8,48 @@ export interface Stat {
   subtitle: string;
 }
 
+export interface UserTaskOverview {
+  averageProgress: number;
+  excellentCount: number;
+  needSupportCount: number;
+}
+
+export interface UserProgress {
+  fullName: string;
+  progress: number;
+}
+
+
+export interface PagedUserProgress {
+  content: UserProgress[];
+  pageable: {
+    pageNumber: number;
+    pageSize: number;
+    sort: {
+      empty: boolean;
+      sorted: boolean;
+      unsorted: boolean;
+    };
+    offset: number;
+    paged: boolean;
+    unpaged: boolean;
+  };
+  last: boolean;
+  totalElements: number;
+  totalPages: number;
+  size: number;
+  number: number;
+  sort: {
+    empty: boolean;
+    sorted: boolean;
+    unsorted: boolean;
+  };
+  numberOfElements: number;
+  first: boolean;
+  empty: boolean;
+}
+
+
 export interface ProjectChartData {
   completed: number;
   inProgress: number;
@@ -76,6 +118,51 @@ export const getDashboardTasks = async (
     params: {
       departmentId: departmentId || undefined,
       projectId: projectId || undefined,
+      startTime: startTime || undefined,
+      endTime: endTime || undefined,
+    },
+  });
+  return response.data.data;
+};
+
+
+export const getDashboardUsers = async (
+  departmentId: string | null,
+  startTime: string | null,
+  endTime: string | null,
+  page: number,
+  size: number,
+  token: string
+): Promise<PagedUserProgress> => {
+  const response = await axios.get<ApiResponse<PagedUserProgress>>(`${DASHBOARD_URL}/get-dashboard-users`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+      Accept: 'application/json, text/plain, */*',
+    },
+    params: {
+      departmentId: departmentId || undefined,
+      startTime: startTime || undefined,
+      endTime: endTime || undefined,
+      page,
+      size,
+    },
+  });
+  return response.data.data;
+};
+
+export const getDashboardUserTaskOverview = async (
+  departmentId: string | null,
+  startTime: string | null,
+  endTime: string | null,
+  token: string
+): Promise<UserTaskOverview> => {
+  const response = await axios.get<ApiResponse<UserTaskOverview>>(`${DASHBOARD_URL}/get-dashboard-userTask-overview`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+      Accept: 'application/json, text/plain, */*',
+    },
+    params: {
+      departmentId: departmentId || undefined,
       startTime: startTime || undefined,
       endTime: endTime || undefined,
     },
