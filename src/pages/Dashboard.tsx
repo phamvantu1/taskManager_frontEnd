@@ -8,7 +8,8 @@ import BaseDoughnutChart from '../components/BaseDoughnutChart';
 import BaseBarChart from '../components/BaseBarChart';
 import ProgressChart from '../components/ProgressChart';
 import { getDepartments } from '../api/departmentApi';
-import { getDashboardOverview } from '../api/dashboardApi';
+import { getDashboardOverview, getDashboardProjects, getDashboardTasks, type ProjectChartData, type TaskChartData } from '../api/dashboardApi';
+import { getAllProjects, type Project } from '../api/projectApi';
 
 interface Department {
   id: number;
@@ -43,6 +44,102 @@ const Dashboard: React.FC = () => {
   const navigate = useNavigate();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
+  const [projects, setProjects] = useState<Project[]>([]);
+  const [projectChartData, setProjectChartData] = useState<ProjectChartData | null>(null);
+  const [taskChartData, setTaskChartData] = useState<TaskChartData | null>(null);
+
+
+
+  const fetchProjectChartData = async () => {
+    setLoading(true);
+    try {
+      const token = localStorage.getItem('access_token') || '';
+      if (!token) {
+        throw new Error('No access token found');
+      }
+
+      let departmentId: string | null = null;
+      if (selectedUnit !== 'Tất cả đơn vị') {
+        const department = departments.find((d) => d.name === selectedUnit);
+        if (!department) {
+          throw new Error('Selected department not found');
+        }
+        departmentId = department.id.toString();
+      }
+
+      const data = await getDashboardProjects(
+        departmentId,
+        projectStatusDateRange.start || null,
+        projectStatusDateRange.end || null,
+        token
+      );
+      setProjectChartData(data);
+    } catch (err) {
+      setError('Failed to fetch project chart data');
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchTaskChartData = async () => {
+    setLoading(true);
+    try {
+      const token = localStorage.getItem('access_token') || '';
+      if (!token) {
+        throw new Error('No access token found');
+      }
+
+      let departmentId: string | null = null;
+      let projectId: string | null = null;
+      if (selectedUnit !== 'Tất cả đơn vị') {
+        const department = departments.find((d) => d.name === selectedUnit);
+        if (!department) {
+          throw new Error('Selected department not found');
+        }
+        departmentId = department.id.toString();
+      }
+      if (selectedProject !== 'Tất cả dự án') {
+        const project = projects.find((p) => p.name === selectedProject);
+        if (!project) {
+          throw new Error('Selected project not found');
+        }
+        projectId = project.id.toString();
+      }
+
+      const data = await getDashboardTasks(
+        departmentId,
+        projectId,
+        workProgressDateRange.start || null,
+        workProgressDateRange.end || null,
+        token
+      );
+      setTaskChartData(data);
+    } catch (err) {
+      setError('Failed to fetch task chart data');
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+
+  const fetchProjects = async (departmentId: string | null) => {
+    setLoading(true);
+    try {
+      const token = localStorage.getItem('access_token') || '';
+      if (!token) {
+        throw new Error('No access token found');
+      }
+      const projectData = await getAllProjects(0, 100, departmentId ? parseInt(departmentId) : undefined);
+      setProjects(projectData.content || []);
+    } catch (err) {
+      setError('Failed to fetch projects');
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
 
 
@@ -65,43 +162,43 @@ const Dashboard: React.FC = () => {
   };
 
 
-const fetchStatsData = async () => {
-  setLoading(true);
-  try {
-    const token = localStorage.getItem('access_token') || '';
-    if (!token) {
-      throw new Error('No access token found');
-    }
-
-    // Xử lý logic cho "Tất cả đơn vị"
-    let departmentId: string | null = null;
-    if (selectedUnit !== 'Tất cả đơn vị') {
-      const department = departments.find((d) => d.name === selectedUnit);
-      if (!department) {
-        throw new Error('Selected department not found');
+  const fetchStatsData = async () => {
+    setLoading(true);
+    try {
+      const token = localStorage.getItem('access_token') || '';
+      if (!token) {
+        throw new Error('No access token found');
       }
-      departmentId = department.id.toString();
+
+      // Xử lý logic cho "Tất cả đơn vị"
+      let departmentId: string | null = null;
+      if (selectedUnit !== 'Tất cả đơn vị') {
+        const department = departments.find((d) => d.name === selectedUnit);
+        if (!department) {
+          throw new Error('Selected department not found');
+        }
+        departmentId = department.id.toString();
+      }
+
+      // Gọi API (nếu departmentId = null thì vẫn truyền, tuỳ backend xử lý)
+      const response = await getDashboardOverview(departmentId, token);
+
+      const apiData = response;
+      const mappedData: Stat[] = apiData.map((item: any, index: number) => ({
+        title: item.title,
+        value: item.value,
+        subtitle: item.subtitle,
+        icon: ['👥', '💼', '📋'][index % 3],
+        color: ['#ef4444', '#f97316', '#10b981'][index % 3],
+      }));
+      setStatsData(mappedData);
+    } catch (err) {
+      setError('Failed to fetch stats data');
+      console.error(err);
+    } finally {
+      setLoading(false);
     }
-
-    // Gọi API (nếu departmentId = null thì vẫn truyền, tuỳ backend xử lý)
-    const response = await getDashboardOverview(departmentId, token);
-
-    const apiData = response;
-    const mappedData: Stat[] = apiData.map((item: any, index: number) => ({
-      title: item.title,
-      value: item.value,
-      subtitle: item.subtitle,
-      icon: ['👥', '💼', '📋'][index % 3],
-      color: ['#ef4444', '#f97316', '#10b981'][index % 3],
-    }));
-    setStatsData(mappedData);
-  } catch (err) {
-    setError('Failed to fetch stats data');
-    console.error(err);
-  } finally {
-    setLoading(false);
-  }
-};
+  };
 
 
   const handleLogout = () => {
@@ -109,51 +206,7 @@ const fetchStatsData = async () => {
     navigate('/login');
   };
 
-  const chartData = {
-    labels: ['Đã hoàn thành', 'Đang xử lý', 'Chưa bắt đầu'],
-    datasets: [
-      {
-        label: 'Tiến độ công việc',
-        data: [12, 19, 7],
-        backgroundColor: ['#36A2EB', '#FFCE56', '#FF6384'],
-        borderWidth: 1,
-      },
-    ],
-  };
 
-  const chartOptions = {
-    responsive: true,
-    plugins: {
-      legend: {
-        position: 'bottom' as const,
-      },
-    },
-  };
-
-  const chartDataCot = {
-    labels: ['Chưa xử lý', 'Đang xử lý', 'Hoàn thành', 'Quá hạn'],
-    datasets: [
-      {
-        label: 'Số lượng công việc',
-        data: [120, 190, 300, 250],
-        backgroundColor: '#42a5f5',
-      },
-    ],
-  };
-
-  const chartOptionsCot = {
-    responsive: true,
-    plugins: {
-      legend: {
-        position: 'top' as const,
-      },
-    },
-    scales: {
-      y: {
-        beginAtZero: true,
-      },
-    },
-  };
 
   const toggleDropdown = () => {
     setIsDropdownOpen(!isDropdownOpen);
@@ -174,19 +227,90 @@ const fetchStatsData = async () => {
   };
 
 
-    // Fetch departments on component mount
+  const chartData = {
+    labels: ['Đã hoàn thành', 'Đang xử lý', 'Chưa bắt đầu', 'Quá hạn'],
+    datasets: [
+      {
+        label: 'Tiến độ dự án',
+        data: projectChartData
+          ? [projectChartData.completed, projectChartData.inProgress, projectChartData.pending, projectChartData.overdue]
+          : [0, 0, 0, 0],
+        backgroundColor: ['#36A2EB', '#FFCE56', '#FF6384', '#FF4444'],
+        borderWidth: 1,
+      },
+    ],
+  };
+
+  const chartOptions = {
+    responsive: true,
+    plugins: {
+      legend: {
+        position: 'bottom' as const,
+      },
+    },
+  };
+
+  const chartDataCot = {
+    labels: ['Chưa xử lý', 'Đang xử lý', 'Hoàn thành', 'Quá hạn'],
+    datasets: [
+      {
+        label: 'Số lượng công việc',
+        data: taskChartData
+          ? [taskChartData.pending, taskChartData.inProgress, taskChartData.completed, taskChartData.overdue]
+          : [0, 0, 0, 0],
+        backgroundColor: '#42a5f5',
+      },
+    ],
+  };
+
+  const chartOptionsCot = {
+    responsive: true,
+    plugins: {
+      legend: {
+        position: 'top' as const,
+      },
+    },
+    scales: {
+      y: {
+        beginAtZero: true,
+      },
+    },
+  };
+
+
+
   useEffect(() => {
     fetchDepartments();
     fetchStatsData();
   }, []);
 
-
-    // Fetch stats data when selectedUnit changes
   useEffect(() => {
     if (departments.length > 0) {
+      let departmentId: string | null;
+      if (selectedUnit === 'Tất cả đơn vị') {
+        departmentId = null;
+      } else {
+        const department = departments.find((d) => d.name === selectedUnit);
+        departmentId = department ? department.id.toString() : null;
+      }
+      fetchProjects(departmentId);
       fetchStatsData();
+      fetchProjectChartData();
+      fetchTaskChartData();
     }
   }, [selectedUnit, departments]);
+
+  useEffect(() => {
+    if (departments.length > 0 && projects.length > 0) {
+      fetchTaskChartData();
+    }
+  }, [selectedProject, workProgressDateRange, departments, projects]);
+
+  useEffect(() => {
+    if (departments.length > 0) {
+      fetchProjectChartData();
+    }
+  }, [projectStatusDateRange, departments]);
 
 
   return (
@@ -295,9 +419,7 @@ const fetchStatsData = async () => {
                 <div className="flex justify-center">
                   <BaseBarChart data={chartDataCot} options={chartOptionsCot} width={700} height={400} />
                 </div>
-                <button className="absolute right-4 top-1/2 transform -translate-y-1/2 text-xl bg-gray-200 rounded-full w-8 h-8 flex items-center justify-center hover:bg-gray-300">
-                  ›
-                </button>
+
               </div>
             </div>
             <div className="bg-white rounded-lg shadow p-4">

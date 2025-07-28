@@ -8,6 +8,20 @@ export interface Stat {
   subtitle: string;
 }
 
+export interface ProjectChartData {
+  completed: number;
+  inProgress: number;
+  pending: number;
+  overdue: number;
+}
+
+export interface TaskChartData {
+  completed: number;
+  inProgress: number;
+  pending: number;
+  overdue: number;
+}
+
 export interface ApiResponse<T> {
   code: string;
   message: string;
@@ -21,7 +35,49 @@ export const getDashboardOverview = async (departmentId: string | null, token: s
       Accept: 'application/json, text/plain, */*',
     },
     params: {
-      departmentId: departmentId || undefined, // Send undefined if departmentId is null to omit the param
+      departmentId: departmentId || undefined,
+    },
+  });
+  return response.data.data;
+};
+
+export const getDashboardProjects = async (
+  departmentId: string | null,
+  startTime: string | null,
+  endTime: string | null,
+  token: string
+): Promise<ProjectChartData> => {
+  const response = await axios.get<ApiResponse<ProjectChartData>>(`${DASHBOARD_URL}/get-dashboard-projects`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+      Accept: 'application/json, text/plain, */*',
+    },
+    params: {
+      departmentId: departmentId || undefined,
+      startTime: startTime || undefined,
+      endTime: endTime || undefined,
+    },
+  });
+  return response.data.data;
+};
+
+export const getDashboardTasks = async (
+  departmentId: string | null,
+  projectId: string | null,
+  startTime: string | null,
+  endTime: string | null,
+  token: string
+): Promise<TaskChartData> => {
+  const response = await axios.get<ApiResponse<TaskChartData>>(`${DASHBOARD_URL}/get-dashboard-tasks`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+      Accept: 'application/json, text/plain, */*',
+    },
+    params: {
+      departmentId: departmentId || undefined,
+      projectId: projectId || undefined,
+      startTime: startTime || undefined,
+      endTime: endTime || undefined,
     },
   });
   return response.data.data;
