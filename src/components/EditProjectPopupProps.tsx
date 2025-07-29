@@ -1,49 +1,33 @@
 import React, { useEffect, useState } from 'react';
-import { fetchUsers, type User } from '../api/userApi';
-import { createProject, type ProjectPayload } from '../api/projectApi';
-import { getDepartments, type Department } from '../api/departmentApi';
 import { toast } from 'react-toastify';
+import { fetchUsers, type User } from '../api/userApi';
+import { updateProject, type ProjectPayload, type ProjectDetail } from '../api/projectApi';
 
-interface AddProjectPopupProps {
+interface EditProjectPopupProps {
   onClose: () => void;
-  onAddSuccess?: () => void;
+  onUpdateSuccess?: () => void;
+  project: ProjectDetail;
 }
 
-const AddProjectPopup: React.FC<AddProjectPopupProps> = ({ onClose, onAddSuccess }) => {
+const EditProjectPopup: React.FC<EditProjectPopupProps> = ({ onClose, onUpdateSuccess, project }) => {
   const [users, setUsers] = useState<User[]>([]);
-  const [departments, setDepartments] = useState<Department[]>([]);
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState<ProjectPayload>({
-    name: '',
-    description: '',
-    type: '',
-    ownerId: '',
-    startTime: '',
-    endTime: '',
-    departmentId: undefined,
+    name: project.name || '',
+    description: project.description || '',
+    type: project.type || '',
+    ownerId: project.ownerId?.toString() || '',
+    startTime: project.startDate || '',
+    endTime: project.endDate || '',
+    departmentId: project.departmentId || undefined,
   });
 
   useEffect(() => {
-    const token = localStorage.getItem('access_token');
-    if (!token) {
-      toast.error('Vui lòng đăng nhập lại');
-      return;
-    }
-
-    // Fetch users
     fetchUsers()
       .then(setUsers)
       .catch((err) => {
         console.error(err);
         toast.error('Không thể tải danh sách người dùng');
-      });
-
-    // Fetch departments
-    getDepartments(token)
-      .then((data) => setDepartments(data.content))
-      .catch((err) => {
-        console.error(err);
-        toast.error('Không thể tải danh sách phòng ban');
       });
   }, []);
 
@@ -51,16 +35,13 @@ const AddProjectPopup: React.FC<AddProjectPopupProps> = ({ onClose, onAddSuccess
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
   ) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: name === 'departmentId' ? (value ? Number(value) : undefined) : value,
-    }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const validateForm = () => {
     const requiredFields: (keyof ProjectPayload)[] = ['name', 'type', 'ownerId', 'startTime', 'endTime'];
     for (const field of requiredFields) {
-      if (!formData[field]?.toString().trim()) {
+      if (typeof formData[field] === 'string' && !formData[field].trim()) {
         toast.error(`Vui lòng điền ${getFieldLabel(field)}`);
         return false;
       }
@@ -90,12 +71,12 @@ const AddProjectPopup: React.FC<AddProjectPopupProps> = ({ onClose, onAddSuccess
 
     setLoading(true);
     try {
-      await createProject(formData);
-      toast.success('Thêm mới dự án thành công!');
-      if (onAddSuccess) onAddSuccess();
+      await updateProject(project.id, formData);
+      toast.success('Cập nhật dự án thành công!');
+      if (onUpdateSuccess) onUpdateSuccess();
       onClose();
     } catch (err: any) {
-      const message = err?.message || 'Tạo dự án thất bại. Vui lòng kiểm tra lại.';
+      const message = err?.message || 'Cập nhật dự án thất bại. Vui lòng kiểm tra lại.';
       toast.error(message);
     } finally {
       setLoading(false);
@@ -103,10 +84,10 @@ const AddProjectPopup: React.FC<AddProjectPopupProps> = ({ onClose, onAddSuccess
   };
 
   return (
-    <div className="fixed inset-0 bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-gray-50 rounded-lg shadow-lg p-6 w-full max-w-md">
+    <div className="fixed inset-0  bg-opacity-50 flex items-center justify-center z-50">
+      <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-md">
         <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-semibold text-gray-800">Tạo mới dự án</h2>
+          <h2 className="text-xl font-semibold text-gray-800">Sửa dự án</h2>
           <button
             onClick={onClose}
             className="text-gray-500 hover:text-gray-700 transition-colors duration-150"
@@ -178,22 +159,15 @@ const AddProjectPopup: React.FC<AddProjectPopupProps> = ({ onClose, onAddSuccess
           <div>
             <label className="block text-sm font-medium text-gray-700">
               Phòng ban
-              <span className="text-red-500">*</span>
-              </label>
-            <select
+            </label>
+            <input
+              type="text"
               name="departmentId"
               value={formData.departmentId || ''}
               onChange={handleInputChange}
               className="mt-1 w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
-              required
-            >
-              <option value="">-- Chọn phòng ban --</option>
-              {departments.map((dept) => (
-                <option key={dept.id} value={dept.id}>
-                  {dept.name}
-                </option>
-              ))}
-            </select>
+              placeholder="Nhập ID phòng ban"
+            />
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700">
@@ -241,10 +215,10 @@ const AddProjectPopup: React.FC<AddProjectPopupProps> = ({ onClose, onAddSuccess
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8h-8z" />
                   </svg>
-                  Đang tạo...
+                  Đang cập nhật...
                 </span>
               ) : (
-                'Tạo'
+                'Cập nhật'
               )}
             </button>
           </div>
@@ -254,4 +228,4 @@ const AddProjectPopup: React.FC<AddProjectPopupProps> = ({ onClose, onAddSuccess
   );
 };
 
-export default AddProjectPopup;
+export default EditProjectPopup;

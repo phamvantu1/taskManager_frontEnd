@@ -5,12 +5,13 @@ import Header from '../components/Header';
 import Profile from '../pages/Profile';
 import AddTaskPopup from '../components/AddTaskPopupProps';
 import BarChartStats from '../components/PieChartStats';
-import { projectApi } from '../api/projectApi';
-import type { ProjectDetail as ProjectDetailType } from '../api/projectApi';
+import { projectApi, type ProjectDetail } from '../api/projectApi';
 import { getAllTasks, getDashboardTasksByProject, getTaskDetailById } from '../api/taskApi';
 import { getProjectMembersStats } from '../api/userApi';
 import TaskDetailPopup from '../components/TaskDetailPopup';
 import TaskListSection from '../components/TaskListSection';
+import EditProjectPopup from '../components/EditProjectPopupProps'; 
+import { toast } from 'react-toastify';
 
 const ProjectDetail = () => {
   const navigate = useNavigate();
@@ -18,7 +19,8 @@ const ProjectDetail = () => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
   const [showAddTaskPopup, setShowAddTaskPopup] = useState(false);
-  const [projectDetails, setProjectDetails] = useState<ProjectDetailType | null>(null);
+  const [showEditProjectPopup, setShowEditProjectPopup] = useState(false);
+  const [projectDetails, setProjectDetails] = useState<ProjectDetail | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [tasks, setTasks] = useState<any[]>([]);
   const [taskStats, setTaskStats] = useState<{ label: string; value: number }[]>([]);
@@ -64,10 +66,28 @@ const ProjectDetail = () => {
     navigate('/login');
   };
 
-  const handleAddTask = (newTask: any) => {
+  const handleAddTask = () => {
     fetchProject();
     fetchTaskDashboard();
     fetchMemberStats();
+  };
+
+  const handleUpdateProject = () => {
+    fetchProject();
+  };
+
+  const handleDeleteProject = async () => {
+    if (!projectId) return;
+    if (!window.confirm('Bạn có chắc chắn muốn xóa dự án này?')) return;
+
+    try {
+      const response = await projectApi.deleteProject(Number(projectId));
+      toast.success(response.data.message || 'Xóa dự án thành công!');
+      navigate('/projects');
+    } catch (err: any) {
+      const message = err?.message || 'Xóa dự án thất bại. Vui lòng thử lại.';
+      toast.error(message);
+    }
   };
 
   const fetchMemberStats = async (pageToFetch = 0, append = false) => {
@@ -76,11 +96,12 @@ const ProjectDetail = () => {
       const content = res.content || [];
       const totalPages = res.totalPages || 0;
 
-      setMemberStats(prev => (append ? [...prev, ...content] : content));
+      setMemberStats((prev) => (append ? [...prev, ...content] : content));
       setHasMoreMembers(pageToFetch < totalPages - 1);
       setMemberPage(pageToFetch);
     } catch (err) {
       console.error('Lỗi khi fetch thống kê thành viên:', err);
+      toast.error('Không thể tải thống kê thành viên');
     }
   };
 
@@ -92,7 +113,7 @@ const ProjectDetail = () => {
         return;
       }
 
-      const res = await projectApi.getProjectInfo(Number(projectId), token) as { data: ProjectDetailType };
+      const res = await projectApi.getProjectInfo(Number(projectId), token);
       setProjectDetails(res.data);
 
       const taskRes = await getAllTasks.getAllTasks(token, {
@@ -107,6 +128,7 @@ const ProjectDetail = () => {
       setTasks(taskRes.data.content);
     } catch (error) {
       console.error('Error fetching project details or tasks:', error);
+      toast.error('Không thể tải thông tin dự án');
     } finally {
       setLoading(false);
     }
@@ -133,11 +155,12 @@ const ProjectDetail = () => {
       const newTasks = taskRes.data.content;
       const totalPages = taskRes.data.totalPages;
 
-      setTasks(prev => (append ? [...prev, ...newTasks] : newTasks));
+      setTasks((prev) => (append ? [...prev, ...newTasks] : newTasks));
       setHasMoreTasks(pageToFetch < totalPages - 1);
       setTaskPage(pageToFetch);
     } catch (error) {
       console.error(error);
+      toast.error('Không thể tải danh sách công việc');
     } finally {
       setIsFetchingTasks(false);
     }
@@ -158,6 +181,7 @@ const ProjectDetail = () => {
       }
     } catch (error) {
       console.error('Lỗi khi lấy chi tiết công việc:', error);
+      toast.error('Không thể tải chi tiết công việc');
     }
   };
 
@@ -189,6 +213,7 @@ const ProjectDetail = () => {
       setTaskStats(mappedStats);
     } catch (err) {
       console.error('Lỗi khi fetch thống kê công việc:', err);
+      toast.error('Không thể tải thống kê công việc');
     }
   };
 
@@ -200,10 +225,10 @@ const ProjectDetail = () => {
 
   useEffect(() => {
     const observer = new IntersectionObserver(
-      entries => {
+      (entries) => {
         if (entries[0].isIntersecting) {
           if (visibleTaskCount < tasks.length) {
-            setVisibleTaskCount(prev => prev + 10);
+            setVisibleTaskCount((prev) => prev + 10);
           } else if (hasMoreTasks && !isFetchingTasks) {
             fetchTasks(taskPage + 1, true);
           }
@@ -220,10 +245,10 @@ const ProjectDetail = () => {
 
   useEffect(() => {
     const observer = new IntersectionObserver(
-      entries => {
+      (entries) => {
         if (entries[0].isIntersecting) {
           if (visibleMemberCount < memberStats.length) {
-            setVisibleMemberCount(prev => prev + 10);
+            setVisibleMemberCount((prev) => prev + 10);
           } else if (hasMoreMembers) {
             fetchMemberStats(memberPage + 1, true);
           }
@@ -277,16 +302,30 @@ const ProjectDetail = () => {
 
               <div className="flex justify-between items-center mb-6">
                 <h1 className="text-2xl font-bold text-gray-800">{projectDetails.name}</h1>
-                <div
-                  className={`px-3 py-1 text-sm font-semibold rounded-full ${
-                    projectDetails.status === 'OVERDUE'
-                      ? 'bg-red-100 text-red-800'
-                      : projectDetails.status === 'DONE'
-                      ? 'bg-green-100 text-green-800'
-                      : 'bg-yellow-100 text-yellow-800'
-                  }`}
-                >
-                  {projectDetails.status}
+                <div className="flex items-center gap-2">
+                  <div
+                    className={`px-3 py-1 text-sm font-semibold rounded-full ${
+                      projectDetails.status === 'OVERDUE'
+                        ? 'bg-red-100 text-red-800'
+                        : projectDetails.status === 'DONE'
+                        ? 'bg-green-100 text-green-800'
+                        : 'bg-yellow-100 text-yellow-800'
+                    }`}
+                  >
+                    {projectDetails.status}
+                  </div>
+                  <button
+                    onClick={() => setShowEditProjectPopup(true)}
+                    className="px-3 py-1 bg-indigo-500 text-white rounded-lg hover:bg-indigo-600 transition-colors duration-150"
+                  >
+                    Sửa
+                  </button>
+                  <button
+                    onClick={handleDeleteProject}
+                    className="px-3 py-1 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors duration-150"
+                  >
+                    Xóa
+                  </button>
                 </div>
               </div>
 
@@ -297,6 +336,10 @@ const ProjectDetail = () => {
                   <div className="flex flex-col">
                     <span className="text-sm font-medium text-gray-600">Quản lý dự án</span>
                     <span className="text-gray-800">{projectDetails.ownerName}</span>
+                  </div>
+                  <div className="flex flex-col">
+                    <span className="text-sm font-medium text-gray-600">Phòng ban</span>
+                    <span className="text-gray-800">{projectDetails.departmentName || 'Không có phòng ban'}</span>
                   </div>
                   <div className="flex flex-col">
                     <span className="text-sm font-medium text-gray-600">Số lượng thành viên</span>
@@ -316,7 +359,7 @@ const ProjectDetail = () => {
                   </div>
                   <div className="flex flex-col">
                     <span className="text-sm font-medium text-gray-600">Mô tả</span>
-                    <span className="text-gray-800">{projectDetails.description}</span>
+                    <span className="text-gray-800">{projectDetails.description || 'Không có mô tả'}</span>
                   </div>
                 </div>
               </div>
@@ -420,6 +463,13 @@ const ProjectDetail = () => {
               <TaskDetailPopup
                 task={selectedTask}
                 onClose={() => setShowTaskDetailPopup(false)}
+              />
+            )}
+            {showEditProjectPopup && projectDetails && (
+              <EditProjectPopup
+                project={projectDetails}
+                onClose={() => setShowEditProjectPopup(false)}
+                onUpdateSuccess={handleUpdateProject}
               />
             )}
           </div>

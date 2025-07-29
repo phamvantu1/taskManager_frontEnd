@@ -202,7 +202,7 @@ const DepartmentDetailPage = () => {
       if (department) {
         setDepartment({ ...department, name: data.name, description: data.description });
       }
-      toast.success('Cập nhật đơn vị thành công');
+     
     } catch (err) {
       const errorMessage = (err as any).response?.data?.message || 'Cập nhật đơn vị thất bại';
       toast.error(errorMessage);
