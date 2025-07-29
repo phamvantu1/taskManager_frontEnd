@@ -101,6 +101,7 @@ export interface TaskRequest {
         startTime?: string;
         endTime?: string;
         projectId?: number;
+        status?: string | null; // Allow null for "Tất cả" filter
       }
     ): Promise<ApiResponse<TaskListData>> => {
       const res = await axios.get<ApiResponse<TaskListData>>(`${BASE_URL}/getAll`, {

@@ -41,6 +41,7 @@ const ProjectDetail = () => {
     textSearch: '',
     startTime: '',
     endTime: '',
+    status: null, 
   });
 
   const toggleDropdown = () => {
@@ -150,6 +151,7 @@ const ProjectDetail = () => {
         startTime: filters.startTime,
         endTime: filters.endTime,
         projectId: Number(projectId),
+        status: filters.status !== null ? filters.status : undefined, 
       });
 
       const newTasks = taskRes.data.content;
@@ -192,7 +194,7 @@ const ProjectDetail = () => {
 
       const rawStats = await getDashboardTasksByProject(token, Number(projectId)) as {
         data: {
-          IN_PROGRESS?: number;
+          PROCESSING?: number;
           COMPLETED?: number;
           PENDING?: number;
           OVERDUE?: number;
@@ -205,7 +207,7 @@ const ProjectDetail = () => {
 
       const mappedStats = [
         { label: 'Chưa bắt đầu', value: stats.PENDING || 0 },
-        { label: 'Đang xử lý', value: stats.IN_PROGRESS || 0 },
+        { label: 'Đang xử lý', value: stats.PROCESSING || 0 },
         { label: 'Hoàn thành', value: stats.COMPLETED || 0 },
         { label: 'Quá hạn', value: stats.OVERDUE || 0 },
       ];

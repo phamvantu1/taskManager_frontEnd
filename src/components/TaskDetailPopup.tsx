@@ -43,7 +43,7 @@ const TaskDetailPopup: React.FC<TaskDetailPopupProps> = ({ task, onClose, onComp
   const mapNumberToStatus = (status: string): string => {
     switch (status) {
       case 'PENDING': return 'Chưa bắt đầu';
-      case 'IN_PROGRESS': return 'Đang thực hiện';
+      case 'PROCESSING': return 'Đang thực hiện';
       case 'COMPLETED': return 'Hoàn thành';
       case 'OVERDUE': return 'Quá hạn';
       default: return 'Không xác định';
@@ -62,7 +62,7 @@ const TaskDetailPopup: React.FC<TaskDetailPopupProps> = ({ task, onClose, onComp
   const mapVietnameseStatusToBackend = (status: string): string => {
     switch (status) {
       case 'Chưa bắt đầu': return 'PENDING';
-      case 'Đang thực hiện': return 'IN_PROGRESS';
+      case 'Đang thực hiện': return 'PROCESSING';
       case 'Hoàn thành': return 'COMPLETED';
       case 'Quá hạn': return 'OVERDUE';
       default: return status;

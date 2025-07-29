@@ -19,6 +19,7 @@ const TaskListPage = () => {
     textSearch: '',
     startTime: '',
     endTime: '',
+    status: null as string | null, 
   });
   const [hasMoreTasks, setHasMoreTasks] = useState(true);
   const [taskPage, setTaskPage] = useState(0);
@@ -39,7 +40,7 @@ const TaskListPage = () => {
 
       const rawStats = await getDashboardTasksByProject(token, undefined) as {
         data: {
-          IN_PROGRESS?: number;
+          PROCESSING?: number;
           COMPLETED?: number;
           PENDING?: number;
           OVERDUE?: number;
@@ -52,7 +53,7 @@ const TaskListPage = () => {
 
       const mappedStats = [
         { label: 'Chưa bắt đầu', value: stats.PENDING || 0 },
-        { label: 'Đang xử lý', value: stats.IN_PROGRESS || 0 },
+        { label: 'Đang xử lý', value: stats.PROCESSING || 0 },
         { label: 'Hoàn thành', value: stats.COMPLETED || 0 },
         { label: 'Quá hạn', value: stats.OVERDUE || 0 },
       ];
@@ -79,6 +80,7 @@ const TaskListPage = () => {
         startTime: filters.startTime,
         endTime: filters.endTime,
         projectId: undefined,
+        status: filters.status !== null ? filters.status : undefined,
       });
 
       const newTasks = taskRes.data.content;

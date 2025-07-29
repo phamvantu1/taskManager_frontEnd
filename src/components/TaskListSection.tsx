@@ -6,6 +6,7 @@ interface TaskListSectionProps {
     textSearch: string;
     startTime: string;
     endTime: string;
+    status: string | null;
   };
   setFilters?: (filters: any) => void;
   onAddTaskClick?: () => void;
@@ -13,7 +14,7 @@ interface TaskListSectionProps {
   showAddTaskPopup?: boolean;
   AddTaskPopupComponent?: React.ReactNode;
   taskNumber?: number;
-  fetchTasks?: (page?: number, append?: boolean) => void;
+  fetchTasks?: (page?: number, append?: boolean, filters?: any) => void;
   taskPage?: number;
   hasMoreTasks?: boolean;
   isFetchingTasks?: boolean;
@@ -21,7 +22,7 @@ interface TaskListSectionProps {
 
 const TaskListSection: React.FC<TaskListSectionProps> = ({
   tasks,
-  filters = { textSearch: '', startTime: '', endTime: '' },
+  filters = { textSearch: '', startTime: '', endTime: '', status: null },
   setFilters = () => {},
   onAddTaskClick = () => {},
   onTaskClick = () => {},
@@ -33,8 +34,43 @@ const TaskListSection: React.FC<TaskListSectionProps> = ({
   hasMoreTasks = false,
   isFetchingTasks = false,
 }) => {
+  const mapStatusToVietnamese = (status: string): string => {
+    switch (status) {
+      case 'PENDING': return 'Chưa bắt đầu';
+      case 'PROCESSING': return 'Đang thực hiện';
+      case 'COMPLETED': return 'Hoàn thành';
+      case 'OVERDUE': return 'Quá hạn';
+      default: return 'Không xác định';
+    }
+  };
+
+  const mapVietnameseToStatusNumber = (status: string): string | null => {
+    switch (status) {
+      case 'Tất cả': return null;
+      case 'Chưa bắt đầu': return '0';
+      case 'Đang thực hiện': return '1';
+      case 'Hoàn thành': return '2';
+      case 'Quá hạn': return '3';
+      default: return null;
+    }
+  };
+
+  const getStatusStyles = (status: string): string => {
+    switch (status) {
+      case 'PENDING': return 'bg-blue-100 text-blue-800';
+      case 'PROCESSING': return 'bg-yellow-100 text-yellow-800';
+      case 'COMPLETED': return 'bg-green-100 text-green-800';
+      case 'OVERDUE': return 'bg-red-100 text-red-800';
+      default: return 'bg-gray-100 text-gray-800';
+    }
+  };
+
+  const handleFilterChange = (key: string, value: string) => {
+    setFilters({ ...filters, [key]: key === 'status' ? mapVietnameseToStatusNumber(value) : value });
+  };
+
   return (
-    <div className="bg-white rounded-2xl shadow-lg p-6">
+    <div className="bg-white rounded-2xl shadow-lg p-6 animate-fade-in">
       <div className="flex justify-between items-center mb-4">
         <h3 className="text-xl font-semibold text-gray-900">
           Danh sách công việc <span className="text-sm text-gray-500">({taskNumber})</span>
@@ -52,24 +88,45 @@ const TaskListSection: React.FC<TaskListSectionProps> = ({
           type="text"
           placeholder="Tìm kiếm công việc..."
           value={filters.textSearch}
-          onChange={(e) => setFilters({ ...filters, textSearch: e.target.value })}
+          onChange={(e) => handleFilterChange('textSearch', e.target.value)}
           className="flex-1 px-4 py-2 rounded-xl border border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none text-sm text-gray-700 bg-white shadow-sm"
         />
         <input
           type="date"
           value={filters.startTime}
-          onChange={(e) => setFilters({ ...filters, startTime: e.target.value })}
+          onChange={(e) => handleFilterChange('startTime', e.target.value)}
           className="px-4 py-2 rounded-xl border border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none text-sm text-gray-700 bg-white shadow-sm"
         />
         <input
           type="date"
           value={filters.endTime}
-          onChange={(e) => setFilters({ ...filters, endTime: e.target.value })}
+          onChange={(e) => handleFilterChange('endTime', e.target.value)}
           className="px-4 py-2 rounded-xl border border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none text-sm text-gray-700 bg-white shadow-sm"
         />
+        <select
+          value={
+            filters.status === null
+              ? 'Tất cả'
+              : filters.status === '0'
+              ? 'Chưa bắt đầu'
+              : filters.status === '1'
+              ? 'Đang thực hiện'
+              : filters.status === '2'
+              ? 'Hoàn thành'
+              : 'Quá hạn'
+          }
+          onChange={(e) => handleFilterChange('status', e.target.value)}
+          className="px-4 py-2 rounded-xl border border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none text-sm text-gray-700 bg-white shadow-sm"
+        >
+          <option value="Tất cả">Tất cả</option>
+          <option value="Chưa bắt đầu">Chưa bắt đầu</option>
+          <option value="Đang thực hiện">Đang thực hiện</option>
+          <option value="Hoàn thành">Hoàn thành</option>
+          <option value="Quá hạn">Quá hạn</option>
+        </select>
         <button
-          onClick={() => fetchTasks(0, false)}
-          className="px-4 py-2 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 transition-all duration-200 font-semibold shadow-sm"
+          onClick={() => fetchTasks(0, false, filters)}
+          className="px-4 py-2 bg-gradient-to-r from-indigo-600 to-blue-500 text-white rounded-xl hover:from-indigo-700 hover:to-blue-600 transition-all duration-200 font-semibold shadow-sm"
         >
           Lọc
         </button>
@@ -79,7 +136,7 @@ const TaskListSection: React.FC<TaskListSectionProps> = ({
 
       <div className="overflow-x-auto">
         <div className="min-w-full">
-          <div className="grid grid-cols-6 gap-4 p-4 bg-gray-50 rounded-t-xl font-semibold text-gray-700">
+          <div className="grid grid-cols-6 gap-4 p-4 bg-gray-50 rounded-t-xl font-semibold text-gray-700 text-sm">
             <div>Tên công việc</div>
             <div>Người giao</div>
             <div>Người thực hiện</div>
@@ -96,7 +153,7 @@ const TaskListSection: React.FC<TaskListSectionProps> = ({
                 hasMoreTasks &&
                 !isFetchingTasks
               ) {
-                fetchTasks(taskPage + 1, true);
+                fetchTasks(taskPage + 1, true, filters);
               }
             }}
           >
@@ -113,16 +170,12 @@ const TaskListSection: React.FC<TaskListSectionProps> = ({
                     <div className="text-sm text-gray-800">{task.nameAssignedTo || '---'}</div>
                     <div className="text-sm text-gray-800">{task.startTime?.split('T')[0]}</div>
                     <div className="text-sm text-gray-800">{task.endTime?.split('T')[0]}</div>
-                    <div
-                      className={`text-sm font-semibold ${
-                        task.status === 'DONE'
-                          ? 'text-green-600'
-                          : task.status === 'OVERDUE'
-                          ? 'text-red-600'
-                          : 'text-yellow-600'
-                      }`}
-                    >
-                      {task.status}
+                    <div className="flex items-center">
+                      <span
+                        className={`px-2 py-1 rounded-full text-xs font-semibold ${getStatusStyles(task.status)}`}
+                      >
+                        {mapStatusToVietnamese(task.status)}
+                      </span>
                     </div>
                   </div>
                 ))}
