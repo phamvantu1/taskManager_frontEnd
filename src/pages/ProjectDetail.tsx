@@ -391,7 +391,7 @@ const ProjectDetail = () => {
                 <div className="border border-gray-200 rounded-lg overflow-hidden">
                   <div className="grid grid-cols-4 gap-4 bg-gray-100 p-4 font-semibold text-gray-700">
                     <div>Thành viên</div>
-                    <div>Công việc</div>
+                    <div>Tổng công việc</div>
                     <div>Hoàn thành</div>
                     <div>Trễ hạn</div>
                   </div>
