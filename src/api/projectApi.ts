@@ -76,22 +76,59 @@ export interface ProjectPayload {
     return await response.json();
   };
 
+  // export const getAllProjects = async (
+  //   page: number = 0,
+  //   size: number = 10,
+  //   departmentId?: number
+  // ) => {
+  //   const token = localStorage.getItem('access_token');
+  //   const response = await axios.get<ApiResponse<PagedResponse<Project>>>(
+  //     `${API_BASE_URL}/get-all-projects?page=${page}&size=${size}&departmentId=${departmentId ?? ''}`,
+  //     {
+  //       headers: {
+  //         Authorization: `Bearer ${token}`,
+  //       },
+  //     }
+  //   );
+  //   return response.data.data;
+  // };
+
+
   export const getAllProjects = async (
-    page: number = 0,
-    size: number = 10,
-    departmentId?: number
-  ) => {
-    const token = localStorage.getItem('access_token');
-    const response = await axios.get<ApiResponse<PagedResponse<Project>>>(
-      `${API_BASE_URL}/get-all-projects?page=${page}&size=${size}&departmentId=${departmentId ?? ''}`,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }
-    );
-    return response.data.data;
-  };
+  page: number = 0,
+  size: number = 10,
+  departmentId?: number,
+  textSearch?: string,
+  status?: string,
+  startTime?: string,
+  endTime?: string
+) => {
+  const token = localStorage.getItem('access_token');
+  if (!token) {
+    throw new Error('No access token found');
+  }
+
+  // Build query parameters dynamically
+  const params = new URLSearchParams({
+    page: page.toString(),
+    size: size.toString(),
+    ...(departmentId && { departmentId: departmentId.toString() }),
+    ...(textSearch && { textSearch }),
+    ...(status && { status }),
+    ...(startTime && { startTime }),
+    ...(endTime && { endTime }),
+  });
+
+  const response = await axios.get<ApiResponse<PagedResponse<Project>>>(
+    `${API_BASE_URL}/get-all-projects?${params.toString()}`,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
+  return response.data.data;
+};
   
   
 

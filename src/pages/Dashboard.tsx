@@ -1,6 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
 import Profile from './Profile';
 import Sidebar from '../components/Sidebar';
 import Header from '../components/Header';
@@ -47,8 +46,7 @@ const Dashboard: React.FC = () => {
   const [projects, setProjects] = useState<Project[]>([]);
   const [projectChartData, setProjectChartData] = useState<ProjectChartData | null>(null);
   const [taskChartData, setTaskChartData] = useState<TaskChartData | null>(null);
-
-
+  const progressChartRef = useRef<{ fetchData: (page: number) => void }>(null);
 
   const fetchProjectChartData = async () => {
     setLoading(true);
@@ -123,14 +121,11 @@ const Dashboard: React.FC = () => {
     }
   };
 
-    const handleSearchProgress = () => {
+  const handleSearchProgress = () => {
     if (progressChartRef.current) {
       progressChartRef.current.fetchData(1); // Reset to first page
     }
   };
-
-   const progressChartRef = React.useRef<{ fetchData: (page: number) => void }>(null);
-
 
   const fetchProjects = async (departmentId: string | null) => {
     setLoading(true);
@@ -149,13 +144,10 @@ const Dashboard: React.FC = () => {
     }
   };
 
-    const getDepartmentId = () => {
+  const getDepartmentId = () => {
     const department = departments.find((d) => d.name === selectedUnit);
     return department ? department.id.toString() : null;
   };
-
-
-
 
   const fetchDepartments = async () => {
     setLoading(true);
@@ -174,7 +166,6 @@ const Dashboard: React.FC = () => {
     }
   };
 
-
   const fetchStatsData = async () => {
     setLoading(true);
     try {
@@ -183,7 +174,6 @@ const Dashboard: React.FC = () => {
         throw new Error('No access token found');
       }
 
-      // Xử lý logic cho "Tất cả đơn vị"
       let departmentId: string | null = null;
       if (selectedUnit !== 'Tất cả đơn vị') {
         const department = departments.find((d) => d.name === selectedUnit);
@@ -193,7 +183,6 @@ const Dashboard: React.FC = () => {
         departmentId = department.id.toString();
       }
 
-      // Gọi API (nếu departmentId = null thì vẫn truyền, tuỳ backend xử lý)
       const response = await getDashboardOverview(departmentId, token);
 
       const apiData = response;
@@ -213,7 +202,6 @@ const Dashboard: React.FC = () => {
     }
   };
 
-
   const handleProjectSearch = () => {
     fetchProjectChartData();
   };
@@ -222,14 +210,10 @@ const Dashboard: React.FC = () => {
     fetchTaskChartData();
   };
 
-
-
   const handleLogout = () => {
     localStorage.removeItem('access_token');
     navigate('/login');
   };
-
-
 
   const toggleDropdown = () => {
     setIsDropdownOpen(!isDropdownOpen);
@@ -248,7 +232,6 @@ const Dashboard: React.FC = () => {
   const handleBackToDashboard = () => {
     setShowProfile(false);
   };
-
 
   const chartData = {
     labels: ['Đã hoàn thành', 'Đang xử lý', 'Chưa bắt đầu', 'Quá hạn'],
@@ -300,8 +283,6 @@ const Dashboard: React.FC = () => {
     },
   };
 
-
-
   useEffect(() => {
     fetchDepartments();
     fetchStatsData();
@@ -310,23 +291,24 @@ const Dashboard: React.FC = () => {
     fetchTaskChartData();
   }, []);
 
-
-
   useEffect(() => {
-  if (departments.length > 0) {
-    fetchStatsData();
-    fetchProjects(null);
-    fetchProjectChartData();
-    fetchTaskChartData();
-  }
-}, [selectedUnit]);
-
-
+    if (departments.length > 0) {
+      fetchStatsData();
+      fetchProjects(null);
+      fetchProjectChartData();
+      fetchTaskChartData();
+    }
+  }, [selectedUnit]);
 
   return (
-    <div className="flex min-h-screen bg-gray-100">
-      <Sidebar />
-      <div className="flex-1 flex flex-col">
+    <div className="flex min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50">
+      {/* Sidebar */}
+      <div className="fixed top-0 left-0 w-64 h-full bg-white shadow-lg z-10">
+        <Sidebar />
+      </div>
+
+      {/* Main Content */}
+      <div className="flex-1 ml-64 flex flex-col">
         <Header
           onProfileClick={handleProfile}
           onChangePassword={handleChangePassword}
@@ -338,14 +320,15 @@ const Dashboard: React.FC = () => {
           <Profile onBack={handleBackToDashboard} />
         ) : (
           <div className="p-6">
+            {/* Department Selector */}
             <div className="mb-6">
               {loading ? (
-                <p>Loading departments...</p>
+                <p className="text-gray-500">Đang tải đơn vị...</p>
               ) : error ? (
                 <p className="text-red-500">{error}</p>
               ) : (
                 <select
-                  className="border rounded-lg px-3 py-2 bg-white"
+                  className="border border-gray-300 rounded-lg px-4 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
                   value={selectedUnit}
                   onChange={(e) => setSelectedUnit(e.target.value)}
                 >
@@ -358,14 +341,16 @@ const Dashboard: React.FC = () => {
                 </select>
               )}
             </div>
+
+            {/* Stats Cards */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
               {loading ? (
-                <p>Loading stats...</p>
+                <p className="text-gray-500">Đang tải thống kê...</p>
               ) : error ? (
                 <p className="text-red-500">{error}</p>
               ) : (
                 statsData.map((stat, index) => (
-                  <div key={index} className="bg-white rounded-lg shadow p-4">
+                  <div key={index} className="bg-white rounded-lg shadow p-4 flex flex-col">
                     <div className="flex justify-between items-center mb-2">
                       <span className="text-sm font-semibold text-gray-600">{stat.title}</span>
                       <div className="w-10 h-10 rounded-full flex items-center justify-center" style={{ backgroundColor: stat.color }}>
@@ -378,45 +363,48 @@ const Dashboard: React.FC = () => {
                 ))
               )}
             </div>
+
+            {/* Charts */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+              {/* Project Status Chart */}
               <div className="bg-white rounded-lg shadow p-4 flex flex-col items-center">
                 <h3 className="text-lg font-semibold mb-4">TRẠNG THÁI DỰ ÁN CỦA ĐƠN VỊ</h3>
-                <div className="flex gap-4 mb-4">
+                <div className="flex flex-col sm:flex-row gap-4 mb-4 w-full justify-center">
                   <input
                     type="date"
-                    className="border rounded-lg px-3 py-2"
+                    className="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
                     value={projectStatusDateRange.start}
                     onChange={(e) => setProjectStatusDateRange({ ...projectStatusDateRange, start: e.target.value })}
                   />
                   <input
                     type="date"
-                    className="border rounded-lg px-3 py-2"
+                    className="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
                     value={projectStatusDateRange.end}
                     onChange={(e) => setProjectStatusDateRange({ ...projectStatusDateRange, end: e.target.value })}
                   />
-
                   <button
                     onClick={handleProjectSearch}
-                    className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+                    className="bg-indigo-500 text-white px-4 py-2 rounded-lg hover:bg-indigo-600 transition-colors duration-150"
                   >
                     Tìm kiếm
                   </button>
-
                 </div>
                 <div className="flex justify-center">
                   <BaseDoughnutChart data={chartData} options={chartOptions} width={300} height={300} />
                 </div>
               </div>
-              <div className="bg-white rounded-lg shadow p-4 flex flex-col items-center relative">
+
+              {/* Task Status Chart */}
+              <div className="bg-white rounded-lg shadow p-4 flex flex-col items-center">
                 <h3 className="text-lg font-semibold mb-4">TRẠNG THÁI CÔNG VIỆC CỦA TỪNG DỰ ÁN</h3>
-                <div className="flex gap-4 mb-4">
+                <div className="flex flex-col sm:flex-row gap-4 mb-4 w-full justify-center">
                   {loading ? (
-                    <p>Loading projects...</p>
+                    <p className="text-gray-500">Đang tải dự án...</p>
                   ) : error ? (
                     <p className="text-red-500">{error}</p>
                   ) : (
                     <select
-                      className="border rounded-lg px-3 py-2 bg-white"
+                      className="border border-gray-300 rounded-lg px-4 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
                       value={selectedProject}
                       onChange={(e) => setSelectedProject(e.target.value)}
                     >
@@ -430,50 +418,49 @@ const Dashboard: React.FC = () => {
                   )}
                   <input
                     type="date"
-                    className="border rounded-lg px-3 py-2"
+                    className="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
                     value={workProgressDateRange.start}
                     onChange={(e) => setWorkProgressDateRange({ ...workProgressDateRange, start: e.target.value })}
                   />
                   <input
                     type="date"
-                    className="border rounded-lg px-3 py-2"
+                    className="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
                     value={workProgressDateRange.end}
                     onChange={(e) => setWorkProgressDateRange({ ...workProgressDateRange, end: e.target.value })}
                   />
-
                   <button
                     onClick={handleTaskSearch}
-                    className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+                    className="bg-indigo-500 text-white px-4 py-2 rounded-lg hover:bg-indigo-600 transition-colors duration-150"
                   >
                     Tìm kiếm
                   </button>
-
                 </div>
                 <div className="flex justify-center">
                   <BaseBarChart data={chartDataCot} options={chartOptionsCot} width={700} height={400} />
                 </div>
-
               </div>
             </div>
+
+            {/* Progress Chart */}
             <div className="bg-white rounded-lg shadow p-4">
-              <div className="flex justify-between items-center mb-4">
+              <div className="flex flex-col sm:flex-row justify-between items-center mb-4">
                 <h3 className="text-lg font-semibold">THEO DÕI TIẾN ĐỘ XỬ LÝ CÔNG VIỆC CỦA ĐƠN VỊ</h3>
-                <div className="flex items-center gap-2">
+                <div className="flex flex-col sm:flex-row items-center gap-4">
                   <input
                     type="date"
-                    className="border rounded-lg px-3 py-2"
+                    className="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
                     value={progressDateRange.start}
                     onChange={(e) => setProgressDateRange({ ...progressDateRange, start: e.target.value })}
                   />
                   <input
                     type="date"
-                    className="border rounded-lg px-3 py-2"
+                    className="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
                     value={progressDateRange.end}
                     onChange={(e) => setProgressDateRange({ ...progressDateRange, end: e.target.value })}
                   />
                   <button
                     onClick={handleSearchProgress}
-                    className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
+                    className="bg-indigo-500 text-white px-4 py-2 rounded-lg hover:bg-indigo-600 transition-colors duration-150"
                   >
                     Tìm kiếm
                   </button>

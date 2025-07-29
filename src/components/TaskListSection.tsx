@@ -1,141 +1,144 @@
-// components/TaskListSection.tsx
 import React from 'react';
-import '../style/tasklist.css';
-
 
 interface TaskListSectionProps {
-    tasks: any[];
-    filters?: {
-        textSearch: string;
-        startTime: string;
-        endTime: string;
-    };
-    setFilters?: (filters: any) => void;
-    onAddTaskClick?: () => void;
-    onTaskClick?: (taskId: number) => void;
-    showAddTaskPopup?: boolean;
-    AddTaskPopupComponent?: React.ReactNode;
-    taskNumber?: number;
-    fetchTasks?: (page?: number, append?: boolean) => void;
-    taskPage?: number;
-    hasMoreTasks?: boolean;
-    isFetchingTasks?: boolean;
+  tasks: any[];
+  filters?: {
+    textSearch: string;
+    startTime: string;
+    endTime: string;
+  };
+  setFilters?: (filters: any) => void;
+  onAddTaskClick?: () => void;
+  onTaskClick?: (taskId: number) => void;
+  showAddTaskPopup?: boolean;
+  AddTaskPopupComponent?: React.ReactNode;
+  taskNumber?: number;
+  fetchTasks?: (page?: number, append?: boolean) => void;
+  taskPage?: number;
+  hasMoreTasks?: boolean;
+  isFetchingTasks?: boolean;
 }
 
-
-
-
 const TaskListSection: React.FC<TaskListSectionProps> = ({
-    tasks,
-    filters = { textSearch: '', startTime: '', endTime: '' },
-    setFilters = () => { },
-    onAddTaskClick = () => { },
-    onTaskClick = () => { },
-    showAddTaskPopup = false,
-    AddTaskPopupComponent = null,
-    taskNumber = 0,
-    fetchTasks = () => { },
-    taskPage = 0,
-    hasMoreTasks = false,
-    isFetchingTasks = false,
+  tasks,
+  filters = { textSearch: '', startTime: '', endTime: '' },
+  setFilters = () => {},
+  onAddTaskClick = () => {},
+  onTaskClick = () => {},
+  showAddTaskPopup = false,
+  AddTaskPopupComponent = null,
+  taskNumber = 0,
+  fetchTasks = () => {},
+  taskPage = 0,
+  hasMoreTasks = false,
+  isFetchingTasks = false,
 }) => {
+  return (
+    <div className="bg-white rounded-2xl shadow-lg p-6">
+      <div className="flex justify-between items-center mb-4">
+        <h3 className="text-xl font-semibold text-gray-900">
+          Danh sách công việc <span className="text-sm text-gray-500">({taskNumber})</span>
+        </h3>
+        <button
+          onClick={onAddTaskClick}
+          className="px-4 py-2 bg-gradient-to-r from-indigo-600 to-blue-500 text-white rounded-xl hover:from-indigo-700 hover:to-blue-600 transition-all duration-300 font-semibold shadow-sm hover:shadow-md"
+        >
+          + Thêm công việc
+        </button>
+      </div>
 
-    return (
-        <div className="task-list-section">
-            <h3>DANH SÁCH CÔNG VIỆC ( Số lượng : {taskNumber} ) </h3>
+      <div className="flex flex-col sm:flex-row gap-3 mb-6">
+        <input
+          type="text"
+          placeholder="Tìm kiếm công việc..."
+          value={filters.textSearch}
+          onChange={(e) => setFilters({ ...filters, textSearch: e.target.value })}
+          className="flex-1 px-4 py-2 rounded-xl border border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none text-sm text-gray-700 bg-white shadow-sm"
+        />
+        <input
+          type="date"
+          value={filters.startTime}
+          onChange={(e) => setFilters({ ...filters, startTime: e.target.value })}
+          className="px-4 py-2 rounded-xl border border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none text-sm text-gray-700 bg-white shadow-sm"
+        />
+        <input
+          type="date"
+          value={filters.endTime}
+          onChange={(e) => setFilters({ ...filters, endTime: e.target.value })}
+          className="px-4 py-2 rounded-xl border border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none text-sm text-gray-700 bg-white shadow-sm"
+        />
+        <button
+          onClick={() => fetchTasks(0, false)}
+          className="px-4 py-2 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 transition-all duration-200 font-semibold shadow-sm"
+        >
+          Lọc
+        </button>
+      </div>
 
-            <div className="task-controls">
-                <div className="filter-section">
-                    <input
-                        type="text"
-                        placeholder="Tìm kiếm công việc..."
-                        value={filters.textSearch}
-                        onChange={(e) => setFilters({ ...filters, textSearch: e.target.value })}
-                    />
-                    <input
-                        type="date"
-                        value={filters.startTime}
-                        onChange={(e) => setFilters({ ...filters, startTime: e.target.value })}
-                    />
-                    <input
-                        type="date"
-                        value={filters.endTime}
-                        onChange={(e) => setFilters({ ...filters, endTime: e.target.value })}
-                    />
-                    <button
-                        onClick={() => {
-                            fetchTasks(0, false);
-                        }}
+      {showAddTaskPopup && AddTaskPopupComponent}
+
+      <div className="overflow-x-auto">
+        <div className="min-w-full">
+          <div className="grid grid-cols-6 gap-4 p-4 bg-gray-50 rounded-t-xl font-semibold text-gray-700">
+            <div>Tên công việc</div>
+            <div>Người giao</div>
+            <div>Người thực hiện</div>
+            <div>Ngày bắt đầu</div>
+            <div>Ngày kết thúc</div>
+            <div>Trạng thái</div>
+          </div>
+          <div
+            className="max-h-96 overflow-y-auto border border-gray-200 rounded-b-xl"
+            onScroll={(e) => {
+              const target = e.currentTarget;
+              if (
+                target.scrollTop + target.clientHeight >= target.scrollHeight - 50 &&
+                hasMoreTasks &&
+                !isFetchingTasks
+              ) {
+                fetchTasks(taskPage + 1, true);
+              }
+            }}
+          >
+            {tasks.length > 0 ? (
+              <>
+                {tasks.map((task, index) => (
+                  <div
+                    key={index}
+                    className="grid grid-cols-6 gap-4 p-4 border-b border-gray-200 hover:bg-gray-50 transition-colors duration-150 cursor-pointer"
+                    onClick={() => onTaskClick(task.id)}
+                  >
+                    <div className="text-sm text-gray-800 truncate">{task.title}</div>
+                    <div className="text-sm text-gray-800">{task.nameCreatedBy || '---'}</div>
+                    <div className="text-sm text-gray-800">{task.nameAssignedTo || '---'}</div>
+                    <div className="text-sm text-gray-800">{task.startTime?.split('T')[0]}</div>
+                    <div className="text-sm text-gray-800">{task.endTime?.split('T')[0]}</div>
+                    <div
+                      className={`text-sm font-semibold ${
+                        task.status === 'DONE'
+                          ? 'text-green-600'
+                          : task.status === 'OVERDUE'
+                          ? 'text-red-600'
+                          : 'text-yellow-600'
+                      }`}
                     >
-                        Lọc
-                    </button>
-                </div>
-
-                <button className="add-project-btn" onClick={onAddTaskClick}>
-                    + Thêm công việc
-                </button>
-            </div>
-
-            {showAddTaskPopup && AddTaskPopupComponent}
-
-            <div className="stats-table">
-                <div
-                    className="task-scroll-container"
-                    style={{
-                        maxHeight: '600px',
-                        overflowY: 'auto',
-                        border: '1px solid #ddd',
-                        borderRadius: '4px',
-                    }}
-                    onScroll={(e) => {
-                        const target = e.currentTarget;
-                        if (
-                            target.scrollTop + target.clientHeight >= target.scrollHeight - 50 &&
-                            hasMoreTasks &&
-                            !isFetchingTasks
-                        ) {
-                            fetchTasks(taskPage + 1, true);
-                        }
-                    }}
-                >
-                    <div className="task-list-wrapper">
-                        <div className="table-header">
-                        {/* <div className="table-header"> */}
-                            <div>Tên công việc</div>
-                            <div>Người giao</div>
-                            <div>Người thực hiện</div>
-                            <div>Ngày bắt đầu</div>
-                            <div>Ngày kết thúc</div>
-                            <div>Trạng thái</div>
-                        </div>
-
-                        {tasks.length > 0 ? (
-                            <>
-                                {tasks.map((task, index) => (
-                                    <div
-                                        className="table-row"
-                                        key={index}
-                                        onClick={() => onTaskClick(task.id)}
-                                        style={{ cursor: 'pointer' }}
-                                    >
-                                        <div>{task.title}</div>
-                                        <div>{task.nameCreatedBy || '---'}</div>
-                                        <div>{task.nameAssignedTo || '---'}</div>
-                                        <div>{task.startTime?.split('T')[0]}</div>
-                                        <div>{task.endTime?.split('T')[0]}</div>
-                                        <div>{task.status}</div>
-                                    </div>
-                                ))}
-                                {isFetchingTasks && <div style={{ padding: '10px' }}>Đang tải thêm...</div>}
-                            </>
-                        ) : (
-                            <div style={{ padding: '10px', textAlign: 'center' }}>Không có công việc nào</div>
-                        )}
+                      {task.status}
                     </div>
-                </div>
-            </div>
+                  </div>
+                ))}
+                <div id="task-list-sentinel" className="h-1" />
+                {isFetchingTasks && (
+                  <div className="p-4 text-center text-sm text-gray-600">Đang tải thêm...</div>
+                )}
+              </>
+            ) : (
+              <div className="p-4 text-center text-sm text-gray-600">Không có công việc nào</div>
+            )}
+          </div>
         </div>
-    );
+      </div>
+    </div>
+  );
 };
 
 export default TaskListSection;

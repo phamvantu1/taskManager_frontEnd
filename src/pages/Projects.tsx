@@ -14,12 +14,25 @@ const Projects = () => {
   const navigate = useNavigate();
   const [totalPages, setTotalPages] = useState(0);
   const [showAddPopup, setShowAddPopup] = useState(false);
-  const [activeFilter, setActiveFilter] = useState('Tất cả');
+  const [filters, setFilters] = useState({
+    textSearch: '',
+    status: '',
+    startTime: '',
+    endTime: '',
+  });
   const pageSize = 6;
 
   const fetchProjects = async () => {
     try {
-      const pageData = await getAllProjects(page, pageSize);
+      const pageData = await getAllProjects(
+        page,
+        pageSize,
+        undefined, // departmentId (not used in this example)
+        filters.textSearch,
+        filters.status,
+        filters.startTime,
+        filters.endTime
+      );
       setProjects(pageData.content);
       setTotalPages(pageData.totalPages);
     } catch (error) {
@@ -29,17 +42,34 @@ const Projects = () => {
 
   useEffect(() => {
     fetchProjects();
-  }, [page, activeFilter]);
+  }, [page, filters]);
 
-  const handleFilterClick = (filter: string) => {
-    setActiveFilter(filter);
-    setPage(0); // Reset to first page when filter changes
+  const handleFilterChange = (key: string, value: string) => {
+    setFilters(prev => ({ ...prev, [key]: value }));
+    setPage(0); // Reset to first page when filters change
+  };
+
+  const handleFilterClick = (status: string) => {
+    const newStatus = status === 'Tất cả' ? '' : status.toUpperCase().replace(' ', '_'); // Map to API status
+    handleFilterChange('status', newStatus);
+  };
+
+  const handleResetFilters = () => {
+    setFilters({
+      textSearch: '',
+      status: '',
+      startTime: '',
+      endTime: '',
+    });
+    setPage(0);
   };
 
   return (
     <div className="flex min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50">
-      <Sidebar />
-      <div className="flex-1 flex flex-col">
+      <div className="fixed top-0 left-0 w-64 h-full bg-white shadow-lg z-10">
+        <Sidebar />
+      </div>
+      <div className="flex-1 ml-64 flex flex-col">
         <Header
           onProfileClick={onProfileClick}
           onChangePassword={onChangePassword}
@@ -51,27 +81,57 @@ const Projects = () => {
           <Profile onBack={() => setShowProfile(false)} />
         ) : (
           <div className="flex-1 p-8">
-            <div className="mb-8 flex justify-between items-center">
-              <button
-                className="px-5 py-2.5 bg-gradient-to-r from-indigo-500 to-blue-500 text-white rounded-xl hover:from-indigo-600 hover:to-blue-600 transition-all duration-200 font-semibold shadow-md"
-                onClick={() => setShowAddPopup(true)}
-              >
-                + Thêm mới dự án
-              </button>
-              <div className="flex space-x-3">
-                {['Tất cả', 'Đang thực hiện', 'Hoàn thành', 'Trễ hạn'].map((filter) => (
-                  <div
-                    key={filter}
-                    className={`px-5 py-2.5 rounded-xl cursor-pointer text-sm font-semibold transition-all duration-150 ${
-                      activeFilter === filter
-                        ? 'bg-indigo-500 text-white shadow-sm'
-                        : 'bg-white text-gray-700 hover:bg-gray-100 shadow-sm'
-                    }`}
-                    onClick={() => handleFilterClick(filter)}
-                  >
-                    {filter}
-                  </div>
-                ))}
+            <div className="mb-8">
+              <div className="flex justify-between items-center mb-4">
+                <button
+                  className="px-5 py-2.5 bg-gradient-to-r from-indigo-500 to-blue-500 text-white rounded-xl hover:from-indigo-600 hover:to-blue-600 transition-all duration-200 font-semibold shadow-md"
+                  onClick={() => setShowAddPopup(true)}
+                >
+                  + Thêm mới dự án
+                </button>
+                <div className="flex space-x-3">
+                  {['Tất cả', 'Đang thực hiện', 'Hoàn thành', 'Trễ hạn'].map((filter) => (
+                    <div
+                      key={filter}
+                      className={`px-5 py-2.5 rounded-xl cursor-pointer text-sm font-semibold transition-all duration-150 ${
+                        (filter === 'Tất cả' && !filters.status) ||
+                        filters.status === filter.toUpperCase().replace(' ', '_')
+                          ? 'bg-indigo-500 text-white shadow-sm'
+                          : 'bg-white text-gray-700 hover:bg-gray-100 shadow-sm'
+                      }`}
+                      onClick={() => handleFilterClick(filter)}
+                    >
+                      {filter}
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <div className="bg-white p-4 rounded-xl shadow-md flex flex-col sm:flex-row gap-4">
+                <input
+                  type="text"
+                  placeholder="Tìm kiếm dự án..."
+                  value={filters.textSearch}
+                  onChange={(e) => handleFilterChange('textSearch', e.target.value)}
+                  className="flex-1 border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                />
+                <input
+                  type="date"
+                  value={filters.startTime}
+                  onChange={(e) => handleFilterChange('startTime', e.target.value)}
+                  className="border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                />
+                <input
+                  type="date"
+                  value={filters.endTime}
+                  onChange={(e) => handleFilterChange('endTime', e.target.value)}
+                  className="border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                />
+                <button
+                  onClick={handleResetFilters}
+                  className="px-4 py-2 bg-gray-200 text-gray-700 rounded-xl hover:bg-gray-300 transition-all duration-150"
+                >
+                  Xóa bộ lọc
+                </button>
               </div>
             </div>
             <div className="flex-1 overflow-y-auto">
@@ -90,7 +150,9 @@ const Projects = () => {
                         className={`px-3 py-1 text-xs font-semibold rounded-full ${
                           project.status === 'DONE'
                             ? 'bg-green-100 text-green-800'
-                            : 'bg-red-100 text-red-800'
+                            : project.status === 'OVERDUE'
+                            ? 'bg-red-100 text-red-800'
+                            : 'bg-yellow-100 text-yellow-800'
                         }`}
                       >
                         {project.status}
