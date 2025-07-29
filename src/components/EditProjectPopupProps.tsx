@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 import { fetchUsers, type User } from '../api/userApi';
 import { updateProject, type ProjectPayload, type ProjectDetail } from '../api/projectApi';
+import { getDepartments, type Department } from '../api/departmentApi';
 
 interface EditProjectPopupProps {
   onClose: () => void;
@@ -11,6 +12,7 @@ interface EditProjectPopupProps {
 
 const EditProjectPopup: React.FC<EditProjectPopupProps> = ({ onClose, onUpdateSuccess, project }) => {
   const [users, setUsers] = useState<User[]>([]);
+  const [departments, setDepartments] = useState<Department[]>([]);
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState<ProjectPayload>({
     name: project.name || '',
@@ -23,11 +25,26 @@ const EditProjectPopup: React.FC<EditProjectPopupProps> = ({ onClose, onUpdateSu
   });
 
   useEffect(() => {
+    const token = localStorage.getItem('access_token');
+    if (!token) {
+      toast.error('Vui lòng đăng nhập lại');
+      return;
+    }
+
+    // Fetch users
     fetchUsers()
       .then(setUsers)
       .catch((err) => {
         console.error(err);
         toast.error('Không thể tải danh sách người dùng');
+      });
+
+    // Fetch departments
+    getDepartments(token)
+      .then((data) => setDepartments(data.content))
+      .catch((err) => {
+        console.error(err);
+        toast.error('Không thể tải danh sách phòng ban');
       });
   }, []);
 
@@ -35,7 +52,10 @@ const EditProjectPopup: React.FC<EditProjectPopupProps> = ({ onClose, onUpdateSu
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
   ) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    setFormData((prev) => ({
+      ...prev,
+      [name]: name === 'departmentId' ? (value ? Number(value) : undefined) : value,
+    }));
   };
 
   const validateForm = () => {
@@ -84,7 +104,7 @@ const EditProjectPopup: React.FC<EditProjectPopupProps> = ({ onClose, onUpdateSu
   };
 
   return (
-    <div className="fixed inset-0  bg-opacity-50 flex items-center justify-center z-50">
+    <div className="fixed inset-0 backdrop-blur-sm  bg-opacity-50 flex items-center justify-center z-50">
       <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-md">
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-xl font-semibold text-gray-800">Sửa dự án</h2>
@@ -157,17 +177,20 @@ const EditProjectPopup: React.FC<EditProjectPopupProps> = ({ onClose, onUpdateSu
             </select>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700">
-              Phòng ban
-            </label>
-            <input
-              type="text"
+            <label className="block text-sm font-medium text-gray-700">Phòng ban</label>
+            <select
               name="departmentId"
               value={formData.departmentId || ''}
               onChange={handleInputChange}
               className="mt-1 w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
-              placeholder="Nhập ID phòng ban"
-            />
+            >
+              <option value="">-- Chọn phòng ban --</option>
+              {departments.map((dept) => (
+                <option key={dept.id} value={dept.id}>
+                  {dept.name}
+                </option>
+              ))}
+            </select>
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700">

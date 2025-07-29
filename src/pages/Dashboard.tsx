@@ -36,7 +36,7 @@ const Dashboard: React.FC = () => {
   const [projectStatusDateRange, setProjectStatusDateRange] = useState({ start: '2025-01-01', end: '2025-12-31' });
   const [workProgressDateRange, setWorkProgressDateRange] = useState({ start: '2025-01-01', end: '2025-12-31' });
   const [progressDateRange, setProgressDateRange] = useState({ start: '2025-01-01', end: '2025-12-31' });
-  const [departments, setDepartments] = useState<Department[]>([]);
+  const [departments, setDepartments] = useState<import("../api/departmentApi").Department[]>([]);
   const [statsData, setStatsData] = useState<Stat[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -234,14 +234,14 @@ const Dashboard: React.FC = () => {
   };
 
   const chartData = {
-    labels: ['Đã hoàn thành', 'Đang xử lý', 'Chưa bắt đầu', 'Quá hạn'],
+    labels: ['Đã hoàn thành', 'Đang xử lý', 'Chưa xử lý', 'Quá hạn'],
     datasets: [
       {
-        label: 'Tiến độ dự án',
+        label: 'Số lượng dự án',
         data: projectChartData
           ? [projectChartData.completed, projectChartData.inProgress, projectChartData.pending, projectChartData.overdue]
           : [0, 0, 0, 0],
-        backgroundColor: ['#36A2EB', '#FFCE56', '#FF6384', '#FF4444'],
+          backgroundColor: ['#4CAF50', '#FFEB3B', '#2196F3', '#F44336'],
         borderWidth: 1,
       },
     ],
@@ -264,7 +264,8 @@ const Dashboard: React.FC = () => {
         data: taskChartData
           ? [taskChartData.pending, taskChartData.inProgress, taskChartData.completed, taskChartData.overdue]
           : [0, 0, 0, 0],
-        backgroundColor: '#42a5f5',
+          backgroundColor: ['#2196F3', '#FFEB3B', '#4CAF50', '#F44336'],
+
       },
     ],
   };

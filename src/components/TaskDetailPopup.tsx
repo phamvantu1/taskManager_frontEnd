@@ -128,7 +128,7 @@ const TaskDetailPopup: React.FC<TaskDetailPopupProps> = ({ task, onClose, onComp
     const isEditing = editingField === field;
 
     return (
-      <div className="flex items-center gap-4 py-2">
+      <div className="relative flex items-center gap-4 py-2 pr-8">
         <label className="w-32 text-sm font-semibold text-gray-700">{label}:</label>
         {isEditing && isEditable ? (
           <div className="flex items-center gap-2 flex-1">
@@ -163,11 +163,11 @@ const TaskDetailPopup: React.FC<TaskDetailPopupProps> = ({ task, onClose, onComp
             </div>
           </div>
         ) : (
-          <div className="flex items-center gap-2 flex-1">
+          <div className="flex items-center flex-1">
             <span className="text-sm text-gray-800">{value}</span>
             {isEditable && (
               <button
-                className="text-indigo-600 hover:text-indigo-800 transition-colors duration-200"
+                className="absolute top-0 right-0 p-1 text-indigo-600 hover:text-indigo-800 rounded-full hover:bg-indigo-50 transition-all duration-200"
                 onClick={() => handleEdit(field)}
               >
                 ✏️
@@ -183,7 +183,7 @@ const TaskDetailPopup: React.FC<TaskDetailPopupProps> = ({ task, onClose, onComp
     const isEditing = editingField === field;
 
     return (
-      <div className="flex items-center gap-4 py-2">
+      <div className="relative flex items-center gap-4 py-2 pr-8">
         <label className="w-32 text-sm font-semibold text-gray-700">{label}:</label>
         {isEditing ? (
           <div className="flex items-center gap-2 flex-1">
@@ -205,10 +205,10 @@ const TaskDetailPopup: React.FC<TaskDetailPopupProps> = ({ task, onClose, onComp
             </button>
           </div>
         ) : (
-          <div className="flex items-center gap-2 flex-1">
+          <div className="flex items-center flex-1">
             <span className="text-sm text-gray-800">{value}</span>
             <button
-              className="text-indigo-600 hover:text-indigo-800 transition-colors duration-200"
+              className="absolute top-0 right-0 p-1 text-indigo-600 hover:text-indigo-800 rounded-full hover:bg-indigo-50 transition-all duration-200"
               onClick={() => handleEdit(field)}
             >
               ✏️
@@ -227,7 +227,7 @@ const TaskDetailPopup: React.FC<TaskDetailPopupProps> = ({ task, onClose, onComp
       : task.nameAssignedTo || 'Chưa chọn';
 
     return (
-      <div className="flex items-center gap-4 py-2">
+      <div className="relative flex items-center gap-4 py-2 pr-8">
         <label className="w-32 text-sm font-semibold text-gray-700">Người thực hiện:</label>
         {isEditing ? (
           <div className="flex items-center gap-2 flex-1">
@@ -252,10 +252,10 @@ const TaskDetailPopup: React.FC<TaskDetailPopupProps> = ({ task, onClose, onComp
             </button>
           </div>
         ) : (
-          <div className="flex items-center gap-2 flex-1">
+          <div className="flex items-center flex-1">
             <span className="text-sm text-gray-800">{assignedUserDisplay}</span>
             <button
-              className="text-indigo-600 hover:text-indigo-800 transition-colors duration-200"
+              className="absolute top-0 right-0 p-1 text-indigo-600 hover:text-indigo-800 rounded-full hover:bg-indigo-50 transition-all duration-200"
               onClick={() => handleEdit('assigneeId')}
             >
               ✏️
@@ -287,7 +287,7 @@ const TaskDetailPopup: React.FC<TaskDetailPopupProps> = ({ task, onClose, onComp
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
       <div className="w-full max-w-2xl sm:max-w-3xl bg-white rounded-2xl shadow-2xl p-6 sm:p-8 max-h-[80vh] overflow-y-auto animate-fade-in">
         <div className="flex justify-between items-center mb-6">
-          <h2 className="text-2xl font-bold text-gray-900">Chi tiết công việc</h2>
+          <h2 className="text-2xl font-bold text-gray-900 text-center w-full">Chi tiết công việc</h2>
           <button
             className="p-2 bg-gray-200 text-gray-700 rounded-full hover:bg-gray-300 transition-all duration-200"
             onClick={onClose}

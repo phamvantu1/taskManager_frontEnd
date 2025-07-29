@@ -69,7 +69,7 @@ const EditDepartmentPopup: React.FC<EditDepartmentPopupProps> = ({ onClose, onSu
 
   return (
     <div
-      className="fixed inset-0 bg-transparent flex items-center justify-center"
+      className="fixed inset-0 backdrop-blur-sm bg-transparent flex items-center justify-center"
       onClick={handleOverlayClick}
       onKeyDown={handleKeyDown}
       tabIndex={-1}

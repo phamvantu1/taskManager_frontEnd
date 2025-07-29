@@ -16,7 +16,12 @@ const Projects = () => {
   const [showAddPopup, setShowAddPopup] = useState(false);
   const [filters, setFilters] = useState({
     textSearch: '',
-    status: '',
+    status: '', // Ensure status is always a string
+    startTime: '',
+    endTime: '',
+  });
+  const [pendingFilters, setPendingFilters] = useState({
+    textSearch: '',
     startTime: '',
     endTime: '',
   });
@@ -27,7 +32,7 @@ const Projects = () => {
       const pageData = await getAllProjects(
         page,
         pageSize,
-        undefined, // departmentId (not used in this example)
+        undefined, // departmentId
         filters.textSearch,
         filters.status,
         filters.startTime,
@@ -45,13 +50,23 @@ const Projects = () => {
   }, [page, filters]);
 
   const handleFilterChange = (key: string, value: string) => {
-    setFilters(prev => ({ ...prev, [key]: value }));
-    setPage(0); // Reset to first page when filters change
+    setPendingFilters(prev => ({ ...prev, [key]: value }));
   };
 
-  const handleFilterClick = (status: string) => {
-    const newStatus = status === 'Tất cả' ? '' : status.toUpperCase().replace(' ', '_'); // Map to API status
-    handleFilterChange('status', newStatus);
+  const handleSearch = () => {
+    setFilters(prev => ({
+      ...prev,
+      textSearch: pendingFilters.textSearch,
+      startTime: pendingFilters.startTime,
+      endTime: pendingFilters.endTime,
+    }));
+    setPage(0); // Reset to first page
+  };
+
+  const handleFilterClick = (status: string | null) => {
+    const newStatus = status ;
+    setFilters(prev => ({ ...prev, status: newStatus || '' })); // Default to empty string if newStatus is null
+    setPage(0);
   };
 
   const handleResetFilters = () => {
@@ -61,11 +76,16 @@ const Projects = () => {
       startTime: '',
       endTime: '',
     });
+    setPendingFilters({
+      textSearch: '',
+      startTime: '',
+      endTime: '',
+    });
     setPage(0);
   };
 
   return (
-    <div className="flex min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50">
+    <div className="flex min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
       <div className="fixed top-0 left-0 w-64 h-full bg-white shadow-lg z-10">
         <Sidebar />
       </div>
@@ -80,7 +100,7 @@ const Projects = () => {
         {showProfile ? (
           <Profile onBack={() => setShowProfile(false)} />
         ) : (
-          <div className="flex-1 p-8">
+          <div className="flex-1 p-8 lg:p-10">
             <div className="mb-8">
               <div className="flex justify-between items-center mb-4">
                 <button
@@ -89,46 +109,57 @@ const Projects = () => {
                 >
                   + Thêm mới dự án
                 </button>
-                <div className="flex space-x-3">
-                  {['Tất cả', 'Đang thực hiện', 'Hoàn thành', 'Trễ hạn'].map((filter) => (
-                    <div
-                      key={filter}
-                      className={`px-5 py-2.5 rounded-xl cursor-pointer text-sm font-semibold transition-all duration-150 ${
-                        (filter === 'Tất cả' && !filters.status) ||
-                        filters.status === filter.toUpperCase().replace(' ', '_')
-                          ? 'bg-indigo-500 text-white shadow-sm'
-                          : 'bg-white text-gray-700 hover:bg-gray-100 shadow-sm'
-                      }`}
-                      onClick={() => handleFilterClick(filter)}
-                    >
-                      {filter}
-                    </div>
-                  ))}
-                </div>
+                <div className="flex flex-wrap gap-3">
+  {[
+    { label: 'Tất cả', value: null },
+    { label: 'Đang thực hiện', value: '1' },
+    { label: 'Hoàn thành', value: '2' },
+    { label: 'Trễ hạn', value: '3' },
+  ].map(({ label, value }) => (
+    <div
+      key={label}
+      className={`px-5 py-2.5 rounded-xl cursor-pointer text-sm font-semibold transition-all duration-150 ${
+        (value === null && !filters.status) || filters.status === value
+          ? 'bg-indigo-500 text-white shadow-sm'
+          : 'bg-white text-gray-700 hover:bg-gray-100 shadow-sm'
+      }`}
+      onClick={() => handleFilterClick(value)}
+    >
+      {label}
+    </div>
+  ))}
+</div>
+
               </div>
-              <div className="bg-white p-4 rounded-xl shadow-md flex flex-col sm:flex-row gap-4">
+              <div className="bg-white p-4 rounded-xl shadow-md flex flex-col sm:flex-row gap-3">
                 <input
                   type="text"
                   placeholder="Tìm kiếm dự án..."
-                  value={filters.textSearch}
+                  value={pendingFilters.textSearch}
                   onChange={(e) => handleFilterChange('textSearch', e.target.value)}
-                  className="flex-1 border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  className="flex-1 px-4 py-2 rounded-xl border border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none text-sm text-gray-700 bg-white shadow-sm"
                 />
                 <input
                   type="date"
-                  value={filters.startTime}
+                  value={pendingFilters.startTime}
                   onChange={(e) => handleFilterChange('startTime', e.target.value)}
-                  className="border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  className="px-4 py-2 rounded-xl border border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none text-sm text-gray-700 bg-white shadow-sm"
                 />
                 <input
                   type="date"
-                  value={filters.endTime}
+                  value={pendingFilters.endTime}
                   onChange={(e) => handleFilterChange('endTime', e.target.value)}
-                  className="border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  className="px-4 py-2 rounded-xl border border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none text-sm text-gray-700 bg-white shadow-sm"
                 />
                 <button
+                  onClick={handleSearch}
+                  className="px-4 py-2 bg-gradient-to-r from-indigo-600 to-blue-500 text-white rounded-xl hover:from-indigo-700 hover:to-blue-600 transition-all duration-200 font-semibold shadow-sm"
+                >
+                  Tìm kiếm
+                </button>
+                <button
                   onClick={handleResetFilters}
-                  className="px-4 py-2 bg-gray-200 text-gray-700 rounded-xl hover:bg-gray-300 transition-all duration-150"
+                  className="px-4 py-2 bg-gray-200 text-gray-700 rounded-xl hover:bg-gray-300 transition-all duration-200 font-semibold shadow-sm"
                 >
                   Xóa bộ lọc
                 </button>
@@ -139,7 +170,7 @@ const Projects = () => {
                 {projects.map((project) => (
                   <div
                     key={project.id}
-                    className="bg-white rounded-2xl shadow-lg p-5 hover:shadow-xl hover:-translate-y-1 transition-all duration-200 cursor-pointer"
+                    className="bg-white rounded-2xl shadow-lg p-5 hover:shadow-xl hover:-translate-y-1 transition-all duration-200 cursor-pointer animate-fade-in"
                     onClick={() => navigate(`/projects/${project.id}`)}
                   >
                     <div className="flex justify-between items-start mb-4">
@@ -172,7 +203,7 @@ const Projects = () => {
               </div>
             </div>
             {totalPages > 1 && (
-              <div className="mt-8 flex justify-center items-center space-x-4">
+              <div className="mt-8 flex justify-center items-center gap-4">
                 <button
                   className="px-5 py-2.5 bg-white text-gray-700 rounded-xl hover:bg-gray-100 shadow-sm disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-150"
                   onClick={() => setPage((prev) => Math.max(prev - 1, 0))}
@@ -194,16 +225,16 @@ const Projects = () => {
             )}
           </div>
         )}
+        {showAddPopup && (
+          <AddProjectPopup
+            onClose={() => setShowAddPopup(false)}
+            onAddSuccess={() => {
+              fetchProjects();
+              setShowAddPopup(false);
+            }}
+          />
+        )}
       </div>
-      {showAddPopup && (
-        <AddProjectPopup
-          onClose={() => setShowAddPopup(false)}
-          onAddSuccess={() => {
-            fetchProjects();
-            setShowAddPopup(false);
-          }}
-        />
-      )}
     </div>
   );
 };

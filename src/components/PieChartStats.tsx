@@ -8,7 +8,7 @@ import {
   Tooltip,
   ResponsiveContainer,
   LabelList,
-  Cell
+  Cell,
 } from 'recharts';
 
 interface BarChartStatsProps {
@@ -17,23 +17,32 @@ interface BarChartStatsProps {
 
 const BarChartStats: React.FC<BarChartStatsProps> = ({ data }) => {
   const barColors: Record<string, string> = {
-    'Chưa bắt đầu': '#a3a3a3', // gray-400
-    'Đang xử lý': '#60a5fa',       // blue-400
-    'Hoàn thành': '#fdba74',       // orange-300
-    'Quá hạn': '#f87171'           // red-400
+    'Chưa bắt đầu': '#2196F3', // gray-400
+    'Đang xử lý': '#FFEB3B', // blue-400
+    'Hoàn thành': '#4CAF50', 
+    'Quá hạn': '#F44336', // red-400
   };
 
+
+
   return (
-    <div style={{ width: '100%', height: 300 }}>
-      <ResponsiveContainer>
-        <BarChart data={data} margin={{ top: 30, right: 30, left: 10, bottom: 30 }}>
-          <CartesianGrid strokeDasharray="3 3" />
-          <XAxis dataKey="label" />
-          <YAxis />
-          <Tooltip />
+    <div className="bg-white rounded-2xl shadow-lg p-4 hover:shadow-xl transition-all duration-300 animate-fade-in">
+      <ResponsiveContainer width="100%" height={320}>
+        <BarChart data={data} margin={{ top: 40, right: 20, left: 0, bottom: 20 }}>
+          <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+          <XAxis dataKey="label" tick={{ fill: '#4b5563', fontSize: 12 }} />
+          <YAxis tick={{ fill: '#4b5563', fontSize: 12 }} />
+          <Tooltip
+            contentStyle={{
+              backgroundColor: '#fff',
+              border: '1px solid #e5e7eb',
+              borderRadius: '8px',
+              boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+            }}
+          />
           <Bar
             dataKey="value"
-            label={{ position: 'top', fill: '#000', fontWeight: 'bold' }}
+            label={{ position: 'top', fill: '#1f2937', fontWeight: 'bold', fontSize: 12 }}
             isAnimationActive={false}
           >
             {data.map((entry, index) => (
@@ -42,7 +51,7 @@ const BarChartStats: React.FC<BarChartStatsProps> = ({ data }) => {
                 fill={barColors[entry.label] || '#8884d8'}
               />
             ))}
-            <LabelList dataKey="value" position="top" />
+            <LabelList dataKey="value" position="top" fill="#1f2937" fontSize={12} />
           </Bar>
         </BarChart>
       </ResponsiveContainer>
