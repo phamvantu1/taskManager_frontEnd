@@ -12,6 +12,7 @@ export interface ProjectPayload {
   }
 
   export interface ProjectDetail {
+    progress: number;
     id: number;
     name: string;
     description: string;

@@ -9,7 +9,7 @@ export interface TaskRequest {
     startTime: string; // ISO format: "2025-07-01T00:00"
     endTime: string;
     assigneeId: number;
-    projectId: number;
+    projectId: number | null;
     createdById: number;
     lever: number;
   }
@@ -83,7 +83,8 @@ export interface TaskRequest {
       });
   
       if (!response.ok) {
-        throw new Error(`HTTP error! Status: ${response.status}`);
+        const errorBody = await response.json();
+        throw new Error(errorBody?.message || 'Failed to create task');
       }
   
       return response.json();

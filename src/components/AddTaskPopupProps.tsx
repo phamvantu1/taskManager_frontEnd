@@ -46,14 +46,13 @@ const AddTaskPopup: React.FC<AddTaskPopupProps> = ({ onClose, onSubmit, projectI
       startTime: `${taskData.startTime}`,
       endTime: `${taskData.endTime}`,
       assigneeId: Number(taskData.assigneeId),
-      projectId: projectId !== undefined ? projectId : 0,
+      projectId: projectId !== undefined ? projectId : null,
       createdById: Number(taskData.createdById),
       lever: lever,
     };
 
     try {
       const response = await taskApi.createTask(payload, token);
-      console.log('Tạo thành công:', response);
       toast.success('Tạo công việc thành công!');
       onSubmit(response.data); // hoặc bạn có thể refresh danh sách task
       onClose();
