@@ -10,23 +10,16 @@ interface HeaderProps {
 }
 
 const getPageTitle = (pathname: string): string => {
-  switch (pathname) {
-    case '/dashboard':
-      return 'Tổng quan';
-    case '/projects':
-      return 'Dự án';
-    case '/taskListPage':
-      return 'Công việc';
-    case '/department':
-      return 'Phòng ban';
-    case '/memberlistpage':
-      return 'Người dùng';
-    case '/report':
-      return 'Báo cáo';
-    default:
-      return 'Trang chủ';
-  }
+  if (pathname === '/dashboard') return 'Tổng quan';
+  if (pathname === '/projects') return 'Dự án';
+  if (pathname.startsWith('/projects/')) return 'Chi tiết dự án'; // ✅ Fix tại đây
+  if (pathname === '/taskListPage') return 'Công việc';
+  if (pathname === '/department') return 'Phòng ban';
+  if (pathname === '/memberlistpage') return 'Người dùng';
+  if (pathname === '/report') return 'Báo cáo';
+  return 'Trang chủ';
 };
+
 
 const Header: React.FC<HeaderProps> = ({
   onProfileClick,
