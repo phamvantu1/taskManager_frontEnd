@@ -80,7 +80,7 @@ const EditDepartmentPopup: React.FC<EditDepartmentPopupProps> = ({ onClose, onSu
       <div className="bg-white rounded-lg w-full max-w-md p-6 shadow-lg">
         {/* Header */}
         <div className="flex justify-between items-center mb-4">
-          <h3 className="text-lg font-semibold text-gray-900">Chỉnh sửa đơn vị</h3>
+          <h3 className="text-lg font-semibold text-gray-900 text-center w-full">Chỉnh sửa đơn vị</h3>
           <button
             onClick={onClose}
             className="text-gray-500 hover:text-gray-700"
@@ -139,7 +139,7 @@ const EditDepartmentPopup: React.FC<EditDepartmentPopupProps> = ({ onClose, onSu
               <option value="">-- Chọn người quản lý --</option>
               {users.map((user) => (
                 <option key={user.id} value={user.id}>
-                  {user.firstName} {user.lastName} ({user.email})
+                  {user.fullName} 
                 </option>
               ))}
             </select>

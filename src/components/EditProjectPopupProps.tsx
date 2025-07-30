@@ -107,7 +107,7 @@ const EditProjectPopup: React.FC<EditProjectPopupProps> = ({ onClose, onUpdateSu
     <div className="fixed inset-0 backdrop-blur-sm  bg-opacity-50 flex items-center justify-center z-50">
       <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-md">
         <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-semibold text-gray-800">Sửa dự án</h2>
+          <h2 className="text-xl font-semibold text-gray-800 text-center w-full">Sửa dự án</h2>
           <button
             onClick={onClose}
             className="text-gray-500 hover:text-gray-700 transition-colors duration-150"
@@ -171,7 +171,7 @@ const EditProjectPopup: React.FC<EditProjectPopupProps> = ({ onClose, onUpdateSu
               <option value="">-- Chọn người quản lý --</option>
               {users.map((user) => (
                 <option key={user.id} value={user.id}>
-                  {user.firstName} {user.lastName}
+                  {user.fullName} 
                 </option>
               ))}
             </select>

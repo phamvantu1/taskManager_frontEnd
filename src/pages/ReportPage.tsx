@@ -123,9 +123,7 @@ const ReportPage = () => {
         ) : (
           <div className="p-6">
             <div className="bg-white rounded-lg shadow p-6">
-              <h1 className="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-2">
-                <span>📊</span> Báo cáo
-              </h1>
+              
 
               <div className="flex flex-col sm:flex-row gap-4 mb-6">
                 <select className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">

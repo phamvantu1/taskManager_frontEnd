@@ -19,9 +19,10 @@ export interface UserInfo {
 
   export interface User {
     id: number;
-    firstName: string;
-    lastName: string;
-    email : string;
+    email: string;
+    fullName: string;
+    role?: string;
+    avatar?: string;
   }
   
   export const getUserDetails = async (): Promise<UserInfo | null> => {

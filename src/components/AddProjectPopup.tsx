@@ -170,7 +170,7 @@ const AddProjectPopup: React.FC<AddProjectPopupProps> = ({ onClose, onAddSuccess
               <option value="">-- Chọn người quản lý --</option>
               {users.map((user) => (
                 <option key={user.id} value={user.id}>
-                  {user.firstName} {user.lastName}
+                  {user.fullName} 
                 </option>
               ))}
             </select>

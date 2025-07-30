@@ -179,7 +179,7 @@ const AddTaskPopup: React.FC<AddTaskPopupProps> = ({ onClose, onSubmit, projectI
               <option value="">Chọn người thực hiện</option>
               {userList.map((user) => (
                 <option key={user.id} value={user.id}>
-                  {user.firstName} {user.lastName} ({user.email})
+                  {user.fullName}
                 </option>
               ))}
             </select>
