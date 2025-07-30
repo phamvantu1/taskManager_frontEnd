@@ -19,7 +19,8 @@ const TaskListPage = () => {
     textSearch: '',
     startTime: '',
     endTime: '',
-    status: null as string | null, 
+    status: null as string | null,
+    type: null as string | null,
   });
   const [hasMoreTasks, setHasMoreTasks] = useState(true);
   const [taskPage, setTaskPage] = useState(0);
@@ -30,42 +31,52 @@ const TaskListPage = () => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
 
-  const fetchTaskDashboard = async () => {
-    try {
-      const token = localStorage.getItem('access_token');
-      if (!token) {
-        navigate('/login');
-        return;
-      }
-
-      const rawStats = await getDashboardTasksByProject(token, undefined) as {
-        data: {
-          PROCESSING?: number;
-          COMPLETED?: number;
-          PENDING?: number;
-          OVERDUE?: number;
-          TOTAL?: number;
-        };
-      };
-
-      const stats = rawStats.data;
-      setTaskNumber(stats.TOTAL || 0);
-
-      const mappedStats = [
-        { label: 'Chưa bắt đầu', value: stats.PENDING || 0 },
-        { label: 'Đang xử lý', value: stats.PROCESSING || 0 },
-        { label: 'Hoàn thành', value: stats.COMPLETED || 0 },
-        { label: 'Quá hạn', value: stats.OVERDUE || 0 },
-      ];
-
-      setTaskStats(mappedStats);
-    } catch (err) {
-      console.error('Lỗi khi fetch thống kê công việc:', err);
+  const mapVietnameseToTypeNumber = (type: string): string | null => {
+    switch (type) {
+      case 'Tất cả': return null;
+      case 'Giao': return '1';
+      case 'Được giao': return '0';
+      default: return null;
     }
   };
 
-  const fetchTasks = async (pageToFetch = 0, append = false) => {
+const fetchTaskDashboard = async (type: string | null = filters.type) => {
+  try {
+    const token = localStorage.getItem('access_token');
+    if (!token) {
+      navigate('/login');
+      return;
+    }
+
+    const rawStats = await getDashboardTasksByProject(token, undefined, type) as {
+      data: {
+        PROCESSING?: number;
+        COMPLETED?: number;
+        PENDING?: number;
+        OVERDUE?: number;
+        TOTAL?: number;
+      };
+    };
+
+    const stats = rawStats.data;
+    setTaskNumber(stats.TOTAL || 0);
+
+    const mappedStats = [
+      { label: 'Chưa bắt đầu', value: stats.PENDING || 0 },
+      { label: 'Đang xử lý', value: stats.PROCESSING || 0 },
+      { label: 'Hoàn thành', value: stats.COMPLETED || 0 },
+      { label: 'Quá hạn', value: stats.OVERDUE || 0 },
+    ];
+
+    setTaskStats(mappedStats);
+  } catch (err) {
+    console.error('Lỗi khi fetch thống kê công việc:', err);
+  }
+};
+
+  const fetchTasks = async (pageToFetch = 0, append = false, filtersOverride?: any) => {
     try {
+      console.log('Fetching tasks with filters:', filtersOverride || filters);
       const token = localStorage.getItem('access_token');
       if (!token) {
         navigate('/login');
@@ -76,11 +87,12 @@ const TaskListPage = () => {
       const taskRes = await getAllTasks.getAllTasks(token, {
         page: pageToFetch,
         size: 10,
-        textSearch: filters.textSearch,
-        startTime: filters.startTime,
-        endTime: filters.endTime,
+        textSearch: filtersOverride?.textSearch ?? filters.textSearch,
+        startTime: filtersOverride?.startTime ?? filters.startTime,
+        endTime: filtersOverride?.endTime ?? filters.endTime,
         projectId: undefined,
-        status: filters.status !== null ? filters.status : undefined,
+        status: filtersOverride?.status ?? (filters.status !== null ? filters.status : undefined),
+        type: 'type' in (filtersOverride ?? {}) ? filtersOverride.type : filters.type,
       });
 
       const newTasks = taskRes.data.content;
@@ -116,7 +128,7 @@ const TaskListPage = () => {
 
   const handleAddTask = (newTask: any) => {
     fetchTaskDashboard();
-    fetchTasks(0, false); // Refresh task list after adding
+    fetchTasks(0, false);
   };
 
   const toggleDropdown = () => {
@@ -137,6 +149,19 @@ const TaskListPage = () => {
     localStorage.removeItem('access_token');
     navigate('/login');
   };
+
+const handleTypeFilterChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+  const newType = mapVietnameseToTypeNumber(e.target.value);
+  console.log('New type selected:', newType);
+  const updatedFilters = { ...filters, type: newType };
+  console.log('Updated filters:', updatedFilters);
+  
+  setFilters(updatedFilters);
+  fetchTasks(0, false, updatedFilters);
+  fetchTaskDashboard(newType);
+};
+
+
 
   useEffect(() => {
     fetchTaskDashboard();
@@ -184,12 +209,28 @@ const TaskListPage = () => {
         ) : (
           <div className="p-6">
             <div className="bg-white rounded-lg shadow p-6">
+              <div className="flex items-center gap-3 mb-6">
+                <label className="text-sm font-semibold text-gray-700">Loại công việc</label>
+                <select
+                  value={
+                    filters.type === null
+                      ? 'Tất cả'
+                      : filters.type === '1'
+                      ? 'Giao'
+                      : 'Được giao'
+                  }
+                  onChange={handleTypeFilterChange}
+                  className="px-4 py-2 rounded-xl border border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none text-sm text-gray-700 bg-white shadow-sm"
+                >
+                  <option value="Tất cả">Tất cả</option>
+                  <option value="Giao">Giao</option>
+                  <option value="Được giao">Được giao</option>
+                </select>
+              </div>
               <h2 className="text-xl font-semibold mb-4 text-gray-800">Thống kê công việc</h2>
               <div className="mb-6">
                 <BarChartStats data={taskStats} />
               </div>
-
-            
               <TaskListSection
                 tasks={tasks}
                 filters={filters}
@@ -201,7 +242,7 @@ const TaskListPage = () => {
                   <AddTaskPopup
                     onClose={() => setShowAddTaskPopup(false)}
                     onSubmit={handleAddTask}
-                    projectId={undefined} // Thay thế bằng projectId nếu cần
+                    projectId={undefined}
                   />
                 }
                 taskNumber={taskNumber}

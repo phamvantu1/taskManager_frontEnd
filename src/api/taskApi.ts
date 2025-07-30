@@ -102,6 +102,7 @@ export interface TaskRequest {
         endTime?: string;
         projectId?: number;
         status?: string | null; // Allow null for "Tất cả" filter
+        type?: string | null;
       }
     ): Promise<ApiResponse<TaskListData>> => {
       const res = await axios.get<ApiResponse<TaskListData>>(`${BASE_URL}/getAll`, {
@@ -116,13 +117,14 @@ export interface TaskRequest {
   };
   
   
-  export const getDashboardTasksByProject = async (token: string, projectId?: number) => {
+export const getDashboardTasksByProject = async (token: string, projectId?: number, type?: string | null) => {
   const res = await axios.get(`http://localhost:8080/api/tasks/dashboard-tasks-by-project`, {
     headers: {
       Authorization: `Bearer ${token}`,
     },
     params: {
       projectId,
+      type,
     },
   });
   return res.data;
