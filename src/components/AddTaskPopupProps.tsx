@@ -121,7 +121,7 @@ const AddTaskPopup: React.FC<AddTaskPopupProps> = ({ onClose, onSubmit, projectI
         <div className="space-y-4">
           <div className="flex flex-col gap-1">
             <label className="text-sm font-semibold text-gray-700 after:content-['*'] after:text-red-500 after:ml-1">
-              Tên công việc <span className="text-red-500">*</span>
+              Tên công việc 
             </label>
             <input
               name="title"
@@ -146,7 +146,7 @@ const AddTaskPopup: React.FC<AddTaskPopupProps> = ({ onClose, onSubmit, projectI
 
           <div className="flex flex-col gap-1">
             <label className="text-sm font-semibold text-gray-700 after:content-['*'] after:text-red-500 after:ml-1">
-              Người giao <span className="text-red-500">*</span>
+              Người giao 
             </label>
             {currentUser ? (
               <select
@@ -167,7 +167,7 @@ const AddTaskPopup: React.FC<AddTaskPopupProps> = ({ onClose, onSubmit, projectI
 
           <div className="flex flex-col gap-1">
             <label className="text-sm font-semibold text-gray-700 after:content-['*'] after:text-red-500 after:ml-1">
-              Người thực hiện <span className="text-red-500">*</span>
+              Người thực hiện 
             </label>
             <select
               name="assigneeId"
@@ -187,7 +187,7 @@ const AddTaskPopup: React.FC<AddTaskPopupProps> = ({ onClose, onSubmit, projectI
 
           <div className="flex flex-col gap-1">
             <label className="text-sm font-semibold text-gray-700 after:content-['*'] after:text-red-500 after:ml-1">
-              Ngày bắt đầu <span className="text-red-500">*</span>
+              Ngày bắt đầu 
             </label>
             <input
               name="startTime"
@@ -201,7 +201,7 @@ const AddTaskPopup: React.FC<AddTaskPopupProps> = ({ onClose, onSubmit, projectI
 
           <div className="flex flex-col gap-1">
             <label className="text-sm font-semibold text-gray-700 after:content-['*'] after:text-red-500 after:ml-1">
-              Ngày kết thúc <span className="text-red-500">*</span>
+              Ngày kết thúc 
             </label>
             <input
               name="endTime"
@@ -216,7 +216,7 @@ const AddTaskPopup: React.FC<AddTaskPopupProps> = ({ onClose, onSubmit, projectI
 
           <div className="flex flex-col gap-1">
             <label className="text-sm font-semibold text-gray-700 after:content-['*'] after:text-red-500 after:ml-1">
-              Độ phức tạp <span className="text-red-500">*</span>
+              Độ phức tạp 
             </label>
             <select
               name="lever"

@@ -60,7 +60,7 @@ const CreateDepartmentPopup: React.FC<CreateDepartmentPopupProps> = ({ onClose, 
             <div className="popup-content">
                 {/* Header */}
                 <div className="popup-header">
-                    <h3 className="popup-title">Tạo đơn vị mới</h3>
+                    <h3 className="popup-title">Tạo mới phòng ban</h3>
                     <button
                         onClick={onClose}
                         className="close-button"

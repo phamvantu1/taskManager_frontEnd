@@ -106,7 +106,7 @@ const AddProjectPopup: React.FC<AddProjectPopupProps> = ({ onClose, onAddSuccess
     <div className="fixed inset-0 backdrop-blur-sm flex items-center justify-center z-50">
       <div className="bg-gray-50 rounded-lg shadow-lg p-6 w-full max-w-md">
         <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-semibold text-gray-800">Tạo mới dự án</h2>
+          <h2 className="text-xl font-semibold text-gray-800 text-center w-full">Tạo mới dự án</h2>
           <button
             onClick={onClose}
             className="text-gray-500 hover:text-gray-700 transition-colors duration-150"

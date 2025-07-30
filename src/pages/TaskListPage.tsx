@@ -126,10 +126,17 @@ const fetchTaskDashboard = async (type: string | null = filters.type) => {
     }
   };
 
-  const handleAddTask = (newTask: any) => {
-    fetchTaskDashboard();
-    fetchTasks(0, false);
+  const handleTaskUpdate = () => {
+    console.log('handleTaskUpdate triggered with filters:', filters);
+    fetchTaskDashboard(filters.type); // Pass current type filter
+    fetchTasks(0, false); // Reset to first page, no append
   };
+
+  const handleAddTask = (newTask: any) => {
+    console.log('handleAddTask triggered');
+    handleTaskUpdate();
+  };
+
 
   const toggleDropdown = () => {
     setIsDropdownOpen(!isDropdownOpen);
@@ -259,6 +266,9 @@ const handleTypeFilterChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
           <TaskDetailPopup
             task={selectedTask}
             onClose={() => setShowTaskDetailPopup(false)}
+            onComplete={handleTaskUpdate}
+            onSave={handleTaskUpdate}
+            onDelete={handleTaskUpdate}
           />
         )}
       </div>

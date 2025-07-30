@@ -158,3 +158,41 @@ export const updateTask = async (taskId: number, taskData: any, token: string) =
     throw new Error(errorMessage);
   }
 };
+
+
+// Add to taskApi.ts
+
+export const markFinishTask = async (taskId: number, token: string): Promise<TaskApiResponse> => {
+  try {
+    const response = await axios.put<TaskApiResponse>(
+      `${BASE_URL}/mark-finish-task/${taskId}`,
+      {},
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    return response.data;
+  } catch (error: any) {
+    const errorMessage =
+      error?.response?.data?.message || 'Đánh dấu hoàn thành thất bại. Vui lòng thử lại sau.';
+    throw new Error(errorMessage);
+  }
+};
+
+export const deleteTask = async (taskId: number, token: string): Promise<TaskApiResponse> => {
+  try {
+    const response = await axios.delete<TaskApiResponse>(`${BASE_URL}/delete-task/${taskId}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+     
+    });
+    return response.data;
+  } catch (error: any) {
+    const errorMessage =
+      error?.response?.data?.message || 'Xóa công việc thất bại. Vui lòng thử lại sau.';
+    throw new Error(errorMessage);
+  }
+};

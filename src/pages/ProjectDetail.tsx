@@ -10,8 +10,9 @@ import { getAllTasks, getDashboardTasksByProject, getTaskDetailById } from '../a
 import { getProjectMembersStats } from '../api/userApi';
 import TaskDetailPopup from '../components/TaskDetailPopup';
 import TaskListSection from '../components/TaskListSection';
-import EditProjectPopup from '../components/EditProjectPopupProps'; 
+import EditProjectPopup from '../components/EditProjectPopupProps';
 import { toast } from 'react-toastify';
+import ConfirmModal from '../components/ConfirmModal';
 
 const ProjectDetail = () => {
   const navigate = useNavigate();
@@ -37,11 +38,12 @@ const ProjectDetail = () => {
   const [memberSearch, setMemberSearch] = useState('');
   const [selectedTask, setSelectedTask] = useState<any>(null);
   const [showTaskDetailPopup, setShowTaskDetailPopup] = useState(false);
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const [filters, setFilters] = useState({
     textSearch: '',
     startTime: '',
     endTime: '',
-    status: null, 
+    status: null,
   });
 
   const toggleDropdown = () => {
@@ -79,7 +81,6 @@ const ProjectDetail = () => {
 
   const handleDeleteProject = async () => {
     if (!projectId) return;
-    if (!window.confirm('Bạn có chắc chắn muốn xóa dự án này?')) return;
 
     try {
       const response = await projectApi.deleteProject(Number(projectId));
@@ -151,7 +152,7 @@ const ProjectDetail = () => {
         startTime: filters.startTime,
         endTime: filters.endTime,
         projectId: Number(projectId),
-        status: filters.status !== null ? filters.status : undefined, 
+        status: filters.status !== null ? filters.status : undefined,
       });
 
       const newTasks = taskRes.data.content;
@@ -306,13 +307,12 @@ const ProjectDetail = () => {
                 <h1 className="text-2xl font-bold text-gray-800">{projectDetails.name}</h1>
                 <div className="flex items-center gap-2">
                   <div
-                    className={`px-3 py-1 text-sm font-semibold rounded-full ${
-                      projectDetails.status === 'OVERDUE'
+                    className={`px-3 py-1 text-sm font-semibold rounded-full ${projectDetails.status === 'OVERDUE'
                         ? 'bg-red-100 text-red-800'
                         : projectDetails.status === 'DONE'
-                        ? 'bg-green-100 text-green-800'
-                        : 'bg-yellow-100 text-yellow-800'
-                    }`}
+                          ? 'bg-green-100 text-green-800'
+                          : 'bg-yellow-100 text-yellow-800'
+                      }`}
                   >
                     {projectDetails.status}
                   </div>
@@ -323,11 +323,23 @@ const ProjectDetail = () => {
                     Sửa
                   </button>
                   <button
-                    onClick={handleDeleteProject}
+                    onClick={() => setIsConfirmOpen(true)}
                     className="px-3 py-1 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors duration-150"
                   >
                     Xóa
                   </button>
+
+                  <ConfirmModal
+                    isOpen={isConfirmOpen}
+                    onConfirm={() => {
+                      handleDeleteProject();
+                      setIsConfirmOpen(false);
+                    }}
+                    onCancel={() => setIsConfirmOpen(false)}
+                    title="Xác nhận xóa dự án"
+                    message="Bạn có chắc chắn muốn xóa dự án này? Hành động này không thể hoàn tác."
+                  />
+
                 </div>
               </div>
 

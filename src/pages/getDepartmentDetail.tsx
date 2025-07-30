@@ -10,6 +10,7 @@ import MembersTab from '../components/MembersTab';
 import ProjectsTab from '../components/ProjectsTab';
 import { toast } from 'react-toastify';
 import Profile from '../pages/Profile';
+import ConfirmModal from '../components/ConfirmModal';
 
 interface Department {
   id: string;
@@ -50,6 +51,7 @@ const DepartmentDetailPage = () => {
   const [activeTab, setActiveTab] = useState('overview');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showEditPopup, setShowEditPopup] = useState(false);
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const [department, setDepartment] = useState<Department | null>(null);
   const [overviewData, setOverviewData] = useState<{
     recentMembers: Member[];
@@ -259,7 +261,7 @@ const DepartmentDetailPage = () => {
                   onClick={handleBackToDepartments}
                   className="cursor-pointer text-indigo-600 hover:underline"
                 >
-                  Danh sách đơn vị
+                  Danh sách phòng ban
                 </span>
                 <span className="mx-2">/</span>
                 <span className="text-gray-800">{department.name}</span>
@@ -291,12 +293,22 @@ const DepartmentDetailPage = () => {
                     ✏️ Chỉnh sửa
                   </button>
                   <button
-                    onClick={handleDelete}
+                    onClick={() => setIsConfirmOpen(true)}
                     disabled={isSubmitting}
                     className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 disabled:opacity-50 transition-colors duration-150"
                   >
                     🗑️ Xóa
                   </button>
+                  <ConfirmModal
+                    isOpen={isConfirmOpen}
+                    onConfirm={() => {
+                      handleDelete();
+                      setIsConfirmOpen(false);
+                    }}
+                    onCancel={() => setIsConfirmOpen(false)}
+                    title="Xác nhận xóa đơn vị"
+                    message="Bạn có chắc chắn muốn xóa đơn vị này? Hành động này không thể hoàn tác."
+                  />
                 </div>
               </div>
 

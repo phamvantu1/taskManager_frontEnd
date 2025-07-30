@@ -111,15 +111,31 @@ export const getDepartmentDetail = async (
   };
 };
 
-export const addUserToDepartment = async (departmentId: string, userId: number, token: string) => {
-  const response = await axios.post(`${BASE_URL}/add-user/${departmentId}/${userId}`, {}, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-      Accept: 'application/json, text/plain, */*',
-    },
-  });
-  return response.data;
+export const addUserToDepartment = async (
+  departmentId: string,
+  userId: number,
+  token: string,
+  role: string
+) => {
+  try {
+    const response = await axios.post(
+      `${BASE_URL}/add-user/${departmentId}/${userId}?role=${encodeURIComponent(role)}`, // 👈 truyền role trong URL
+      {}, // body để trống
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          Accept: 'application/json, text/plain, */*',
+        },
+      }
+    );
+    return response.data;
+  } catch (error: any) {
+    const errorMessage =
+      error?.response?.data?.message || 'Thêm thành viên thất bại.';
+    throw new Error(errorMessage);
+  }
 };
+
 
 export interface Member {
   id: number;

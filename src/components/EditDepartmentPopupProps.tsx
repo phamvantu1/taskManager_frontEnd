@@ -19,7 +19,10 @@ const EditDepartmentPopup: React.FC<EditDepartmentPopupProps> = ({ onClose, onSu
   // Assume token is stored in localStorage; adjust based on your auth implementation
   const getAuthToken = () => localStorage.getItem('access_token') || '';
 
+  console.log("xinchao haha ", leaderId  )
+
   const handleSubmit = async () => {
+    console.log('Submitting department update:', { name, description, leaderId });
     if (!name.trim()) {
       toast.error('Vui lòng nhập tên đơn vị');
       return;

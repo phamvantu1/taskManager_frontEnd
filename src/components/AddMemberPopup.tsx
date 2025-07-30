@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { addUserToDepartment } from '../api/departmentApi';
 import { fetchUsers } from '../api/userApi';
+import { toast } from 'react-toastify';
 
 interface AddMemberPopupProps {
     departmentId: string;
@@ -45,21 +46,22 @@ const AddMemberPopup: React.FC<AddMemberPopupProps> = ({ departmentId, onClose, 
             if (!token) {
                 throw new Error('Không tìm thấy token xác thực');
             }
-            await addUserToDepartment(departmentId, selectedUserId, token);
+            await addUserToDepartment(departmentId, selectedUserId, token, role);
+            toast.success('Thêm thành viên thành công!');
             onSubmit(); // Trigger refetch of members
             onClose();
-        } catch (err) {
-            setError('Không thể thêm thành viên');
-            console.error(err);
+        } catch (err: any) {
+            const message = err?.message || 'Cập nhật công việc thất bại. Vui lòng thử lại sau.';
+            toast.error(message);
         } finally {
             setLoading(false);
         }
     };
 
     return (
-        <div className="fixed inset-0 backdrop-blur-sm bg-transparent flex items-center justify-center z-50">
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
             <div className="bg-white rounded-lg p-6 w-full max-w-md">
-                <h2 className="text-xl font-semibold mb-4">Thêm thành viên</h2>
+                <h2 className="text-xl font-semibold mb-4 text-center w-full">Thêm thành viên</h2>
                 {error && <div className="text-red-500 mb-4">{error}</div>}
                 <form onSubmit={handleSubmit}>
                     <div className="mb-4">
@@ -86,9 +88,8 @@ const AddMemberPopup: React.FC<AddMemberPopupProps> = ({ departmentId, onClose, 
                             className="w-full p-2 border rounded-md"
                             disabled={loading}
                         >
-                            <option value="Trưởng phòng">Trưởng phòng</option>
-                            <option value="Phó phòng">Phó phòng</option>
-                            <option value="Nhân viên">Nhân viên</option>
+                            <option value="LEADER">Lãnh đạo</option>
+                            <option value="STAFF">Nhân viên</option>
                         </select>
                     </div>
                     <div className="flex justify-end gap-2">

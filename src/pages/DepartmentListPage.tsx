@@ -18,6 +18,8 @@ const DepartmentListPage = () => {
   const [searchText, setSearchText] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [searchKeyword, setSearchKeyword] = useState('');
+
 
   const toggleDropdown = () => {
     setIsDropdownOpen(!isDropdownOpen);
@@ -75,7 +77,7 @@ const DepartmentListPage = () => {
       setTotalPages(data.totalPages || 1);
       setCurrentPage(data.number);
     } catch (err: any) {
-      const message = err?.response?.data?.message || 'Không thể tải danh sách đơn vị.';
+      const message = err?.response?.data?.message || 'Không thể tải danh sách phòng ban.';
       setError(message);
       toast.error(message);
     } finally {
@@ -88,9 +90,16 @@ const DepartmentListPage = () => {
     setCurrentPage(0);
   };
 
+  const handleSearchSubmit = () => {
+    setCurrentPage(0); // Reset về trang đầu tiên khi tìm
+    setSearchKeyword(searchText); // Gán để useEffect gọi API
+  };
+
+
   useEffect(() => {
-    fetchDepartments(currentPage, searchText);
-  }, [currentPage, searchText]);
+    fetchDepartments(currentPage, searchKeyword);
+  }, [currentPage, searchKeyword]);
+
 
   return (
     <div className="flex min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50">
@@ -113,17 +122,17 @@ const DepartmentListPage = () => {
         ) : (
           <div className="p-6">
             <div className="bg-white rounded-lg shadow p-6">
-              <h1 className="text-2xl font-bold text-gray-800 mb-6">Danh sách đơn vị</h1>
+              <h1 className="text-2xl font-bold text-gray-800 mb-6">Danh sách phòng ban</h1>
               <div className="flex flex-col sm:flex-row gap-4 items-center mb-6">
                 <input
                   type="text"
                   className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                  placeholder="Tìm đơn vị"
+                  placeholder="Tìm phòng ban"
                   value={searchText}
                   onChange={handleSearchChange}
                 />
                 <button
-                  onClick={() => fetchDepartments(0, searchText)}
+                  onClick={handleSearchSubmit}
                   className="px-4 py-2 bg-indigo-500 text-white rounded-lg hover:bg-indigo-600 transition-colors duration-150 flex items-center gap-2"
                 >
                   <span>🔍</span> Tìm kiếm
@@ -181,11 +190,10 @@ const DepartmentListPage = () => {
                 {[...Array(totalPages).keys()].map((n) => (
                   <button
                     key={n}
-                    className={`px-3 py-1 rounded-lg ${
-                      n === currentPage
+                    className={`px-3 py-1 rounded-lg ${n === currentPage
                         ? 'bg-indigo-500 text-white'
                         : 'bg-gray-200 hover:bg-gray-300'
-                    }`}
+                      }`}
                     onClick={() => setCurrentPage(n)}
                   >
                     {n + 1}
