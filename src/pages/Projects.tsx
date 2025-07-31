@@ -227,6 +227,7 @@ const Projects = () => {
         )}
         {showAddPopup && (
           <AddProjectPopup
+            departmentId={''} // Pass empty string if departmentId is not needed
             onClose={() => setShowAddPopup(false)}
             onAddSuccess={() => {
               fetchProjects();

@@ -377,6 +377,7 @@ const DepartmentDetailPage = () => {
                 {activeTab === 'members' && <MembersTab onChange={fetchDepartmentData} departmentId={departmentId || '1'} />}
                 {activeTab === 'projects' && (
                   <ProjectsTab
+                    departmentId={departmentId || ''}
                     projects={projects.map((p) => ({
                       id: p.id,
                       name: p.name ?? '',
@@ -390,6 +391,7 @@ const DepartmentDetailPage = () => {
                     currentPage={currentPage}
                     totalPages={totalPages}
                     onPageChange={handlePageChange}
+                    onChange={fetchDepartmentData}
                   />
                 )}
               </div>

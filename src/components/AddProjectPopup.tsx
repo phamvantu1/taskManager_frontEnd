@@ -5,11 +5,13 @@ import { getDepartments, type Department } from '../api/departmentApi';
 import { toast } from 'react-toastify';
 
 interface AddProjectPopupProps {
+  departmentId: string;
   onClose: () => void;
   onAddSuccess?: () => void;
+  onChange?: () => void;
 }
 
-const AddProjectPopup: React.FC<AddProjectPopupProps> = ({ onClose, onAddSuccess }) => {
+const AddProjectPopup: React.FC<AddProjectPopupProps> = ({ departmentId, onClose, onAddSuccess, onChange }) => {
   const [users, setUsers] = useState<User[]>([]);
   const [departments, setDepartments] = useState<Department[]>([]);
   const [loading, setLoading] = useState(false);
@@ -20,7 +22,7 @@ const AddProjectPopup: React.FC<AddProjectPopupProps> = ({ onClose, onAddSuccess
     ownerId: '',
     startTime: '',
     endTime: '',
-    departmentId: undefined,
+    departmentId: Number(departmentId) || undefined, // Prefill with departmentId
   });
 
   useEffect(() => {
@@ -53,12 +55,12 @@ const AddProjectPopup: React.FC<AddProjectPopupProps> = ({ onClose, onAddSuccess
     const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
-      [name]: name === 'departmentId' ? (value ? Number(value) : undefined) : value,
+      [name]: name === 'ownerId' ? (value ? Number(value) : '') : value,
     }));
   };
 
   const validateForm = () => {
-    const requiredFields: (keyof ProjectPayload)[] = ['name', 'type', 'ownerId', 'startTime', 'endTime'];
+    const requiredFields: (keyof ProjectPayload)[] = ['name', 'type', 'ownerId', 'startTime', 'endTime', 'departmentId'];
     for (const field of requiredFields) {
       if (!formData[field]?.toString().trim()) {
         toast.error(`Vui lòng điền ${getFieldLabel(field)}`);
@@ -94,6 +96,7 @@ const AddProjectPopup: React.FC<AddProjectPopupProps> = ({ onClose, onAddSuccess
       toast.success('Thêm mới dự án thành công!');
       if (onAddSuccess) onAddSuccess();
       onClose();
+      onChange?.();
     } catch (err: any) {
       const message = err?.message || 'Tạo dự án thất bại. Vui lòng kiểm tra lại.';
       toast.error(message);
@@ -102,14 +105,16 @@ const AddProjectPopup: React.FC<AddProjectPopupProps> = ({ onClose, onAddSuccess
     }
   };
 
+  const selectedDepartment = departments.find((dept) => dept.id === Number(departmentId));
+
   return (
-    <div className="fixed inset-0 backdrop-blur-sm flex items-center justify-center z-50">
-      <div className="bg-gray-50 rounded-lg shadow-lg p-6 w-full max-w-md">
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+      <div className="bg-white rounded-xl shadow-lg p-6 w-full max-w-md">
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-xl font-semibold text-gray-800 text-center w-full">Tạo mới dự án</h2>
           <button
             onClick={onClose}
-            className="text-gray-500 hover:text-gray-700 transition-colors duration-150"
+            className="text-gray-500 hover:text-gray-700 transition-all duration-200 p-2 rounded-full hover:bg-gray-100"
           >
             ✕
           </button>
@@ -124,7 +129,7 @@ const AddProjectPopup: React.FC<AddProjectPopupProps> = ({ onClose, onAddSuccess
               name="name"
               value={formData.name}
               onChange={handleInputChange}
-              className="mt-1 w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              className="mt-1 w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500"
               placeholder="Nhập tên dự án"
               required
             />
@@ -135,7 +140,7 @@ const AddProjectPopup: React.FC<AddProjectPopupProps> = ({ onClose, onAddSuccess
               name="description"
               value={formData.description}
               onChange={handleInputChange}
-              className="mt-1 w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              className="mt-1 w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500"
               placeholder="Mô tả dự án..."
               rows={3}
             />
@@ -148,7 +153,7 @@ const AddProjectPopup: React.FC<AddProjectPopupProps> = ({ onClose, onAddSuccess
               name="type"
               value={formData.type}
               onChange={handleInputChange}
-              className="mt-1 w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              className="mt-1 w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500"
               required
             >
               <option value="">-- Chọn loại dự án --</option>
@@ -164,36 +169,27 @@ const AddProjectPopup: React.FC<AddProjectPopupProps> = ({ onClose, onAddSuccess
               name="ownerId"
               value={formData.ownerId}
               onChange={handleInputChange}
-              className="mt-1 w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              className="mt-1 w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500"
               required
             >
               <option value="">-- Chọn người quản lý --</option>
               {users.map((user) => (
                 <option key={user.id} value={user.id}>
-                  {user.fullName} 
+                  {user.fullName}
                 </option>
               ))}
             </select>
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700">
-              Phòng ban
-              <span className="text-red-500">*</span>
-              </label>
-            <select
-              name="departmentId"
-              value={formData.departmentId || ''}
-              onChange={handleInputChange}
-              className="mt-1 w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
-              required
-            >
-              <option value="">-- Chọn phòng ban --</option>
-              {departments.map((dept) => (
-                <option key={dept.id} value={dept.id}>
-                  {dept.name}
-                </option>
-              ))}
-            </select>
+              Phòng ban <span className="text-red-500">*</span>
+            </label>
+            <input
+              type="text"
+              value={selectedDepartment?.name || 'Đang tải...'}
+              className="mt-1 w-full px-4 py-2 border border-gray-300 rounded-xl bg-gray-100 text-gray-600 cursor-not-allowed"
+              disabled
+            />
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700">
@@ -204,7 +200,7 @@ const AddProjectPopup: React.FC<AddProjectPopupProps> = ({ onClose, onAddSuccess
               name="startTime"
               value={formData.startTime}
               onChange={handleInputChange}
-              className="mt-1 w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              className="mt-1 w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500"
               required
             />
           </div>
@@ -217,7 +213,7 @@ const AddProjectPopup: React.FC<AddProjectPopupProps> = ({ onClose, onAddSuccess
               name="endTime"
               value={formData.endTime}
               onChange={handleInputChange}
-              className="mt-1 w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              className="mt-1 w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500"
               required
             />
           </div>
@@ -225,14 +221,14 @@ const AddProjectPopup: React.FC<AddProjectPopupProps> = ({ onClose, onAddSuccess
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors duration-150"
+              className="px-4 py-2 bg-gray-200 text-gray-700 rounded-xl hover:bg-gray-300 transition-all duration-200"
               disabled={loading}
             >
               Hủy
             </button>
             <button
               type="submit"
-              className="px-4 py-2 bg-indigo-500 text-white rounded-lg hover:bg-indigo-600 transition-colors duration-150 disabled:opacity-50"
+              className="px-4 py-2 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 transition-all duration-200 disabled:opacity-50"
               disabled={loading}
             >
               {loading ? (
