@@ -254,29 +254,7 @@ const MemberListPage = () => {
                   >
                     {role}
                   </span>
-                  <div className="flex gap-2">
-                    <button
-                      title="Xem"
-                      className="text-gray-500 hover:text-indigo-600 transition-all duration-200"
-                      // TODO: Implement view action
-                    >
-                      👁
-                    </button>
-                    <button
-                      title="Sửa"
-                      className="text-gray-500 hover:text-indigo-600 transition-all duration-200"
-                      // TODO: Implement edit action
-                    >
-                      ✏️
-                    </button>
-                    <button
-                      title="Xóa"
-                      className="text-gray-500 hover:text-red-600 transition-all duration-200"
-                      // TODO: Implement delete action
-                    >
-                      🗑
-                    </button>
-                  </div>
+                  
                 </div>
               );
             })}
