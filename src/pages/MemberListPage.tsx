@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import Header from '../components/Header';
 import Sidebar from '../components/Sidebar';
 import Profile from '../pages/Profile';
+import { getDepartments, type Department } from '../api/departmentApi';
+import { toast } from 'react-toastify';
 
 interface User {
   id: number;
@@ -50,13 +52,20 @@ const MemberListPage = () => {
   const [pageSize, setPageSize] = useState(10);
   const [loading, setLoading] = useState(false);
   const [keyword, setKeyword] = useState('');
-  const [unitFilter, setUnitFilter] = useState('');
+  const [departmentId, setDepartmentId] = useState<string>(''); // Changed from unitFilter to departmentId
+  const [departments, setDepartments] = useState<Department[]>([]); // Store department list
 
-  const fetchUserDashboard = async (page: number = 0, size: number = 10, searchKeyword: string = '', unitFilter: string = '') => {
+  const fetchUserDashboard = async (
+    page: number = 0,
+    size: number = 10,
+    searchKeyword: string = '',
+    departmentId?: string
+  ) => {
     setLoading(true);
     try {
       const token = localStorage.getItem('access_token');
       if (!token) {
+        toast.error('Vui lòng đăng nhập lại');
         navigate('/login');
         return;
       }
@@ -67,11 +76,11 @@ const MemberListPage = () => {
       });
 
       if (searchKeyword.trim()) {
-        params.append('keyword', searchKeyword.trim());
+        params.append('textSearch', searchKeyword.trim());
       }
 
-      if (unitFilter.trim()) {
-        params.append('unit', unitFilter.trim());
+      if (departmentId && departmentId !== 'all') {
+        params.append('departmentId', departmentId);
       }
 
       const response = await fetch(
@@ -89,10 +98,11 @@ const MemberListPage = () => {
       if (!response.ok) {
         if (response.status === 401) {
           localStorage.removeItem('access_token');
+          toast.error('Phiên đăng nhập hết hạn');
           navigate('/login');
           return;
         }
-        throw new Error('Failed to fetch data');
+        throw new Error('Không thể tải dữ liệu');
       }
 
       const data: ApiResponse = await response.json();
@@ -102,17 +112,38 @@ const MemberListPage = () => {
         setTotalMembers(data.data.totalMembers);
         setTotalPages(data.data.totalPages);
         setCurrentPage(data.data.currentPage);
+      } else {
+        toast.error(data.message || 'Lỗi khi tải dữ liệu');
       }
     } catch (error) {
       console.error('Error fetching dashboard:', error);
+      toast.error('Không thể tải danh sách thành viên');
     } finally {
       setLoading(false);
     }
   };
 
+  const fetchDepartments = async () => {
+    try {
+      const token = localStorage.getItem('access_token');
+      if (!token) {
+        toast.error('Vui lòng đăng nhập lại');
+        navigate('/login');
+        return;
+      }
+
+      const response = await getDepartments(token, 0, 100); // Fetch all departments (large size)
+      setDepartments(response.content);
+    } catch (error) {
+      console.error('Error fetching departments:', error);
+      toast.error('Không thể tải danh sách phòng ban');
+    }
+  };
+
   useEffect(() => {
-    fetchUserDashboard(currentPage, pageSize, keyword, unitFilter);
-  }, [currentPage, pageSize]);
+    fetchDepartments();
+    fetchUserDashboard(currentPage, pageSize, keyword, departmentId);
+  }, [currentPage, pageSize, departmentId]);
 
   const toggleDropdown = () => {
     setIsDropdownOpen(!isDropdownOpen);
@@ -150,15 +181,16 @@ const MemberListPage = () => {
 
   const handleSearch = () => {
     setCurrentPage(0);
-    fetchUserDashboard(0, pageSize, keyword, unitFilter);
+    fetchUserDashboard(0, pageSize, keyword, departmentId);
   };
 
   const handleKeywordChange = (value: string) => {
     setKeyword(value);
   };
 
-  const handleUnitFilterChange = (value: string) => {
-    setUnitFilter(value);
+  const handleDepartmentChange = (value: string) => {
+    setDepartmentId(value);
+    setCurrentPage(0);
   };
 
   const extractEmailFromFullName = (fullName: string) => {
@@ -176,13 +208,21 @@ const MemberListPage = () => {
     return words[0][0] + words[words.length - 1][0];
   };
 
-  const renderUserGroup = (title: string, users: User[], groupRole?: string, showPagination: boolean = false) => {
+  const renderUserGroup = (
+    title: string,
+    users: User[],
+    groupRole?: string,
+    showPagination: boolean = false
+  ) => {
     if (users.length === 0 && !showPagination) return null;
 
     return (
       <div key={title} className="mb-8">
         <h3 className="text-xl font-semibold text-gray-800 mb-4">
-          {title} <span className="text-sm text-gray-500">({showPagination ? totalMembers : users.length})</span>
+          {title}{' '}
+          <span className="text-sm text-gray-500">
+            ({showPagination ? totalMembers : users.length})
+          </span>
         </h3>
         {users.length === 0 && showPagination ? (
           <div className="text-center text-gray-500">Không có thành viên nào</div>
@@ -196,7 +236,7 @@ const MemberListPage = () => {
               return (
                 <div
                   key={user.id}
-                  className="flex items-center gap-4 p-4 bg-white rounded-lg shadow hover:shadow-md transition-shadow duration-150"
+                  className="flex items-center gap-4 p-4 bg-white rounded-xl shadow hover:shadow-md transition-all duration-200"
                 >
                   <div className="flex items-center justify-center w-10 h-10 bg-indigo-100 text-indigo-800 rounded-full font-semibold">
                     {getInitials(name)}
@@ -208,28 +248,30 @@ const MemberListPage = () => {
                     <div className="text-sm text-gray-500">Phòng Phát triển phần mềm 2</div>
                   </div>
                   <span
-                    className={`px-3 py-1 text-sm font-semibold rounded-full ${roleStyles[role as keyof typeof roleStyles] || roleStyles.Member}`}
+                    className={`px-3 py-1 text-sm font-semibold rounded-xl ${
+                      roleStyles[role as keyof typeof roleStyles] || roleStyles.Member
+                    }`}
                   >
                     {role}
                   </span>
                   <div className="flex gap-2">
                     <button
                       title="Xem"
-                      className="text-gray-500 hover:text-indigo-600 transition-colors duration-150"
+                      className="text-gray-500 hover:text-indigo-600 transition-all duration-200"
                       // TODO: Implement view action
                     >
                       👁
                     </button>
                     <button
                       title="Sửa"
-                      className="text-gray-500 hover:text-indigo-600 transition-colors duration-150"
+                      className="text-gray-500 hover:text-indigo-600 transition-all duration-200"
                       // TODO: Implement edit action
                     >
                       ✏️
                     </button>
                     <button
                       title="Xóa"
-                      className="text-gray-500 hover:text-red-600 transition-colors duration-150"
+                      className="text-gray-500 hover:text-red-600 transition-all duration-200"
                       // TODO: Implement delete action
                     >
                       🗑
@@ -256,7 +298,7 @@ const MemberListPage = () => {
           <select
             value={pageSize}
             onChange={(e) => handlePageSizeChange(Number(e.target.value))}
-            className="border border-gray-300 rounded-lg px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            className="border border-gray-300 rounded-xl px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
           >
             <option value={5}>5/trang</option>
             <option value={10}>10/trang</option>
@@ -267,22 +309,22 @@ const MemberListPage = () => {
             <button
               onClick={() => handlePageChange(0)}
               disabled={currentPage === 0}
-              className={`px-3 py-1 rounded-lg ${
+              className={`px-3 py-1 rounded-xl text-sm font-semibold ${
                 currentPage === 0
-                  ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
-                  : 'bg-indigo-500 text-white hover:bg-indigo-600'
-              } transition-colors duration-150`}
+                  ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
+                  : 'bg-indigo-600 text-white hover:bg-indigo-700'
+              } transition-all duration-200`}
             >
               ««
             </button>
             <button
               onClick={() => handlePageChange(currentPage - 1)}
               disabled={currentPage === 0}
-              className={`px-3 py-1 rounded-lg ${
+              className={`px-3 py-1 rounded-xl text-sm font-semibold ${
                 currentPage === 0
-                  ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
-                  : 'bg-indigo-500 text-white hover:bg-indigo-600'
-              } transition-colors duration-150`}
+                  ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
+                  : 'bg-indigo-600 text-white hover:bg-indigo-700'
+              } transition-all duration-200`}
             >
               ‹
             </button>
@@ -301,11 +343,11 @@ const MemberListPage = () => {
                   <button
                     key={i}
                     onClick={() => handlePageChange(i)}
-                    className={`px-3 py-1 rounded-lg ${
+                    className={`px-3 py-1 rounded-xl text-sm font-semibold ${
                       currentPage === i
                         ? 'bg-indigo-600 text-white'
                         : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                    } transition-colors duration-150`}
+                    } transition-all duration-200`}
                   >
                     {i + 1}
                   </button>
@@ -316,22 +358,22 @@ const MemberListPage = () => {
             <button
               onClick={() => handlePageChange(currentPage + 1)}
               disabled={currentPage >= totalPages - 1}
-              className={`px-3 py-1 rounded-lg ${
+              className={`px-3 py-1 rounded-xl text-sm font-semibold ${
                 currentPage >= totalPages - 1
-                  ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
-                  : 'bg-indigo-500 text-white hover:bg-indigo-600'
-              } transition-colors duration-150`}
+                  ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
+                  : 'bg-indigo-600 text-white hover:bg-indigo-700'
+              } transition-all duration-200`}
             >
               ›
             </button>
             <button
               onClick={() => handlePageChange(totalPages - 1)}
               disabled={currentPage >= totalPages - 1}
-              className={`px-3 py-1 rounded-lg ${
+              className={`px-3 py-1 rounded-xl text-sm font-semibold ${
                 currentPage >= totalPages - 1
-                  ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
-                  : 'bg-indigo-500 text-white hover:bg-indigo-600'
-              } transition-colors duration-150`}
+                  ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
+                  : 'bg-indigo-600 text-white hover:bg-indigo-700'
+              } transition-all duration-200`}
             >
               »»
             </button>
@@ -361,27 +403,31 @@ const MemberListPage = () => {
           <Profile onBack={handleBackToDashboard} />
         ) : (
           <div className="p-6">
-            <div className="bg-white rounded-lg shadow p-6">
+            <div className="bg-white rounded-xl shadow-lg p-6">
               <h1 className="text-2xl font-bold text-gray-800 mb-6">Danh sách thành viên</h1>
               <div className="flex flex-col sm:flex-row gap-4 mb-6">
                 <input
                   type="text"
-                  className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                  placeholder="Từ khóa"
+                  className="flex-1 px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  placeholder="Từ khóa (tên hoặc email)"
                   value={keyword}
                   onChange={(e) => handleKeywordChange(e.target.value)}
                   onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
                 />
-                <input
-                  type="text"
-                  className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                  placeholder="Lọc theo đơn vị"
-                  value={unitFilter}
-                  onChange={(e) => handleUnitFilterChange(e.target.value)}
-                  onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
-                />
+                <select
+                  value={departmentId}
+                  onChange={(e) => handleDepartmentChange(e.target.value)}
+                  className="flex-1 px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                >
+                  <option value="all">Tất cả phòng ban</option>
+                  {departments.map((dept) => (
+                    <option key={dept.id} value={dept.id}>
+                      {dept.name}
+                    </option>
+                  ))}
+                </select>
                 <button
-                  className="px-4 py-2 bg-indigo-500 text-white rounded-lg hover:bg-indigo-600 transition-colors duration-150"
+                  className="px-4 py-2 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 transition-all duration-200"
                   onClick={handleSearch}
                 >
                   Tìm kiếm
@@ -390,9 +436,23 @@ const MemberListPage = () => {
 
               {loading ? (
                 <div className="text-center text-gray-500">
-                  <svg className="animate-spin h-5 w-5 inline-block" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8h-8z" />
+                  <svg
+                    className="animate-spin h-5 w-5 inline-block"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    />
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8v8h-8z"
+                    />
                   </svg>
                   <span className="ml-2">Đang tải dữ liệu...</span>
                 </div>
@@ -406,7 +466,9 @@ const MemberListPage = () => {
                     dashboard.admins.length === 0 &&
                     dashboard.leaderDepartments.length === 0 &&
                     dashboard.projectManagers.length === 0 && (
-                      <div className="text-center text-gray-500">Không có dữ liệu để hiển thị</div>
+                      <div className="text-center text-gray-500">
+                        Không có dữ liệu để hiển thị
+                      </div>
                     )}
                 </>
               )}
