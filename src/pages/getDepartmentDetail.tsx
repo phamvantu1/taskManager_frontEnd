@@ -97,7 +97,7 @@ const DepartmentDetailPage = () => {
 
   const fetchDepartmentData = async () => {
     try {
-      setLoading(true);
+      // setLoading(true);
       setError(null);
       const token = getAuthToken();
       if (!token) {
@@ -374,7 +374,7 @@ const DepartmentDetailPage = () => {
                     projects={overviewData.ongoingProjects.concat(overviewData.completedProjects)}
                   />
                 )}
-                {activeTab === 'members' && <MembersTab departmentId={departmentId || '1'} />}
+                {activeTab === 'members' && <MembersTab onChange={fetchDepartmentData} departmentId={departmentId || '1'} />}
                 {activeTab === 'projects' && (
                   <ProjectsTab
                     projects={projects.map((p) => ({

@@ -209,3 +209,53 @@ export const deleteDepartment = async (departmentId: string, token: string): Pro
   });
   return response.data;
 };
+
+
+
+export const removeUserFromDepartment = async (
+  departmentId: string,
+  userId: number,
+  token: string
+): Promise<ApiResponse<{ message: string }>> => {
+  try {
+    const response = await axios.delete<ApiResponse<{ message: string }>>(
+      `${BASE_URL}/remove-user/${departmentId}/${userId}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          Accept: 'application/json, text/plain, */*',
+        },
+      }
+    );
+    return response.data;
+  } catch (error: any) {
+    const errorMessage =
+      error?.response?.data?.message || 'Xóa thành viên thất bại.';
+    throw new Error(errorMessage);
+  }
+};
+
+export const updateUserRoleInDepartment = async (
+  departmentId: string,
+  userId: number,
+  role: string,
+  token: string
+): Promise<ApiResponse<{ message: string }>> => {
+  try {
+    const response = await axios.put<ApiResponse<{ message: string }>>(
+      `${BASE_URL}/update-user-role/${departmentId}/${userId}?role=${encodeURIComponent(role)}`,
+      {},
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          Accept: 'application/json, text/plain, */*',
+        },
+      }
+    );
+    return response.data;
+  } catch (error: any) {
+    const errorMessage =
+      error?.response?.data?.message || 'Cập nhật vai trò thất bại.';
+    throw new Error(errorMessage);
+  }
+};

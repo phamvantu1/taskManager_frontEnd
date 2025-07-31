@@ -7,9 +7,10 @@ interface AddMemberPopupProps {
     departmentId: string;
     onClose: () => void;
     onSubmit: () => void; // Callback to refetch members after adding
+    onChange?: () => void; // Optional callback for additional changes
 }
 
-const AddMemberPopup: React.FC<AddMemberPopupProps> = ({ departmentId, onClose, onSubmit }) => {
+const AddMemberPopup: React.FC<AddMemberPopupProps> = ({ departmentId, onClose, onSubmit , onChange}) => {
     const [users, setUsers] = useState<{ id: number; fullName: string }[]>([]);
     const [selectedUserId, setSelectedUserId] = useState<number | null>(null);
     const [role, setRole] = useState<string>('Nhân viên');
@@ -46,10 +47,12 @@ const AddMemberPopup: React.FC<AddMemberPopupProps> = ({ departmentId, onClose, 
             if (!token) {
                 throw new Error('Không tìm thấy token xác thực');
             }
+            console.log('Adding user:', selectedUserId, 'to department:', departmentId, 'with role:', role);
             await addUserToDepartment(departmentId, selectedUserId, token, role);
             toast.success('Thêm thành viên thành công!');
             onSubmit(); // Trigger refetch of members
             onClose();
+           onChange?.();
         } catch (err: any) {
             const message = err?.message || 'Cập nhật công việc thất bại. Vui lòng thử lại sau.';
             toast.error(message);

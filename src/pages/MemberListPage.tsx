@@ -398,10 +398,10 @@ const MemberListPage = () => {
                 </div>
               ) : (
                 <>
-                  {renderUserGroup('Quản trị hệ thống', dashboard.admins, 'Admin')}
-                  {renderUserGroup('Lãnh đạo đơn vị', dashboard.leaderDepartments, 'Owner')}
-                  {renderUserGroup('Quản lý dự án', dashboard.projectManagers, 'Owner')}
-                  {renderUserGroup('Thành viên', dashboard.members, 'Member', true)}
+                  {renderUserGroup('Quản trị hệ thống', dashboard.admins, 'Quản trị hệ thống')}
+                  {renderUserGroup('Lãnh đạo đơn vị', dashboard.leaderDepartments, 'Lãnh đạo đơn vị')}
+                  {renderUserGroup('Quản lý dự án', dashboard.projectManagers, 'Quản lý dự án')}
+                  {renderUserGroup('Thành viên', dashboard.members, 'Thành viên', true)}
                   {totalMembers === 0 &&
                     dashboard.admins.length === 0 &&
                     dashboard.leaderDepartments.length === 0 &&
