@@ -143,7 +143,7 @@ const MemberListPage = () => {
   useEffect(() => {
     fetchDepartments();
     fetchUserDashboard(currentPage, pageSize, keyword, departmentId);
-  }, [currentPage, pageSize, departmentId]);
+  }, [currentPage, pageSize]);
 
   const toggleDropdown = () => {
     setIsDropdownOpen(!isDropdownOpen);
