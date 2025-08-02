@@ -1,6 +1,8 @@
 import axios from 'axios';
 
 export interface UserInfo {
+    role: string;
+    departmentName: string;
     id ?: number; 
     firstName: string;
     lastName: string;
@@ -113,3 +115,82 @@ export const getProjectMembersStats = async (
     return json.data; // Trả cả content, totalPages...
 };
 
+
+export const getUserById = async (userId: number): Promise<UserInfo | null> => {
+  try {
+      const token = localStorage.getItem('access_token');
+      if (!token) {
+          throw new Error("Token không tồn tại.");
+      }
+
+      const response = await fetch(`http://localhost:8080/api/users/get-infor-by-id?userId=${userId}`, {
+          method: 'GET',
+          headers: {
+              'Authorization': `Bearer ${token}`,
+              'Content-Type': 'application/json',
+          },
+      });
+
+      if (!response.ok) {
+          throw new Error(`Lỗi HTTP: ${response.status}`);
+      }
+
+      const result: ApiResponse<UserInfo> = await response.json();
+
+      if (result.code === 'SUCCESS') {
+          return result.data;
+      } else {
+          console.error('Lỗi khi lấy thông tin người dùng:', result.message);
+          return null;
+      }
+  } catch (error) {
+      console.error('Lỗi khi gọi API:', error);
+      return null;
+  }
+};
+
+export const updateUserByAdmin = async (userData: UserInfo): Promise<void> => {
+  try {
+      const token = localStorage.getItem('access_token');
+      if (!token) {
+          throw new Error("Token không tồn tại.");
+      }
+
+      const response = await axios.put('http://localhost:8080/api/users/update-user-by-admin', userData, {
+          headers: {
+              Authorization: `Bearer ${token}`,
+              'Content-Type': 'application/json',
+          },
+      });
+
+      if (response.status !== 200) {
+        throw new Error('Lỗi khi cập nhật người dùng');
+    }
+  } catch (error) {
+      console.error('Lỗi khi cập nhật người dùng:', error);
+      throw error;
+  }
+};
+
+export const deleteUser = async (userId: number): Promise<void> => {
+  try {
+      const token = localStorage.getItem('access_token');
+      if (!token) {
+          throw new Error("Token không tồn tại.");
+      }
+
+      const response = await axios.delete(`http://localhost:8080/api/users/delete-user?userId=${userId}`, {
+          headers: {
+              Authorization: `Bearer ${token}`,
+              'Content-Type': 'application/json',
+          },
+      });
+
+      if (response.status !== 200) {
+        throw new Error('Lỗi khi cập nhật người dùng');
+    }
+  } catch (error) {
+      console.error('Lỗi khi xóa người dùng:', error);
+      throw error;
+  }
+};

@@ -260,7 +260,7 @@ const TaskDetailPopup: React.FC<TaskDetailPopupProps> = ({ task, onClose, onComp
     const isEditing = editingField === 'assigneeId';
     const assignedUser = userList.find(user => user.id === editedTask.assigneeId);
     const assignedUserDisplay = assignedUser
-      ? `${assignedUser.firstName} ${assignedUser.lastName} (${assignedUser.email})`
+      ? `${assignedUser.fullName} `
       : task.nameAssignedTo || 'Chưa chọn';
 
     return (
@@ -277,7 +277,7 @@ const TaskDetailPopup: React.FC<TaskDetailPopupProps> = ({ task, onClose, onComp
               <option value="">-- Chọn người thực hiện --</option>
               {userList.map((user) => (
                 <option key={user.id} value={user.id}>
-                  {user.firstName} {user.lastName} ({user.email})
+                  {user.fullName} 
                 </option>
               ))}
             </select>

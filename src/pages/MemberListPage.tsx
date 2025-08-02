@@ -1,10 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Header from '../components/Header';
 import Sidebar from '../components/Sidebar';
 import Profile from '../pages/Profile';
 import { getDepartments, type Department } from '../api/departmentApi';
+import { getUserById, updateUserByAdmin, deleteUser, type UserInfo } from '../api/userApi';
 import { toast } from 'react-toastify';
+import UserModal from '../components/UserModal';
 
 interface User {
   id: number;
@@ -52,8 +54,11 @@ const MemberListPage = () => {
   const [pageSize, setPageSize] = useState(10);
   const [loading, setLoading] = useState(false);
   const [keyword, setKeyword] = useState('');
-  const [departmentId, setDepartmentId] = useState<string>(''); // Changed from unitFilter to departmentId
-  const [departments, setDepartments] = useState<Department[]>([]); // Store department list
+  const [departmentId, setDepartmentId] = useState<string>('');
+  const [departments, setDepartments] = useState<Department[]>([]);
+  const [selectedUser, setSelectedUser] = useState<UserInfo | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
 
   const fetchUserDashboard = async (
     page: number = 0,
@@ -132,12 +137,55 @@ const MemberListPage = () => {
         return;
       }
 
-      const response = await getDepartments(token, 0, 100); // Fetch all departments (large size)
+      const response = await getDepartments(token, 0, 100);
       setDepartments(response.content);
     } catch (error) {
       console.error('Error fetching departments:', error);
       toast.error('Không thể tải danh sách phòng ban');
     }
+  };
+
+  const fetchUserDetails = async (userId: number) => {
+    try {
+      const user = await getUserById(userId);
+      if (user) {
+        setSelectedUser(user);
+        setIsModalOpen(true);
+      } else {
+        toast.error('Không thể tải thông tin người dùng');
+      }
+    } catch (error) {
+      toast.error('Lỗi khi tải thông tin người dùng');
+    }
+  };
+
+  const handleUpdateUser = async () => {
+    if (!selectedUser) return;
+    try {
+      await updateUserByAdmin(selectedUser);
+      toast.success('Cập nhật thông tin người dùng thành công');
+      setIsEditing(false);
+      setIsModalOpen(false);
+      fetchUserDashboard(currentPage, pageSize, keyword, departmentId);
+    } catch (error: any) {
+      const errorMessage = error?.response?.data?.message || "Lỗi không xác định";
+      toast.error(errorMessage);
+    }
+    
+  };
+
+  const handleDeleteUser = async () => {
+    if (!selectedUser) return;
+    try {
+      await deleteUser(selectedUser.id!);
+      toast.success('Xóa người dùng thành công');
+      setIsModalOpen(false);
+      fetchUserDashboard(currentPage, pageSize, keyword, departmentId);
+    } catch (error: any) {
+      const errorMessage = error?.response?.data?.message || "Lỗi không xác định";
+      toast.error(errorMessage);
+    }
+    
   };
 
   useEffect(() => {
@@ -236,7 +284,8 @@ const MemberListPage = () => {
               return (
                 <div
                   key={user.id}
-                  className="flex items-center gap-4 p-4 bg-white rounded-xl shadow hover:shadow-md transition-all duration-200"
+                  className="flex items-center gap-4 p-4 bg-white rounded-xl shadow hover:shadow-md transition-all duration-200 cursor-pointer"
+                  onClick={() => fetchUserDetails(user.id)}
                 >
                   <div className="flex items-center justify-center w-10 h-10 bg-indigo-100 text-indigo-800 rounded-full font-semibold">
                     {getInitials(name)}
@@ -254,7 +303,6 @@ const MemberListPage = () => {
                   >
                     {role}
                   </span>
-                  
                 </div>
               );
             })}
@@ -363,12 +411,9 @@ const MemberListPage = () => {
 
   return (
     <div className="flex min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50">
-      {/* Sidebar */}
       <div className="fixed top-0 left-0 w-64 h-full bg-white shadow-lg z-10">
         <Sidebar />
       </div>
-
-      {/* Main Content */}
       <div className="flex-1 ml-64 flex flex-col">
         <Header
           onProfileClick={handleProfile}
@@ -453,6 +498,16 @@ const MemberListPage = () => {
             </div>
           </div>
         )}
+        <UserModal
+          user={selectedUser}
+          isOpen={isModalOpen}
+          isEditing={isEditing}
+          setIsEditing={setIsEditing}
+          setIsModalOpen={setIsModalOpen}
+          setSelectedUser={setSelectedUser}
+          onUpdate={handleUpdateUser}
+          onDelete={handleDeleteUser}
+        />
       </div>
     </div>
   );
