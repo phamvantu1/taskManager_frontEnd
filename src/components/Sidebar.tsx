@@ -6,24 +6,24 @@ const Sidebar: React.FC = () => {
   const [adminOpen, setAdminOpen] = useState(false);
 
   return (
-    <div className="w-full h-full bg-gray-800 text-white flex flex-col">
+    <div className="w-64 h-full bg-white shadow-lg flex flex-col border-r border-blue-200">
       {/* Sidebar Header */}
-      <div className="p-4 border-b border-gray-700">
+      <div className="p-4 border-b border-blue-200">
         <div className="flex items-center gap-2">
           <span className="text-2xl">📱</span>
-          <span className="text-xl font-bold">mobifone</span>
+          <span className="text-xl font-bold text-blue-800">mobifone</span>
         </div>
       </div>
 
       {/* Sidebar Title */}
-      <div className="px-4 py-2 text-sm font-semibold uppercase text-gray-400">
+      <div className="px-4 py-2 text-sm font-semibold uppercase text-blue-600">
         Trang chủ
       </div>
 
       {/* Navigation */}
       <nav className="flex-1 flex flex-col gap-1 px-2 py-4">
         <div
-          className="flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-gray-700 cursor-pointer transition-colors duration-150"
+          className="flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-blue-100 cursor-pointer transition-colors duration-150 text-blue-700"
           onClick={() => navigate('/dashboard')}
         >
           <span className="text-lg">📊</span>
@@ -31,7 +31,7 @@ const Sidebar: React.FC = () => {
         </div>
 
         <div
-          className="flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-gray-700 cursor-pointer transition-colors duration-150"
+          className="flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-blue-100 cursor-pointer transition-colors duration-150 text-blue-700"
           onClick={() => navigate('/projects')}
         >
           <span className="text-lg">📁</span>
@@ -39,17 +39,17 @@ const Sidebar: React.FC = () => {
         </div>
 
         <div
-          className="flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-gray-700 cursor-pointer transition-colors duration-150"
+          className="flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-blue-100 cursor-pointer transition-colors duration-150 text-blue-700"
           onClick={() => navigate('/taskListPage')}
         >
-          <span className="text-lg">👥</span>
+          <span className="text-lg">📋</span>
           <span>Công việc</span>
         </div>
 
         {/* Dropdown Menu Item */}
         <div className="flex flex-col">
           <div
-            className="flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-gray-700 cursor-pointer transition-colors duration-150"
+            className="flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-blue-100 cursor-pointer transition-colors duration-150 text-blue-700"
             onClick={() => setAdminOpen(!adminOpen)}
           >
             <span className="text-lg">👤</span>
@@ -61,13 +61,13 @@ const Sidebar: React.FC = () => {
           {adminOpen && (
             <div className="flex flex-col mt-1 ml-6 gap-1">
               <div
-                className="px-4 py-2 rounded-lg hover:bg-gray-700 cursor-pointer transition-colors duration-150"
+                className="px-4 py-2 rounded-lg hover:bg-blue-100 cursor-pointer transition-colors duration-150 text-blue-700"
                 onClick={() => navigate('/department')}
               >
                 Phòng ban
               </div>
               <div
-                className="px-4 py-2 rounded-lg hover:bg-gray-700 cursor-pointer transition-colors duration-150"
+                className="px-4 py-2 rounded-lg hover:bg-blue-100 cursor-pointer transition-colors duration-150 text-blue-700"
                 onClick={() => navigate('/memberlistpage')}
               >
                 Người dùng
@@ -77,7 +77,7 @@ const Sidebar: React.FC = () => {
         </div>
 
         <div
-          className="flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-gray-700 cursor-pointer transition-colors duration-150"
+          className="flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-blue-100 cursor-pointer transition-colors duration-150 text-blue-700"
           onClick={() => navigate('/report')}
         >
           <span className="text-lg">📊</span>

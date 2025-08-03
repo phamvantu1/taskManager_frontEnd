@@ -1,6 +1,11 @@
-import React from 'react';
+
+import React, { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
+
 import { useHeaderActions } from './HeaderContext';
+import { getUserDetails, type UserInfo, updateUserInfo } from '../api/userApi';
+
 
 interface HeaderProps {
   isDropdownOpen: boolean;
@@ -20,8 +25,22 @@ const getPageTitle = (pathname: string): string => {
 
 const Header: React.FC<HeaderProps> = ({ isDropdownOpen, toggleDropdown }) => {
   const location = useLocation();
+  const [userInfo, setUserInfo] = useState<UserInfo | null>(null);
+  const navigate = useNavigate();
   const pageTitle = getPageTitle(location.pathname);
   const { onProfileClick, onChangePassword, onLogout } = useHeaderActions();
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const user = await getUserDetails();
+        setUserInfo(user);
+      } catch (error) {
+      }
+    };
+
+    fetchData();
+  }, [navigate]);
 
   return (
     <div className="flex justify-between items-center px-6 py-4 bg-gradient-to-r from-blue-50 to-indigo-50 shadow-lg">
@@ -38,7 +57,11 @@ const Header: React.FC<HeaderProps> = ({ isDropdownOpen, toggleDropdown }) => {
             className="w-12 h-12 flex items-center justify-center bg-gradient-to-br from-indigo-500 to-blue-500 text-white rounded-full cursor-pointer hover:from-indigo-600 hover:to-blue-600 transition-all duration-200 shadow-md"
             onClick={toggleDropdown}
           >
-            QM
+            {userInfo ? (
+              `${userInfo.firstName?.charAt(0) ?? ''}${userInfo.lastName?.charAt(0) ?? ''}`.toUpperCase()
+            ) : (
+              '?'
+            )}
           </div>
           {isDropdownOpen && (
             <div className="absolute right-0 mt-3 w-56 bg-white rounded-xl shadow-xl py-2 z-20 animate-fadeIn">
