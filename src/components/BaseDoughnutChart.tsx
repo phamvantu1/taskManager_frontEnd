@@ -1,4 +1,3 @@
-// components/BaseDoughnutChart.tsx
 import React from 'react';
 import { Doughnut } from 'react-chartjs-2';
 import {
@@ -27,7 +26,7 @@ const BaseDoughnutChart: React.FC<BaseDoughnutChartProps> = ({
   height = 400
 }) => {
   return (
-    <div style={{ width, height }}>
+    <div className="w-full max-w-[80vw] sm:max-w-[300px] md:max-w-[350px] h-[250px] sm:h-[300px] md:h-[350px] mx-auto">
       <Doughnut data={data} options={options} />
     </div>
   );

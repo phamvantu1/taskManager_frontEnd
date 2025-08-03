@@ -1,4 +1,3 @@
-// components/BaseBarChart.tsx
 import React from 'react';
 import { Bar } from 'react-chartjs-2';
 import {
@@ -18,18 +17,14 @@ ChartJS.register(CategoryScale, LinearScale, BarElement, Tooltip, Legend);
 interface BaseBarChartProps {
   data: ChartData<'bar'>;
   options?: ChartOptions<'bar'>;
-  width?: number;
-  height?: number;
 }
 
 const BaseBarChart: React.FC<BaseBarChartProps> = ({
   data,
   options,
-  width = 600,
-  height = 400,
 }) => {
   return (
-    <div style={{ width, height }}>
+    <div className="w-full h-full">
       <Bar data={data} options={options} />
     </div>
   );

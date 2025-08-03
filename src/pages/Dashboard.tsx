@@ -73,7 +73,7 @@ const Dashboard: React.FC = () => {
       );
       setProjectChartData(data);
     } catch (err) {
-      setError('Failed to fetch project chart data');
+      setError('Không thể tải dữ liệu biểu đồ dự án');
       console.error(err);
     } finally {
       setLoading(false);
@@ -114,7 +114,7 @@ const Dashboard: React.FC = () => {
       );
       setTaskChartData(data);
     } catch (err) {
-      setError('Failed to fetch task chart data');
+      setError('Không thể tải dữ liệu biểu đồ công việc');
       console.error(err);
     } finally {
       setLoading(false);
@@ -137,7 +137,7 @@ const Dashboard: React.FC = () => {
       const projectData = await getAllProjects(0, 100, departmentId ? parseInt(departmentId) : undefined);
       setProjects(projectData.content || []);
     } catch (err) {
-      setError('Failed to fetch projects');
+      setError('Không thể tải danh sách dự án');
       console.error(err);
     } finally {
       setLoading(false);
@@ -159,7 +159,7 @@ const Dashboard: React.FC = () => {
       const departmentData = await getDepartments(token, 0, 100);
       setDepartments(departmentData.content || []);
     } catch (err) {
-      setError('Failed to fetch departments');
+      setError('Không thể tải danh sách phòng ban');
       console.error(err);
     } finally {
       setLoading(false);
@@ -195,7 +195,7 @@ const Dashboard: React.FC = () => {
       }));
       setStatsData(mappedData);
     } catch (err) {
-      setError('Failed to fetch stats data');
+      setError('Không thể tải dữ liệu thống kê');
       console.error(err);
     } finally {
       setLoading(false);
@@ -241,7 +241,7 @@ const Dashboard: React.FC = () => {
         data: projectChartData
           ? [projectChartData.completed, projectChartData.inProgress, projectChartData.pending, projectChartData.overdue]
           : [0, 0, 0, 0],
-          backgroundColor: ['#4CAF50', '#FFEB3B', '#2196F3', '#F44336'],
+        backgroundColor: ['#4CAF50', '#FFEB3B', '#2196F3', '#F44336'],
         borderWidth: 1,
       },
     ],
@@ -264,8 +264,7 @@ const Dashboard: React.FC = () => {
         data: taskChartData
           ? [taskChartData.pending, taskChartData.inProgress, taskChartData.completed, taskChartData.overdue]
           : [0, 0, 0, 0],
-          backgroundColor: ['#2196F3', '#FFEB3B', '#4CAF50', '#F44336'],
-
+        backgroundColor: ['#2196F3', '#FFEB3B', '#4CAF50', '#F44336'],
       },
     ],
   };
@@ -320,16 +319,16 @@ const Dashboard: React.FC = () => {
         {showProfile ? (
           <Profile onBack={handleBackToDashboard} />
         ) : (
-          <div className="p-6">
+          <div className="p-4 sm:p-6 md:p-8">
             {/* Department Selector */}
-            <div className="mb-6">
+            <div className="mb-6 sm:mb-8">
               {loading ? (
-                <p className="text-gray-500">Đang tải đơn vị...</p>
+                <p className="text-sm sm:text-base text-gray-500">Đang tải đơn vị...</p>
               ) : error ? (
-                <p className="text-red-500">{error}</p>
+                <p className="text-sm sm:text-base text-red-500">{error}</p>
               ) : (
                 <select
-                  className="border border-gray-300 rounded-lg px-4 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  className="w-full sm:w-64 px-4 py-2 border border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm sm:text-base"
                   value={selectedUnit}
                   onChange={(e) => setSelectedUnit(e.target.value)}
                 >
@@ -344,68 +343,74 @@ const Dashboard: React.FC = () => {
             </div>
 
             {/* Stats Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-6 sm:mb-8">
               {loading ? (
-                <p className="text-gray-500">Đang tải thống kê...</p>
+                <p className="text-sm sm:text-base text-gray-500">Đang tải thống kê...</p>
               ) : error ? (
-                <p className="text-red-500">{error}</p>
+                <p className="text-sm sm:text-base text-red-500">{error}</p>
               ) : (
                 statsData.map((stat, index) => (
-                  <div key={index} className="bg-white rounded-lg shadow p-4 flex flex-col">
-                    <div className="flex justify-between items-center mb-2">
-                      <span className="text-sm font-semibold text-gray-600">{stat.title}</span>
-                      <div className="w-10 h-10 rounded-full flex items-center justify-center" style={{ backgroundColor: stat.color }}>
-                        <span className="text-xl">{stat.icon}</span>
+                  <div key={index} className="bg-white rounded-xl shadow-md p-4 sm:p-6 flex flex-col">
+                    <div className="flex justify-between items-center mb-3 sm:mb-4">
+                      <span className="text-sm sm:text-base font-semibold text-gray-600">{stat.title}</span>
+                      <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center" style={{ backgroundColor: stat.color }}>
+                        <span className="text-lg sm:text-xl">{stat.icon}</span>
                       </div>
                     </div>
-                    <div className="text-2xl font-bold text-gray-800">{stat.value}</div>
-                    <div className="text-sm text-gray-500 whitespace-pre-line">{stat.subtitle}</div>
+                    <div className="text-xl sm:text-2xl font-bold text-gray-800">{stat.value}</div>
+                    <div className="text-xs sm:text-sm text-gray-500 whitespace-pre-line">{stat.subtitle}</div>
                   </div>
                 ))
               )}
             </div>
 
             {/* Charts */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 mb-6 sm:mb-8">
               {/* Project Status Chart */}
-              <div className="bg-white rounded-lg shadow p-4 flex flex-col items-center">
-                <h3 className="text-lg font-semibold mb-4">TRẠNG THÁI DỰ ÁN CỦA ĐƠN VỊ</h3>
-                <div className="flex flex-col sm:flex-row gap-4 mb-4 w-full justify-center">
+              <div className="bg-white rounded-xl shadow-md p-4 sm:p-6 flex flex-col items-center">
+                <h3 className="text-base sm:text-lg font-semibold text-gray-800 mb-4 sm:mb-6">TRẠNG THÁI DỰ ÁN CỦA ĐƠN VỊ</h3>
+                <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 mb-4 sm:mb-6 w-full max-w-md justify-center">
                   <input
                     type="date"
-                    className="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    className="w-full sm:w-auto px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm sm:text-base"
                     value={projectStatusDateRange.start}
                     onChange={(e) => setProjectStatusDateRange({ ...projectStatusDateRange, start: e.target.value })}
                   />
                   <input
                     type="date"
-                    className="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    className="w-full sm:w-auto px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm sm:text-base"
                     value={projectStatusDateRange.end}
                     onChange={(e) => setProjectStatusDateRange({ ...projectStatusDateRange, end: e.target.value })}
                   />
                   <button
                     onClick={handleProjectSearch}
-                    className="bg-indigo-500 text-white px-4 py-2 rounded-lg hover:bg-indigo-600 transition-colors duration-150"
+                    className="w-full sm:w-auto px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors duration-150 text-sm sm:text-base"
                   >
                     Tìm kiếm
                   </button>
                 </div>
-                <div className="flex justify-center">
+                <div className="flex justify-center w-full max-w-[300px] sm:max-w-[350px]">
                   <BaseDoughnutChart data={chartData} options={chartOptions} width={300} height={300} />
                 </div>
               </div>
 
               {/* Task Status Chart */}
-              <div className="bg-white rounded-lg shadow p-4 flex flex-col items-center">
-                <h3 className="text-lg font-semibold mb-4">TRẠNG THÁI CÔNG VIỆC CỦA TỪNG DỰ ÁN</h3>
-                <div className="flex flex-col sm:flex-row gap-4 mb-4 w-full justify-center">
+              {/* ... Other imports and code remain unchanged ... */}
+
+              {/* Task Status Chart */}
+              {/* ... Other imports and code remain unchanged ... */}
+
+              {/* Task Status Chart */}
+              <div className="bg-white rounded-xl shadow-md p-4 sm:p-6 flex flex-col items-center">
+                <h3 className="text-base sm:text-lg font-semibold text-gray-800 mb-4 sm:mb-6">TRẠNG THÁI CÔNG VIỆC CỦA TỪNG DỰ ÁN</h3>
+                <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 mb-4 sm:mb-6 w-full max-w-xs sm:max-w-sm md:max-w-md justify-center flex-wrap">
                   {loading ? (
-                    <p className="text-gray-500">Đang tải dự án...</p>
+                    <p className="text-sm sm:text-base text-gray-500">Đang tải dự án...</p>
                   ) : error ? (
-                    <p className="text-red-500">{error}</p>
+                    <p className="text-sm sm:text-base text-red-500">{error}</p>
                   ) : (
                     <select
-                      className="border border-gray-300 rounded-lg px-4 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                      className="w-full sm:w-40 px-3 py-2 border border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm sm:text-base"
                       value={selectedProject}
                       onChange={(e) => setSelectedProject(e.target.value)}
                     >
@@ -419,55 +424,55 @@ const Dashboard: React.FC = () => {
                   )}
                   <input
                     type="date"
-                    className="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    className="w-full sm:w-32 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm sm:text-base"
                     value={workProgressDateRange.start}
                     onChange={(e) => setWorkProgressDateRange({ ...workProgressDateRange, start: e.target.value })}
                   />
                   <input
                     type="date"
-                    className="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    className="w-full sm:w-32 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm sm:text-base"
                     value={workProgressDateRange.end}
                     onChange={(e) => setWorkProgressDateRange({ ...workProgressDateRange, end: e.target.value })}
                   />
                   <button
                     onClick={handleTaskSearch}
-                    className="bg-indigo-500 text-white px-4 py-2 rounded-lg hover:bg-indigo-600 transition-colors duration-150"
+                    className="w-full sm:w-28 px-3 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors duration-150 text-sm sm:text-base"
                   >
                     Tìm kiếm
                   </button>
                 </div>
-                <div className="flex justify-center">
-                  <BaseBarChart data={chartDataCot} options={chartOptionsCot} width={700} height={400} />
+                <div className="w-full max-w-[90vw] sm:max-w-[500px] md:max-w-[600px] lg:max-w-[700px] h-[250px] sm:h-[300px] md:h-[350px] lg:h-[400px]">
+                  <BaseBarChart data={chartDataCot} options={chartOptionsCot} />
                 </div>
               </div>
             </div>
 
             {/* Progress Chart */}
-            <div className="bg-white rounded-lg shadow p-4">
-              <div className="flex flex-col sm:flex-row justify-between items-center mb-4">
-                <h3 className="text-lg font-semibold">THEO DÕI TIẾN ĐỘ XỬ LÝ CÔNG VIỆC CỦA ĐƠN VỊ</h3>
-                <div className="flex flex-col sm:flex-row items-center gap-4">
+            <div className="bg-white rounded-xl shadow-md p-4 sm:p-6">
+              <div className="flex flex-col sm:flex-row justify-between items-center mb-4 sm:mb-6">
+                <h3 className="text-base sm:text-lg font-semibold text-gray-800">THEO DÕI TIẾN ĐỘ XỬ LÝ CÔNG VIỆC CỦA ĐƠN VỊ</h3>
+                <div className="flex flex-col sm:flex-row items-center gap-3 sm:gap-4 mt-3 sm:mt-0">
                   <input
                     type="date"
-                    className="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    className="w-full sm:w-auto px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm sm:text-base"
                     value={progressDateRange.start}
                     onChange={(e) => setProgressDateRange({ ...progressDateRange, start: e.target.value })}
                   />
                   <input
                     type="date"
-                    className="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    className="w-full sm:w-auto px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm sm:text-base"
                     value={progressDateRange.end}
                     onChange={(e) => setProgressDateRange({ ...progressDateRange, end: e.target.value })}
                   />
                   <button
                     onClick={handleSearchProgress}
-                    className="bg-indigo-500 text-white px-4 py-2 rounded-lg hover:bg-indigo-600 transition-colors duration-150"
+                    className="w-full sm:w-auto px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors duration-150 text-sm sm:text-base"
                   >
                     Tìm kiếm
                   </button>
                 </div>
               </div>
-              <div>
+              <div className="w-full">
                 <ProgressChart
                   ref={progressChartRef}
                   departmentId={getDepartmentId()}
