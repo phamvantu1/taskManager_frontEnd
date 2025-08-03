@@ -33,9 +33,9 @@ interface Stat {
 const Dashboard: React.FC = () => {
   const [selectedUnit, setSelectedUnit] = useState<string>('Tất cả đơn vị');
   const [selectedProject, setSelectedProject] = useState('Tất cả dự án');
-  const [projectStatusDateRange, setProjectStatusDateRange] = useState({ start: '2025-01-01', end: '2025-12-31' });
-  const [workProgressDateRange, setWorkProgressDateRange] = useState({ start: '2025-01-01', end: '2025-12-31' });
-  const [progressDateRange, setProgressDateRange] = useState({ start: '2025-01-01', end: '2025-12-31' });
+  const [projectStatusDateRange, setProjectStatusDateRange] = useState({ start: '', end: '' });
+  const [workProgressDateRange, setWorkProgressDateRange] = useState({ start: '', end: '' });
+  const [progressDateRange, setProgressDateRange] = useState({ start: '', end: '' });
   const [departments, setDepartments] = useState<import("../api/departmentApi").Department[]>([]);
   const [statsData, setStatsData] = useState<Stat[]>([]);
   const [loading, setLoading] = useState(false);

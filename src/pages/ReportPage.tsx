@@ -28,8 +28,8 @@ const ReportPage = () => {
   const [search, setSearch] = useState('');
   const [departmentId, setDepartmentId] = useState<number | undefined>(undefined);
   const [departments, setDepartments] = useState<Department[]>([]);
-  const [fromDate, setFromDate] = useState('2025-01-01');
-  const [toDate, setToDate] = useState('2025-12-31');
+  const [fromDate, setFromDate] = useState('');
+  const [toDate, setToDate] = useState('');
   const [currentPage, setCurrentPage] = useState(0);
   const [pageSize] = useState(10);
   const [totalPages, setTotalPages] = useState(0);
@@ -86,7 +86,7 @@ const ReportPage = () => {
   useEffect(() => {
     fetchDepartments();
     fetchReportData();
-  }, [currentPage, pageSize, departmentId, search, fromDate, toDate]);
+  }, [currentPage, pageSize]);
 
   const toggleDropdown = () => {
     setIsDropdownOpen(!isDropdownOpen);
@@ -180,6 +180,16 @@ const ReportPage = () => {
                   />
                 </div>
                 <button
+                  className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors duration-150"
+                  onClick={() => {
+                    setCurrentPage(0);
+                    fetchReportData();
+                  }}
+                >
+                  Tìm kiếm
+                </button>
+
+                <button
                   className="px-4 py-2 bg-indigo-500 text-white rounded-lg hover:bg-indigo-600 transition-colors duration-150"
                   onClick={handleExportExcel}
                 >
@@ -248,22 +258,20 @@ const ReportPage = () => {
                       <button
                         onClick={() => handlePageChange(0)}
                         disabled={currentPage === 0}
-                        className={`px-3 py-1 rounded-lg ${
-                          currentPage === 0
+                        className={`px-3 py-1 rounded-lg ${currentPage === 0
                             ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
                             : 'bg-indigo-500 text-white hover:bg-indigo-600'
-                        } transition-colors duration-150`}
+                          } transition-colors duration-150`}
                       >
                         ««
                       </button>
                       <button
                         onClick={() => handlePageChange(currentPage - 1)}
                         disabled={currentPage === 0}
-                        className={`px-3 py-1 rounded-lg ${
-                          currentPage === 0
+                        className={`px-3 py-1 rounded-lg ${currentPage === 0
                             ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
                             : 'bg-indigo-500 text-white hover:bg-indigo-600'
-                        } transition-colors duration-150`}
+                          } transition-colors duration-150`}
                       >
                         ‹
                       </button>
@@ -282,11 +290,10 @@ const ReportPage = () => {
                             <button
                               key={i}
                               onClick={() => handlePageChange(i)}
-                              className={`px-3 py-1 rounded-lg ${
-                                currentPage === i
+                              className={`px-3 py-1 rounded-lg ${currentPage === i
                                   ? 'bg-indigo-600 text-white'
                                   : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                              } transition-colors duration-150`}
+                                } transition-colors duration-150`}
                             >
                               {i + 1}
                             </button>
@@ -297,22 +304,20 @@ const ReportPage = () => {
                       <button
                         onClick={() => handlePageChange(currentPage + 1)}
                         disabled={currentPage >= totalPages - 1}
-                        className={`px-3 py-1 rounded-lg ${
-                          currentPage >= totalPages - 1
+                        className={`px-3 py-1 rounded-lg ${currentPage >= totalPages - 1
                             ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
                             : 'bg-indigo-500 text-white hover:bg-indigo-600'
-                        } transition-colors duration-150`}
+                          } transition-colors duration-150`}
                       >
                         ›
                       </button>
                       <button
                         onClick={() => handlePageChange(totalPages - 1)}
                         disabled={currentPage >= totalPages - 1}
-                        className={`px-3 py-1 rounded-lg ${
-                          currentPage >= totalPages - 1
+                        className={`px-3 py-1 rounded-lg ${currentPage >= totalPages - 1
                             ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
                             : 'bg-indigo-500 text-white hover:bg-indigo-600'
-                        } transition-colors duration-150`}
+                          } transition-colors duration-150`}
                       >
                         »»
                       </button>
