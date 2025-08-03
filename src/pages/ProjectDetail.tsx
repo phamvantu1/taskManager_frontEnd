@@ -272,18 +272,32 @@ const ProjectDetail = () => {
     fetchMemberStats(0, false);
   }, [memberSearch]);
 
-  if (loading) return <div className="text-center text-gray-500 p-6">Đang tải...</div>;
-  if (!projectDetails) return <div className="text-center text-red-500 p-6">Không tìm thấy thông tin dự án.</div>;
+  if (loading) return (
+    <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50">
+      <div className="text-center text-gray-500 p-6">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600 mx-auto mb-4"></div>
+        <p>Đang tải...</p>
+      </div>
+    </div>
+  );
+  
+  if (!projectDetails) return (
+    <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50">
+      <div className="text-center text-red-500 p-6">
+        <p>Không tìm thấy thông tin dự án.</p>
+      </div>
+    </div>
+  );
 
   return (
     <div className="flex min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50">
-      {/* Sidebar */}
-      <div className="fixed top-0 left-0 w-64 h-full bg-white shadow-lg z-10">
+      {/* Sidebar - Hidden on mobile, shown on larger screens */}
+      <div className="hidden lg:block fixed top-0 left-0 w-64 h-full bg-white shadow-lg z-10">
         <Sidebar />
       </div>
 
       {/* Main Content */}
-      <div className="flex-1 ml-64 flex flex-col">
+      <div className="flex-1 lg:ml-64 flex flex-col">
         <Header
           onProfileClick={handleProfile}
           onChangePassword={handleChangePassword}
@@ -291,116 +305,129 @@ const ProjectDetail = () => {
           isDropdownOpen={isDropdownOpen}
           toggleDropdown={toggleDropdown}
         />
+        
         {showProfile ? (
           <Profile onBack={handleBackToDashboard} />
         ) : (
-          <div className="p-6">
-            <div className="bg-white rounded-lg shadow p-6">
+          <div className="p-3 sm:p-4 lg:p-6">
+            <div className="bg-white rounded-lg shadow-lg p-4 sm:p-6">
+              {/* Back Button */}
               <button
                 onClick={() => navigate('/projects')}
-                className="mb-4 text-indigo-600 hover:text-indigo-800 flex items-center gap-2"
+                className="mb-4 text-indigo-600 hover:text-indigo-800 flex items-center gap-2 text-sm sm:text-base transition-colors duration-200"
               >
                 <span>&larr;</span> Quay lại danh sách dự án
               </button>
 
-              <div className="flex justify-between items-center mb-6">
-                <h1 className="text-2xl font-bold text-gray-800">{projectDetails.name}</h1>
-                <div className="flex items-center gap-2">
+              {/* Project Header */}
+              <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4 mb-6">
+                <div className="flex-1">
+                  <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-800 break-words">
+                    {projectDetails.name}
+                  </h1>
+                </div>
+                
+                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-3">
                   <div
-                    className={`px-3 py-1 text-sm font-semibold rounded-full ${projectDetails.status === 'OVERDUE'
+                    className={`px-3 py-1 text-xs sm:text-sm font-semibold rounded-full whitespace-nowrap ${
+                      projectDetails.status === 'OVERDUE'
                         ? 'bg-red-100 text-red-800'
                         : projectDetails.status === 'DONE'
                           ? 'bg-green-100 text-green-800'
                           : 'bg-yellow-100 text-yellow-800'
-                      }`}
+                    }`}
                   >
                     {projectDetails.status}
                   </div>
-                  <button
-                    onClick={() => setShowEditProjectPopup(true)}
-                    className="px-3 py-1 bg-indigo-500 text-white rounded-lg hover:bg-indigo-600 transition-colors duration-150"
-                  >
-                    Sửa
-                  </button>
-                  <button
-                    onClick={() => setIsConfirmOpen(true)}
-                    className="px-3 py-1 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors duration-150"
-                  >
-                    Xóa
-                  </button>
-
-                  <ConfirmModal
-                    isOpen={isConfirmOpen}
-                    onConfirm={() => {
-                      handleDeleteProject();
-                      setIsConfirmOpen(false);
-                    }}
-                    onCancel={() => setIsConfirmOpen(false)}
-                    title="Xác nhận xóa dự án"
-                    message="Bạn có chắc chắn muốn xóa dự án này? Hành động này không thể hoàn tác."
-                  />
-
+                  
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => setShowEditProjectPopup(true)}
+                      className="px-3 py-1 sm:px-4 sm:py-2 bg-indigo-500 text-white text-xs sm:text-sm rounded-lg hover:bg-indigo-600 transition-colors duration-150"
+                    >
+                      Sửa
+                    </button>
+                    <button
+                      onClick={() => setIsConfirmOpen(true)}
+                      className="px-3 py-1 sm:px-4 sm:py-2 bg-red-500 text-white text-xs sm:text-sm rounded-lg hover:bg-red-600 transition-colors duration-150"
+                    >
+                      Xóa
+                    </button>
+                  </div>
                 </div>
               </div>
 
               {/* Overview Section */}
-              <div className="mb-8">
-                <h2 className="text-xl font-semibold text-gray-800 mb-4">Tổng quan</h2>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div className="flex flex-col">
-                    <span className="text-sm font-medium text-gray-600">Quản lý dự án</span>
-                    <span className="text-gray-800">{projectDetails.ownerName}</span>
+              <div className="mb-6 sm:mb-8">
+                <h2 className="text-lg sm:text-xl font-semibold text-gray-800 mb-4">Tổng quan</h2>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                  <div className="flex flex-col space-y-1">
+                    <span className="text-xs sm:text-sm font-medium text-gray-600">Quản lý dự án</span>
+                    <span className="text-sm sm:text-base text-gray-800 break-words">{projectDetails.ownerName}</span>
                   </div>
-                  <div className="flex flex-col">
-                    <span className="text-sm font-medium text-gray-600">Phòng ban</span>
-                    <span className="text-gray-800">{projectDetails.departmentName || 'Không có phòng ban'}</span>
+                  <div className="flex flex-col space-y-1">
+                    <span className="text-xs sm:text-sm font-medium text-gray-600">Phòng ban</span>
+                    <span className="text-sm sm:text-base text-gray-800 break-words">
+                      {projectDetails.departmentName || 'Không có phòng ban'}
+                    </span>
                   </div>
-                  <div className="flex flex-col">
-                    <span className="text-sm font-medium text-gray-600">Số lượng thành viên</span>
-                    <span className="text-gray-800">{projectDetails.numberOfMembers}</span>
+                  <div className="flex flex-col space-y-1">
+                    <span className="text-xs sm:text-sm font-medium text-gray-600">Số lượng thành viên</span>
+                    <span className="text-sm sm:text-base text-gray-800">{projectDetails.numberOfMembers}</span>
                   </div>
-                  <div className="flex flex-col">
-                    <span className="text-sm font-medium text-gray-600">Số lượng công việc</span>
-                    <span className="text-gray-800">{projectDetails.numberOfTasks}</span>
+                  <div className="flex flex-col space-y-1">
+                    <span className="text-xs sm:text-sm font-medium text-gray-600">Số lượng công việc</span>
+                    <span className="text-sm sm:text-base text-gray-800">{projectDetails.numberOfTasks}</span>
                   </div>
-                  <div className="flex flex-col">
-                    <span className="text-sm font-medium text-gray-600">Ngày bắt đầu</span>
-                    <span className="text-gray-800">{projectDetails.startDate}</span>
+                  <div className="flex flex-col space-y-1">
+                    <span className="text-xs sm:text-sm font-medium text-gray-600">Ngày bắt đầu</span>
+                    <span className="text-sm sm:text-base text-gray-800">{projectDetails.startDate}</span>
                   </div>
-                  <div className="flex flex-col">
-                    <span className="text-sm font-medium text-gray-600">Ngày kết thúc</span>
-                    <span className="text-gray-800">{projectDetails.endDate}</span>
+                  <div className="flex flex-col space-y-1">
+                    <span className="text-xs sm:text-sm font-medium text-gray-600">Ngày kết thúc</span>
+                    <span className="text-sm sm:text-base text-gray-800">{projectDetails.endDate}</span>
                   </div>
-                  <div className="flex flex-col">
-                    <span className="text-sm font-medium text-gray-600">Mô tả</span>
-                    <span className="text-gray-800">{projectDetails.description || 'Không có mô tả'}</span>
+                  <div className="flex flex-col space-y-1 sm:col-span-2 lg:col-span-3 xl:col-span-2">
+                    <span className="text-xs sm:text-sm font-medium text-gray-600">Mô tả</span>
+                    <span className="text-sm sm:text-base text-gray-800 break-words">
+                      {projectDetails.description || 'Không có mô tả'}
+                    </span>
                   </div>
                 </div>
               </div>
 
               {/* Progress Section */}
-              <div className="mb-8">
-                <h2 className="text-xl font-semibold text-gray-800 mb-4">Tiến độ dự án</h2>
-                <div className="flex justify-between items-center mb-2">
-                  <h3 className="text-lg font-medium text-gray-700">Tiến độ</h3>
-                  <span className="text-sm text-gray-500">{taskNumber} Công việc</span>
-                </div>
-                <div className="w-full bg-gray-200 rounded-full h-4">
-                  <div
-                    className="bg-indigo-500 h-4 rounded-full"
-                    style={{ width: `${projectDetails.progress}%` }}
-                  ></div>
+              <div className="mb-6 sm:mb-8">
+                <h2 className="text-lg sm:text-xl font-semibold text-gray-800 mb-4">Tiến độ dự án</h2>
+                <div className="space-y-3">
+                  <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2">
+                    <h3 className="text-base sm:text-lg font-medium text-gray-700">Tiến độ</h3>
+                    <div className="flex items-center gap-2">
+                      <span className="text-lg sm:text-xl font-bold text-indigo-600">
+                        {projectDetails.progress}%
+                      </span>
+                      <span className="text-xs sm:text-sm text-gray-500">({taskNumber} Công việc)</span>
+                    </div>
+                  </div>
+                  <div className="w-full bg-gray-200 rounded-full h-3 sm:h-4">
+                    <div
+                      className="bg-gradient-to-r from-indigo-500 to-purple-600 h-3 sm:h-4 rounded-full transition-all duration-500 ease-out"
+                      style={{ width: `${projectDetails.progress}%` }}
+                    ></div>
+                  </div>
                 </div>
               </div>
 
               {/* Task Stats Section */}
-              <div className="mb-8">
-                <h2 className="text-xl font-semibold text-gray-800 mb-4">Thống kê công việc</h2>
-                <BarChartStats data={taskStats} />
+              <div className="mb-6 sm:mb-8">
+                <h2 className="text-lg sm:text-xl font-semibold text-gray-800 mb-4">Thống kê công việc</h2>
+                <div className="bg-gray-50 rounded-lg p-4">
+                  <BarChartStats data={taskStats} />
+                </div>
               </div>
 
               {/* Task List Section */}
-              <div className="mb-8">
+              <div className="mb-6 sm:mb-8">
                 <TaskListSection
                   tasks={tasks}
                   filters={filters}
@@ -426,59 +453,102 @@ const ProjectDetail = () => {
 
               {/* Member Stats Section */}
               <div>
-                <h2 className="text-xl font-semibold text-gray-800 mb-4">Thống kê theo thành viên</h2>
-                <div className="flex flex-col sm:flex-row gap-2 mb-4">
+                <h2 className="text-lg sm:text-xl font-semibold text-gray-800 mb-4">Thống kê theo thành viên</h2>
+                
+                {/* Search Section */}
+                <div className="flex flex-col sm:flex-row gap-3 mb-4">
                   <input
                     type="text"
                     placeholder="Tìm kiếm thành viên..."
                     value={searchInput}
                     onChange={(e) => setSearchInput(e.target.value)}
-                    className="border border-gray-300 rounded-lg px-4 py-2 flex-1 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    className="border border-gray-300 rounded-lg px-4 py-2 flex-1 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200 text-sm sm:text-base"
                   />
                   <button
                     onClick={() => {
                       setMemberSearch(searchInput);
                       fetchMemberStats(0, false);
                     }}
-                    className="bg-indigo-500 text-white px-4 py-2 rounded-lg hover:bg-indigo-600 transition-colors duration-150"
+                    className="bg-indigo-500 text-white px-4 py-2 rounded-lg hover:bg-indigo-600 transition-colors duration-150 text-sm sm:text-base font-medium sm:whitespace-nowrap"
                   >
-                    Tìm
+                    Tìm kiếm
                   </button>
                 </div>
+
+                {/* Member Stats Table */}
                 <div className="border border-gray-200 rounded-lg overflow-hidden">
-                  <div className="grid grid-cols-4 gap-4 bg-gray-100 p-4 font-semibold text-gray-700">
+                  {/* Desktop Table Header */}
+                  <div className="hidden sm:grid sm:grid-cols-4 gap-4 bg-gradient-to-r from-gray-50 to-blue-50 p-4 font-semibold text-gray-700">
                     <div>Thành viên</div>
-                    <div>Tổng công việc</div>
-                    <div>Hoàn thành</div>
-                    <div>Trễ hạn</div>
+                    <div className="text-center">Tổng công việc</div>
+                    <div className="text-center">Hoàn thành</div>
+                    <div className="text-center">Trễ hạn</div>
                   </div>
-                  <div className="max-h-96 overflow-y-auto">
+                  
+                  {/* Table Content */}
+                  <div className="max-h-80 sm:max-h-96 overflow-y-auto">
                     {memberStats.length > 0 ? (
                       <>
-                        {memberStats.map((member, index) => (
-                          <div key={index} className="grid grid-cols-4 gap-4 p-4 border-b border-gray-200">
-                            <div>{member.fullName || '---'}</div>
-                            <div>{member.totalTasks}</div>
-                            <div>{member.completedTasks}</div>
-                            <div>{member.overdueTasks}</div>
+                        {memberStats.slice(0, visibleMemberCount).map((member, index) => (
+                          <div key={index} className="border-b border-gray-200 last:border-b-0">
+                            {/* Mobile Card Layout */}
+                            <div className="sm:hidden p-4 space-y-3">
+                              <div className="font-medium text-gray-900">
+                                {member.fullName || '---'}
+                              </div>
+                              <div className="grid grid-cols-3 gap-4 text-sm">
+                                <div className="text-center">
+                                  <div className="text-gray-500 text-xs">Tổng</div>
+                                  <div className="font-semibold">{member.totalTasks}</div>
+                                </div>
+                                <div className="text-center">
+                                  <div className="text-gray-500 text-xs">Hoàn thành</div>
+                                  <div className="font-semibold text-green-600">{member.completedTasks}</div>
+                                </div>
+                                <div className="text-center">
+                                  <div className="text-gray-500 text-xs">Trễ hạn</div>
+                                  <div className="font-semibold text-red-600">{member.overdueTasks}</div>
+                                </div>
+                              </div>
+                            </div>
+                            
+                            {/* Desktop Row Layout */}
+                            <div className="hidden sm:grid sm:grid-cols-4 gap-4 p-4 hover:bg-gray-50 transition-colors duration-150">
+                              <div className="font-medium text-gray-900 truncate">
+                                {member.fullName || '---'}
+                              </div>
+                              <div className="text-center font-semibold">{member.totalTasks}</div>
+                              <div className="text-center font-semibold text-green-600">{member.completedTasks}</div>
+                              <div className="text-center font-semibold text-red-600">{member.overdueTasks}</div>
+                            </div>
                           </div>
                         ))}
                         <div id="member-list-sentinel" className="h-1" />
-                        {hasMoreMembers && <div className="p-4 text-center text-gray-500">Đang tải thêm...</div>}
+                        {hasMoreMembers && (
+                          <div className="p-4 text-center text-gray-500">
+                            <div className="animate-pulse">Đang tải thêm...</div>
+                          </div>
+                        )}
                       </>
                     ) : (
-                      <div className="p-4 text-center text-gray-500">Không có dữ liệu thành viên</div>
+                      <div className="p-8 text-center text-gray-500">
+                        <div className="text-gray-400 mb-2">📊</div>
+                        <p>Không có dữ liệu thành viên</p>
+                      </div>
                     )}
                   </div>
                 </div>
               </div>
             </div>
+
+            {/* Modals */}
             {showTaskDetailPopup && selectedTask && (
               <TaskDetailPopup
                 task={selectedTask}
                 onClose={() => setShowTaskDetailPopup(false)}
               />
             )}
+            
             {showEditProjectPopup && projectDetails && (
               <EditProjectPopup
                 project={projectDetails}
@@ -486,6 +556,17 @@ const ProjectDetail = () => {
                 onUpdateSuccess={handleUpdateProject}
               />
             )}
+
+            <ConfirmModal
+              isOpen={isConfirmOpen}
+              onConfirm={() => {
+                handleDeleteProject();
+                setIsConfirmOpen(false);
+              }}
+              onCancel={() => setIsConfirmOpen(false)}
+              title="Xác nhận xóa dự án"
+              message="Bạn có chắc chắn muốn xóa dự án này? Hành động này không thể hoàn tác."
+            />
           </div>
         )}
       </div>

@@ -25,7 +25,7 @@ const Projects = () => {
     startTime: '',
     endTime: '',
   });
-  const pageSize = 6;
+  const pageSize = 8;
 
   const fetchProjects = async () => {
     try {
