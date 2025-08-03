@@ -49,6 +49,49 @@ export interface PagedUserProgress {
   empty: boolean;
 }
 
+interface ReportData {
+  name: string;
+  departmentName: string;
+  processing: number;
+  overdue: number;
+  waitCompleted: number;
+  completed: number;
+  pending: number;
+  totalTasks: number;
+  plusPoint: number;
+  totalPoint: number;
+  minusPoint: number;
+}
+
+interface DashboardResponse {
+  content: ReportData[];
+  pageable: {
+    pageNumber: number;
+    pageSize: number;
+    sort: {
+      empty: boolean;
+      sorted: boolean;
+      unsorted: boolean;
+    };
+    offset: number;
+    paged: boolean;
+    unpaged: boolean;
+  };
+  last: boolean;
+  totalElements: number;
+  totalPages: number;
+  size: number;
+  number: number;
+  sort: {
+    empty: boolean;
+    sorted: boolean;
+    unsorted: boolean;
+  };
+  numberOfElements: number;
+  first: boolean;
+  empty: boolean;
+}
+
 
 export interface ProjectChartData {
   completed: number;
@@ -168,4 +211,128 @@ export const getDashboardUserTaskOverview = async (
     },
   });
   return response.data.data;
+};
+
+
+export const getDashboardUserTask = async (
+  departmentId?: number,
+  textSearch: string = '',
+  startTime: string = '',
+  endTime: string = '',
+  page: number = 0,
+  size: number = 10
+): Promise<DashboardResponse> => {
+  try {
+    const token = localStorage.getItem('access_token');
+    if (!token) {
+      throw new Error('Token không tồn tại.');
+    }
+
+    const params = new URLSearchParams({
+      page: page.toString(),
+      size: size.toString(),
+    });
+
+    if (departmentId) {
+      params.append('departmentId', departmentId.toString());
+    }
+    if (textSearch.trim()) {
+      params.append('textSearch', textSearch.trim());
+    }
+    if (startTime) {
+      params.append('startTime', startTime);
+    }
+    if (endTime) {
+      params.append('endTime', endTime);
+    }
+
+    const response = await fetch(
+      `http://localhost:8080/api/v1/dashboard/get-dashboard-userTask?${params.toString()}`,
+      {
+        method: 'GET',
+        headers: {
+          Accept: 'application/json, text/plain, */*',
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      }
+    );
+
+    if (!response.ok) {
+      if (response.status === 401) {
+        throw new Error('Phiên đăng nhập hết hạn');
+      }
+      throw new Error(`Lỗi HTTP: ${response.status}`);
+    }
+
+    const result: ApiResponse<DashboardResponse> = await response.json();
+
+    if (result.code === 'SUCCESS') {
+      return result.data;
+    } else {
+      throw new Error(result.message || 'Lỗi khi lấy dữ liệu dashboard');
+    }
+  } catch (error) {
+    console.error('Lỗi khi gọi API getDashboardUserTask:', error);
+    throw error;
+  }
+};
+
+export const exportDashboardUserTask = async (
+  departmentId?: number,
+  textSearch: string = '',
+  startTime: string = '',
+  endTime: string = ''
+): Promise<void> => {
+  try {
+    const token = localStorage.getItem('access_token');
+    if (!token) {
+      throw new Error('Token không tồn tại.');
+    }
+
+    console.log('token ', token);
+
+
+    const params = new URLSearchParams();
+    if (departmentId) {
+      params.append('departmentId', departmentId.toString());
+    }
+    if (textSearch.trim()) {
+      params.append('textSearch', textSearch.trim());
+    }
+    if (startTime) {
+      params.append('startTime', startTime);
+    }
+    if (endTime) {
+      params.append('endTime', endTime);
+    }
+
+
+
+    const response = await axios.post(
+      `http://localhost:8080/api/v1/dashboard/export-dashboard-userTask?${params.toString()}`,
+      {}, // nếu không có body, truyền object rỗng
+      {
+        headers: {
+          Accept: 'application/json, text/plain, */*',
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        responseType: 'blob',
+      }
+    );
+
+
+    const url = window.URL.createObjectURL(new Blob([response.data as BlobPart]));
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', 'Báo cáo tổng quan.xlsx');
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    window.URL.revokeObjectURL(url);
+  } catch (error) {
+    console.error('Lỗi khi xuất Excel:', error);
+    throw error;
+  }
 };

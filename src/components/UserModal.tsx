@@ -1,6 +1,5 @@
 import React from 'react';
 import type { UserInfo } from '../api/userApi';
-import { toast } from 'react-toastify';
 
 interface UserModalProps {
   user: UserInfo | null;
@@ -81,29 +80,33 @@ const UserModal: React.FC<UserModalProps> = ({
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700">Số điện thoại</label>
-            <input
-              type="text"
-              value={user.phone || ''}
-              onChange={(e) => setSelectedUser({ ...user, phone: e.target.value })}
-              disabled={!isEditing}
-              className="w-full px-3 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500"
-            />
-          </div>
-          <div>
             <label className="block text-sm font-medium text-gray-700">Giới tính</label>
-            <select
-              value={user.gender || ''}
-              onChange={(e) => setSelectedUser({ ...user, gender: e.target.value })}
-              disabled={!isEditing}
-              className="w-full px-3 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500"
-            >
-              <option value="">Không xác định</option>
-              <option value="male">Nam</option>
-              <option value="female">Nữ</option>
-             
-            </select>
+            {isEditing ? (
+              <select
+                value={user.gender || ''}
+                onChange={(e) => setSelectedUser({ ...user, gender: e.target.value })}
+                className="w-full px-3 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              >
+                <option value="">Không xác định</option>
+                <option value="male">Nam</option>
+                <option value="female">Nữ</option>
+              </select>
+            ) : (
+              <input
+                type="text"
+                value={
+                  user.gender === 'male'
+                    ? 'Nam'
+                    : user.gender === 'female'
+                      ? 'Nữ'
+                      : 'Không xác định'
+                }
+                disabled
+                className="w-full px-3 py-2 border border-gray-300 rounded-xl bg-gray-100"
+              />
+            )}
           </div>
+
           <div>
             <label className="block text-sm font-medium text-gray-700">Ngày sinh</label>
             <input
