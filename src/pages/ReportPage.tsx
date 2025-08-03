@@ -132,13 +132,10 @@ const ReportPage = () => {
         <Sidebar />
       </div>
       <div className="flex-1 ml-64 flex flex-col">
-        <Header
-          onProfileClick={handleProfile}
-          onChangePassword={handleChangePassword}
-          onLogout={handleLogout}
-          isDropdownOpen={isDropdownOpen}
-          toggleDropdown={toggleDropdown}
-        />
+        <div>
+          <Header isDropdownOpen={isDropdownOpen} toggleDropdown={toggleDropdown} />
+          {/* Nội dung trang */}
+        </div>
         {showProfile ? (
           <Profile onBack={handleBackToDashboard} />
         ) : (
@@ -259,8 +256,8 @@ const ReportPage = () => {
                         onClick={() => handlePageChange(0)}
                         disabled={currentPage === 0}
                         className={`px-3 py-1 rounded-lg ${currentPage === 0
-                            ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
-                            : 'bg-indigo-500 text-white hover:bg-indigo-600'
+                          ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                          : 'bg-indigo-500 text-white hover:bg-indigo-600'
                           } transition-colors duration-150`}
                       >
                         ««
@@ -269,8 +266,8 @@ const ReportPage = () => {
                         onClick={() => handlePageChange(currentPage - 1)}
                         disabled={currentPage === 0}
                         className={`px-3 py-1 rounded-lg ${currentPage === 0
-                            ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
-                            : 'bg-indigo-500 text-white hover:bg-indigo-600'
+                          ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                          : 'bg-indigo-500 text-white hover:bg-indigo-600'
                           } transition-colors duration-150`}
                       >
                         ‹
@@ -291,8 +288,8 @@ const ReportPage = () => {
                               key={i}
                               onClick={() => handlePageChange(i)}
                               className={`px-3 py-1 rounded-lg ${currentPage === i
-                                  ? 'bg-indigo-600 text-white'
-                                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                                ? 'bg-indigo-600 text-white'
+                                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                                 } transition-colors duration-150`}
                             >
                               {i + 1}
@@ -305,8 +302,8 @@ const ReportPage = () => {
                         onClick={() => handlePageChange(currentPage + 1)}
                         disabled={currentPage >= totalPages - 1}
                         className={`px-3 py-1 rounded-lg ${currentPage >= totalPages - 1
-                            ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
-                            : 'bg-indigo-500 text-white hover:bg-indigo-600'
+                          ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                          : 'bg-indigo-500 text-white hover:bg-indigo-600'
                           } transition-colors duration-150`}
                       >
                         ›
@@ -315,8 +312,8 @@ const ReportPage = () => {
                         onClick={() => handlePageChange(totalPages - 1)}
                         disabled={currentPage >= totalPages - 1}
                         className={`px-3 py-1 rounded-lg ${currentPage >= totalPages - 1
-                            ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
-                            : 'bg-indigo-500 text-white hover:bg-indigo-600'
+                          ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                          : 'bg-indigo-500 text-white hover:bg-indigo-600'
                           } transition-colors duration-150`}
                       >
                         »»

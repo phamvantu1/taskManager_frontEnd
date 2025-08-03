@@ -1,10 +1,8 @@
 import React from 'react';
 import { useLocation } from 'react-router-dom';
+import { useHeaderActions } from './HeaderContext';
 
 interface HeaderProps {
-  onProfileClick: () => void;
-  onChangePassword: () => void;
-  onLogout: () => void;
   isDropdownOpen: boolean;
   toggleDropdown: () => void;
 }
@@ -12,7 +10,7 @@ interface HeaderProps {
 const getPageTitle = (pathname: string): string => {
   if (pathname === '/dashboard') return 'Tổng quan';
   if (pathname === '/projects') return 'Dự án';
-  if (pathname.startsWith('/projects/')) return 'Chi tiết dự án'; // ✅ Fix tại đây
+  if (pathname.startsWith('/projects/')) return 'Chi tiết dự án';
   if (pathname === '/taskListPage') return 'Công việc';
   if (pathname === '/department') return 'Phòng ban';
   if (pathname === '/memberlistpage') return 'Người dùng';
@@ -20,16 +18,10 @@ const getPageTitle = (pathname: string): string => {
   return 'Trang chủ';
 };
 
-
-const Header: React.FC<HeaderProps> = ({
-  onProfileClick,
-  onChangePassword,
-  onLogout,
-  isDropdownOpen,
-  toggleDropdown,
-}) => {
+const Header: React.FC<HeaderProps> = ({ isDropdownOpen, toggleDropdown }) => {
   const location = useLocation();
   const pageTitle = getPageTitle(location.pathname);
+  const { onProfileClick, onChangePassword, onLogout } = useHeaderActions();
 
   return (
     <div className="flex justify-between items-center px-6 py-4 bg-gradient-to-r from-blue-50 to-indigo-50 shadow-lg">

@@ -18,7 +18,7 @@ const AddProjectPopup: React.FC<AddProjectPopupProps> = ({ departmentId, onClose
   const [formData, setFormData] = useState<ProjectPayload>({
     name: '',
     description: '',
-    type: '',
+    type_project: '',
     ownerId: '',
     startTime: '',
     endTime: '',
@@ -60,7 +60,7 @@ const AddProjectPopup: React.FC<AddProjectPopupProps> = ({ departmentId, onClose
   };
 
   const validateForm = () => {
-    const requiredFields: (keyof ProjectPayload)[] = ['name', 'type', 'ownerId', 'startTime', 'endTime', 'departmentId'];
+    const requiredFields: (keyof ProjectPayload)[] = ['name', 'type_project', 'ownerId', 'startTime', 'endTime', 'departmentId'];
     for (const field of requiredFields) {
       if (!formData[field]?.toString().trim()) {
         toast.error(`Vui lòng điền ${getFieldLabel(field)}`);
@@ -77,7 +77,7 @@ const AddProjectPopup: React.FC<AddProjectPopupProps> = ({ departmentId, onClose
   const getFieldLabel = (field: keyof ProjectPayload) => {
     switch (field) {
       case 'name': return 'tên dự án';
-      case 'type': return 'loại dự án';
+      case 'type_project': return 'loại dự án';
       case 'ownerId': return 'quản lý dự án';
       case 'startTime': return 'ngày bắt đầu';
       case 'endTime': return 'ngày kết thúc';
@@ -151,7 +151,7 @@ const AddProjectPopup: React.FC<AddProjectPopupProps> = ({ departmentId, onClose
             </label>
             <select
               name="type"
-              value={formData.type}
+              value={formData.type_project}
               onChange={handleInputChange}
               className="mt-1 w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500"
               required
@@ -184,12 +184,19 @@ const AddProjectPopup: React.FC<AddProjectPopupProps> = ({ departmentId, onClose
             <label className="block text-sm font-medium text-gray-700">
               Phòng ban <span className="text-red-500">*</span>
             </label>
-            <input
-              type="text"
-              value={selectedDepartment?.name || 'Đang tải...'}
-              className="mt-1 w-full px-4 py-2 border border-gray-300 rounded-xl bg-gray-100 text-gray-600 cursor-not-allowed"
-              disabled
-            />
+            <select
+              name="departmentId"
+              value={formData.departmentId || ''}
+              onChange={handleInputChange}
+              className="mt-1 w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            >
+              <option value="">-- Chọn phòng ban --</option>
+              {departments.map((dept) => (
+                <option key={dept.id} value={dept.id}>
+                  {dept.name}
+                </option>
+              ))}
+            </select>
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700">

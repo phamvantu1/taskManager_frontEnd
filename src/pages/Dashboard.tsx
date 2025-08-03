@@ -210,24 +210,13 @@ const Dashboard: React.FC = () => {
     fetchTaskChartData();
   };
 
-  const handleLogout = () => {
-    localStorage.removeItem('access_token');
-    navigate('/login');
-  };
+  
 
   const toggleDropdown = () => {
     setIsDropdownOpen(!isDropdownOpen);
   };
 
-  const handleChangePassword = () => {
-    console.log('Change password clicked');
-    setIsDropdownOpen(false);
-  };
 
-  const handleProfile = () => {
-    setShowProfile(true);
-    setIsDropdownOpen(false);
-  };
 
   const handleBackToDashboard = () => {
     setShowProfile(false);
@@ -309,13 +298,8 @@ const Dashboard: React.FC = () => {
 
       {/* Main Content */}
       <div className="flex-1 ml-64 flex flex-col">
-        <Header
-          onProfileClick={handleProfile}
-          onChangePassword={handleChangePassword}
-          onLogout={handleLogout}
-          isDropdownOpen={isDropdownOpen}
-          toggleDropdown={toggleDropdown}
-        />
+      <Header isDropdownOpen={isDropdownOpen} toggleDropdown={toggleDropdown} />
+
         {showProfile ? (
           <Profile onBack={handleBackToDashboard} />
         ) : (

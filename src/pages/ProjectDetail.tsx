@@ -50,24 +50,12 @@ const ProjectDetail = () => {
     setIsDropdownOpen(!isDropdownOpen);
   };
 
-  const handleChangePassword = () => {
-    console.log('Change password clicked');
-    setIsDropdownOpen(false);
-  };
 
-  const handleProfile = () => {
-    setShowProfile(true);
-    setIsDropdownOpen(false);
-  };
 
   const handleBackToDashboard = () => {
     setShowProfile(false);
   };
 
-  const handleLogout = () => {
-    localStorage.removeItem('access_token');
-    navigate('/login');
-  };
 
   const handleAddTask = () => {
     fetchProject();
@@ -280,7 +268,7 @@ const ProjectDetail = () => {
       </div>
     </div>
   );
-  
+
   if (!projectDetails) return (
     <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50">
       <div className="text-center text-red-500 p-6">
@@ -298,14 +286,11 @@ const ProjectDetail = () => {
 
       {/* Main Content */}
       <div className="flex-1 lg:ml-64 flex flex-col">
-        <Header
-          onProfileClick={handleProfile}
-          onChangePassword={handleChangePassword}
-          onLogout={handleLogout}
-          isDropdownOpen={isDropdownOpen}
-          toggleDropdown={toggleDropdown}
-        />
-        
+        <div>
+          <Header isDropdownOpen={isDropdownOpen} toggleDropdown={toggleDropdown} />
+          {/* Nội dung trang */}
+        </div>
+
         {showProfile ? (
           <Profile onBack={handleBackToDashboard} />
         ) : (
@@ -326,20 +311,19 @@ const ProjectDetail = () => {
                     {projectDetails.name}
                   </h1>
                 </div>
-                
+
                 <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-3">
                   <div
-                    className={`px-3 py-1 text-xs sm:text-sm font-semibold rounded-full whitespace-nowrap ${
-                      projectDetails.status === 'OVERDUE'
-                        ? 'bg-red-100 text-red-800'
-                        : projectDetails.status === 'DONE'
-                          ? 'bg-green-100 text-green-800'
-                          : 'bg-yellow-100 text-yellow-800'
-                    }`}
+                    className={`px-3 py-1 text-xs sm:text-sm font-semibold rounded-full whitespace-nowrap ${projectDetails.status === 'OVERDUE'
+                      ? 'bg-red-100 text-red-800'
+                      : projectDetails.status === 'DONE'
+                        ? 'bg-green-100 text-green-800'
+                        : 'bg-yellow-100 text-yellow-800'
+                      }`}
                   >
                     {projectDetails.status}
                   </div>
-                  
+
                   <div className="flex gap-2">
                     <button
                       onClick={() => setShowEditProjectPopup(true)}
@@ -362,34 +346,34 @@ const ProjectDetail = () => {
                 <h2 className="text-lg sm:text-xl font-semibold text-gray-800 mb-4">Tổng quan</h2>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                   <div className="flex flex-col space-y-1">
-                    <span className="text-xs sm:text-sm font-medium text-gray-600">Quản lý dự án</span>
-                    <span className="text-sm sm:text-base text-gray-800 break-words">{projectDetails.ownerName}</span>
+                    <span className="text-xs sm:text-sm font-bold text-gray-700">Quản lý dự án</span>
+                    <span className="text-sm sm:text-base font-normal text-gray-800 break-words">{projectDetails.ownerName}</span>
                   </div>
                   <div className="flex flex-col space-y-1">
-                    <span className="text-xs sm:text-sm font-medium text-gray-600">Phòng ban</span>
-                    <span className="text-sm sm:text-base text-gray-800 break-words">
+                    <span className="text-xs sm:text-sm font-bold text-gray-700">Phòng ban</span>
+                    <span className="text-sm sm:text-base font-normal text-gray-800 break-words">
                       {projectDetails.departmentName || 'Không có phòng ban'}
                     </span>
                   </div>
                   <div className="flex flex-col space-y-1">
-                    <span className="text-xs sm:text-sm font-medium text-gray-600">Số lượng thành viên</span>
-                    <span className="text-sm sm:text-base text-gray-800">{projectDetails.numberOfMembers}</span>
+                    <span className="text-xs sm:text-sm font-bold text-gray-700">Số lượng thành viên</span>
+                    <span className="text-sm sm:text-base font-normal text-gray-800">{projectDetails.numberOfMembers}</span>
                   </div>
                   <div className="flex flex-col space-y-1">
-                    <span className="text-xs sm:text-sm font-medium text-gray-600">Số lượng công việc</span>
-                    <span className="text-sm sm:text-base text-gray-800">{projectDetails.numberOfTasks}</span>
+                    <span className="text-xs sm:text-sm font-bold text-gray-700">Số lượng công việc</span>
+                    <span className="text-sm sm:text-base font-normal text-gray-800">{projectDetails.numberOfTasks}</span>
                   </div>
                   <div className="flex flex-col space-y-1">
-                    <span className="text-xs sm:text-sm font-medium text-gray-600">Ngày bắt đầu</span>
-                    <span className="text-sm sm:text-base text-gray-800">{projectDetails.startDate}</span>
+                    <span className="text-xs sm:text-sm font-bold text-gray-700">Ngày bắt đầu</span>
+                    <span className="text-sm sm:text-base font-normal text-gray-800">{projectDetails.startDate}</span>
                   </div>
                   <div className="flex flex-col space-y-1">
-                    <span className="text-xs sm:text-sm font-medium text-gray-600">Ngày kết thúc</span>
-                    <span className="text-sm sm:text-base text-gray-800">{projectDetails.endDate}</span>
+                    <span className="text-xs sm:text-sm font-bold text-gray-700">Ngày kết thúc</span>
+                    <span className="text-sm sm:text-base font-normal text-gray-800">{projectDetails.endDate}</span>
                   </div>
                   <div className="flex flex-col space-y-1 sm:col-span-2 lg:col-span-3 xl:col-span-2">
-                    <span className="text-xs sm:text-sm font-medium text-gray-600">Mô tả</span>
-                    <span className="text-sm sm:text-base text-gray-800 break-words">
+                    <span className="text-xs sm:text-sm font-bold text-gray-700">Mô tả</span>
+                    <span className="text-sm sm:text-base font-normal text-gray-800 break-words">
                       {projectDetails.description || 'Không có mô tả'}
                     </span>
                   </div>
@@ -398,15 +382,14 @@ const ProjectDetail = () => {
 
               {/* Progress Section */}
               <div className="mb-6 sm:mb-8">
-                <h2 className="text-lg sm:text-xl font-semibold text-gray-800 mb-4">Tiến độ dự án</h2>
+
                 <div className="space-y-3">
                   <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2">
-                    <h3 className="text-base sm:text-lg font-medium text-gray-700">Tiến độ</h3>
+                    <h3 className="text-base sm:text-lg font-medium text-gray-700">Tiến độ dự án</h3>
                     <div className="flex items-center gap-2">
                       <span className="text-lg sm:text-xl font-bold text-indigo-600">
                         {projectDetails.progress}%
                       </span>
-                      <span className="text-xs sm:text-sm text-gray-500">({taskNumber} Công việc)</span>
                     </div>
                   </div>
                   <div className="w-full bg-gray-200 rounded-full h-3 sm:h-4">
@@ -454,7 +437,7 @@ const ProjectDetail = () => {
               {/* Member Stats Section */}
               <div>
                 <h2 className="text-lg sm:text-xl font-semibold text-gray-800 mb-4">Thống kê theo thành viên</h2>
-                
+
                 {/* Search Section */}
                 <div className="flex flex-col sm:flex-row gap-3 mb-4">
                   <input
@@ -484,7 +467,7 @@ const ProjectDetail = () => {
                     <div className="text-center">Hoàn thành</div>
                     <div className="text-center">Trễ hạn</div>
                   </div>
-                  
+
                   {/* Table Content */}
                   <div className="max-h-80 sm:max-h-96 overflow-y-auto">
                     {memberStats.length > 0 ? (
@@ -511,7 +494,7 @@ const ProjectDetail = () => {
                                 </div>
                               </div>
                             </div>
-                            
+
                             {/* Desktop Row Layout */}
                             <div className="hidden sm:grid sm:grid-cols-4 gap-4 p-4 hover:bg-gray-50 transition-colors duration-150">
                               <div className="font-medium text-gray-900 truncate">
@@ -548,7 +531,7 @@ const ProjectDetail = () => {
                 onClose={() => setShowTaskDetailPopup(false)}
               />
             )}
-            
+
             {showEditProjectPopup && projectDetails && (
               <EditProjectPopup
                 project={projectDetails}

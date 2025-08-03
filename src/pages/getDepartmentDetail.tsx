@@ -17,6 +17,7 @@ interface Department {
   name: string;
   description: string;
   leaderName: string;
+  leaderId : number;
   createdByName: string;
   createdAt: string;
   updatedAt: string;
@@ -243,13 +244,8 @@ const DepartmentDetailPage = () => {
 
       {/* Main Content */}
       <div className="flex-1 ml-64 flex flex-col">
-        <Header
-          onProfileClick={handleProfile}
-          onChangePassword={handleChangePassword}
-          onLogout={handleLogout}
-          isDropdownOpen={isDropdownOpen}
-          toggleDropdown={toggleDropdown}
-        />
+      <Header isDropdownOpen={isDropdownOpen} toggleDropdown={toggleDropdown} />
+
         {showProfile ? (
           <Profile onBack={() => setShowProfile(false)} />
         ) : (
@@ -404,7 +400,7 @@ const DepartmentDetailPage = () => {
                   id: department.id,
                   name: department.name,
                   description: department.description,
-                  leader_id: 0, // TODO: Replace with actual leader_id when available
+                  leader_id: department.leaderId, // TODO: Replace with actual leader_id when available
                 }}
               />
             )}

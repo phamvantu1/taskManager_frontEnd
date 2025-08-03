@@ -69,6 +69,7 @@ interface DepartmentDetailResponse {
     name: string;
     description: string;
     leaderName: string;
+    leaderId : number;
     createdByName: string;
     createdAt: string;
     updatedAt: string;
@@ -85,6 +86,7 @@ export const getDepartmentDetail = async (
   name: string;
   description: string;
   leaderName: string;
+  leaderId : number;
   createdByName: string;
   createdAt: string;
   updatedAt: string;
@@ -103,6 +105,7 @@ export const getDepartmentDetail = async (
     name: data.name,
     description: data.description,
     leaderName: data.leaderName,
+    leaderId : data.leaderId,
     createdByName: data.createdByName,
     createdAt: new Date(data.createdAt).toLocaleString('vi-VN'),
     updatedAt: data.updatedAt,

@@ -5,16 +5,17 @@ const API_BASE_URL = 'http://localhost:8080/api/projects';
 export interface ProjectPayload {
   name: string;
   description: string;
-  type: string;
-  ownerId: string;
   startTime: string;
   endTime: string;
   departmentId?: number;
+  ownerId?: any;  // Assuming this can be any type, adjust as necessary
+  departmentName?: string;  // Assuming this can be optional or undefined
+  type_project?: string;  // Assuming this can be optional or undefined
 }
 
 export interface ProjectDetail {
-  departmentId: undefined;
-  ownerId: any;
+  departmentId: undefined;    // Assuming this is optional or can be undefined
+  ownerId: any;  // Assuming this can be any type, adjust as necessary
   type: string;
   progress: number;
   id: number;
@@ -27,6 +28,7 @@ export interface ProjectDetail {
   startDate: string;
   endDate: string;
   departmentName: string | null;
+  type_project : string;  // Assuming this is a string type
 }
 
 export interface Project {

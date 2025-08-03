@@ -17,11 +17,11 @@ const EditProjectPopup: React.FC<EditProjectPopupProps> = ({ onClose, onUpdateSu
   const [formData, setFormData] = useState<ProjectPayload>({
     name: project.name || '',
     description: project.description || '',
-    type: project.type || '',
-    ownerId: project.ownerId?.toString() || '',
     startTime: project.startDate || '',
     endTime: project.endDate || '',
     departmentId: project.departmentId || undefined,
+    ownerId: project.ownerId,
+    type_project: project.type_project || '',
   });
 
   useEffect(() => {
@@ -59,7 +59,7 @@ const EditProjectPopup: React.FC<EditProjectPopupProps> = ({ onClose, onUpdateSu
   };
 
   const validateForm = () => {
-    const requiredFields: (keyof ProjectPayload)[] = ['name', 'type', 'ownerId', 'startTime', 'endTime'];
+    const requiredFields: (keyof ProjectPayload)[] = ['name', 'type_project', 'ownerId', 'startTime', 'endTime'];
     for (const field of requiredFields) {
       if (typeof formData[field] === 'string' && !formData[field].trim()) {
         toast.error(`Vui lòng điền ${getFieldLabel(field)}`);
@@ -76,7 +76,7 @@ const EditProjectPopup: React.FC<EditProjectPopupProps> = ({ onClose, onUpdateSu
   const getFieldLabel = (field: keyof ProjectPayload) => {
     switch (field) {
       case 'name': return 'tên dự án';
-      case 'type': return 'loại dự án';
+      case 'type_project': return 'loại dự án';
       case 'ownerId': return 'quản lý dự án';
       case 'startTime': return 'ngày bắt đầu';
       case 'endTime': return 'ngày kết thúc';
@@ -147,16 +147,20 @@ const EditProjectPopup: React.FC<EditProjectPopupProps> = ({ onClose, onUpdateSu
             </label>
             <select
               name="type"
-              value={formData.type}
+              value={formData.type_project}
               onChange={handleInputChange}
               className="mt-1 w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
               required
             >
-              <option value="">-- Chọn loại dự án --</option>
+              {/* Hiển thị giá trị mặc định, nhưng không cho chọn */}
+              <option value="" disabled hidden>{formData.type_project || "Chọn loại dự án"}</option>
+
+              {/* Lựa chọn thực tế */}
               <option value="Nội bộ">Nội bộ</option>
               <option value="Khách hàng">Khách hàng</option>
             </select>
           </div>
+
           <div>
             <label className="block text-sm font-medium text-gray-700">
               Quản lý dự án <span className="text-red-500">*</span>
@@ -171,7 +175,7 @@ const EditProjectPopup: React.FC<EditProjectPopupProps> = ({ onClose, onUpdateSu
               <option value="">-- Chọn người quản lý --</option>
               {users.map((user) => (
                 <option key={user.id} value={user.id}>
-                  {user.fullName} 
+                  {user.fullName}
                 </option>
               ))}
             </select>

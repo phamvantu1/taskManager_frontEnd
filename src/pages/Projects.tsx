@@ -4,14 +4,14 @@ import Header from '../components/Header';
 import Profile from '../pages/Profile';
 import AddProjectPopup from '../components/AddProjectPopup';
 import { getAllProjects } from '../api/projectApi';
-import { useHeader } from '../components/HeaderContext';
 import { useNavigate } from 'react-router-dom';
 
 const Projects = () => {
-  const { isDropdownOpen, toggleDropdown, onProfileClick, onChangePassword, onLogout, showProfile, setShowProfile } = useHeader();
   const [projects, setProjects] = useState<any[]>([]);
   const [page, setPage] = useState(0);
   const navigate = useNavigate();
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [showProfile, setShowProfile] = useState(false);
   const [totalPages, setTotalPages] = useState(0);
   const [showAddPopup, setShowAddPopup] = useState(false);
   const [filters, setFilters] = useState({
@@ -26,6 +26,18 @@ const Projects = () => {
     endTime: '',
   });
   const pageSize = 8;
+
+  
+  const toggleDropdown = () => {
+    setIsDropdownOpen(!isDropdownOpen);
+  };
+
+
+
+  const handleBackToDashboard = () => {
+    setShowProfile(false);
+  };
+
 
   const fetchProjects = async () => {
     try {
@@ -90,13 +102,10 @@ const Projects = () => {
         <Sidebar />
       </div>
       <div className="flex-1 ml-64 flex flex-col">
-        <Header
-          onProfileClick={onProfileClick}
-          onChangePassword={onChangePassword}
-          onLogout={onLogout}
-          isDropdownOpen={isDropdownOpen}
-          toggleDropdown={toggleDropdown}
-        />
+      <div>
+      <Header isDropdownOpen={isDropdownOpen} toggleDropdown={toggleDropdown} />
+      {/* Nội dung trang */}
+    </div>
         {showProfile ? (
           <Profile onBack={() => setShowProfile(false)} />
         ) : (

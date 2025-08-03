@@ -110,13 +110,8 @@ const DepartmentListPage = () => {
 
       {/* Main Content */}
       <div className="flex-1 ml-64 flex flex-col">
-        <Header
-          onProfileClick={handleProfile}
-          onChangePassword={handleChangePassword}
-          onLogout={handleLogout}
-          isDropdownOpen={isDropdownOpen}
-          toggleDropdown={toggleDropdown}
-        />
+      <Header isDropdownOpen={isDropdownOpen} toggleDropdown={toggleDropdown} />
+
         {showProfile ? (
           <Profile onBack={() => setShowProfile(false)} />
         ) : (

@@ -225,7 +225,7 @@ const AddTaskPopup: React.FC<AddTaskPopupProps> = ({ onClose, onSubmit, projectI
               className="w-full px-4 py-2 rounded-xl border border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none text-sm text-gray-700 bg-white shadow-sm"
               required
             >
-              <option value="">Chọn độ phức tạp</option>
+              
               <option value="Thấp">Thấp</option>
               <option value="Trung bình">Trung bình</option>
               <option value="Cao">Cao</option>

@@ -40,39 +40,39 @@ const TaskListPage = () => {
     }
   };
 
-const fetchTaskDashboard = async (type: string | null = filters.type) => {
-  try {
-    const token = localStorage.getItem('access_token');
-    if (!token) {
-      navigate('/login');
-      return;
-    }
+  const fetchTaskDashboard = async (type: string | null = filters.type) => {
+    try {
+      const token = localStorage.getItem('access_token');
+      if (!token) {
+        navigate('/login');
+        return;
+      }
 
-    const rawStats = await getDashboardTasksByProject(token, undefined, type) as {
-      data: {
-        PROCESSING?: number;
-        COMPLETED?: number;
-        PENDING?: number;
-        OVERDUE?: number;
-        TOTAL?: number;
+      const rawStats = await getDashboardTasksByProject(token, undefined, type) as {
+        data: {
+          PROCESSING?: number;
+          COMPLETED?: number;
+          PENDING?: number;
+          OVERDUE?: number;
+          TOTAL?: number;
+        };
       };
-    };
 
-    const stats = rawStats.data;
-    setTaskNumber(stats.TOTAL || 0);
+      const stats = rawStats.data;
+      setTaskNumber(stats.TOTAL || 0);
 
-    const mappedStats = [
-      { label: 'Chưa bắt đầu', value: stats.PENDING || 0 },
-      { label: 'Đang xử lý', value: stats.PROCESSING || 0 },
-      { label: 'Hoàn thành', value: stats.COMPLETED || 0 },
-      { label: 'Quá hạn', value: stats.OVERDUE || 0 },
-    ];
+      const mappedStats = [
+        { label: 'Chưa bắt đầu', value: stats.PENDING || 0 },
+        { label: 'Đang xử lý', value: stats.PROCESSING || 0 },
+        { label: 'Hoàn thành', value: stats.COMPLETED || 0 },
+        { label: 'Quá hạn', value: stats.OVERDUE || 0 },
+      ];
 
-    setTaskStats(mappedStats);
-  } catch (err) {
-    console.error('Lỗi khi fetch thống kê công việc:', err);
-  }
-};
+      setTaskStats(mappedStats);
+    } catch (err) {
+      console.error('Lỗi khi fetch thống kê công việc:', err);
+    }
+  };
 
   const fetchTasks = async (pageToFetch = 0, append = false, filtersOverride?: any) => {
     try {
@@ -157,16 +157,16 @@ const fetchTaskDashboard = async (type: string | null = filters.type) => {
     navigate('/login');
   };
 
-const handleTypeFilterChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-  const newType = mapVietnameseToTypeNumber(e.target.value);
-  console.log('New type selected:', newType);
-  const updatedFilters = { ...filters, type: newType };
-  console.log('Updated filters:', updatedFilters);
-  
-  setFilters(updatedFilters);
-  fetchTasks(0, false, updatedFilters);
-  fetchTaskDashboard(newType);
-};
+  const handleTypeFilterChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const newType = mapVietnameseToTypeNumber(e.target.value);
+    console.log('New type selected:', newType);
+    const updatedFilters = { ...filters, type: newType };
+    console.log('Updated filters:', updatedFilters);
+
+    setFilters(updatedFilters);
+    fetchTasks(0, false, updatedFilters);
+    fetchTaskDashboard(newType);
+  };
 
 
 
@@ -204,13 +204,10 @@ const handleTypeFilterChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
 
       {/* Main Content */}
       <div className="flex-1 ml-64 flex flex-col">
-        <Header
-          onProfileClick={handleProfile}
-          onChangePassword={handleChangePassword}
-          onLogout={handleLogout}
-          isDropdownOpen={isDropdownOpen}
-          toggleDropdown={toggleDropdown}
-        />
+        <div>
+          <Header isDropdownOpen={isDropdownOpen} toggleDropdown={toggleDropdown} />
+          {/* Nội dung trang */}
+        </div>
         {showProfile ? (
           <Profile onBack={() => setShowProfile(false)} />
         ) : (
@@ -223,8 +220,8 @@ const handleTypeFilterChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
                     filters.type === null
                       ? 'Tất cả'
                       : filters.type === '1'
-                      ? 'Giao'
-                      : 'Được giao'
+                        ? 'Giao'
+                        : 'Được giao'
                   }
                   onChange={handleTypeFilterChange}
                   className="px-4 py-2 rounded-xl border border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none text-sm text-gray-700 bg-white shadow-sm"

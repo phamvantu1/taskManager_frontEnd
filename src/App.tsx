@@ -12,11 +12,13 @@ import TaskListPage from './pages/TaskListPage';
 import MemberListPage from './pages/MemberListPage';
 import DepartmentListPage from './pages/DepartmentListPage';
 import ReportPage from './pages/ReportPage';
+import ChangePasswordPage from './pages/ChangePasswordPage'; // Cập nhật import
 import DepartmentDetailPage from './pages/getDepartmentDetail';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import './index.css';
 import React from 'react';
+import ProfilePage from './pages/Profile';
 
 class ErrorBoundary extends React.Component<{ children: React.ReactNode }, { hasError: boolean }> {
   state = { hasError: false };
@@ -52,9 +54,11 @@ function App() {
             <Route path="/verify-otp" element={<VerifyOTP />} />
             <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/profile" element={<ProfilePage />} />
             <Route path="/projects" element={<Projects />} />
             <Route path="/projects/:projectId" element={<ProjectDetail />} />
             <Route path="/taskListPage" element={<TaskListPage />} />
+            <Route path="/change-password" element={<ChangePasswordPage />} />
             <Route path="/memberlistpage" element={<MemberListPage />} />
             <Route path="/department" element={<DepartmentListPage />} />
             <Route path="/report" element={<ReportPage />} />

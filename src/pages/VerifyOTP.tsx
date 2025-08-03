@@ -42,7 +42,7 @@ const VerifyOTP = () => {
         <h2 className="text-2xl sm:text-3xl font-bold text-center text-gray-800 mb-6">
           Nhập mã OTP
         </h2>
-        
+
         <div className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
