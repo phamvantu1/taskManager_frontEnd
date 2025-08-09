@@ -107,7 +107,7 @@ const Projects = () => {
       {/* Nội dung trang */}
     </div>
         {showProfile ? (
-          <Profile onBack={() => setShowProfile(false)} />
+          <Profile/>
         ) : (
           <div className="flex-1 p-8 lg:p-10">
             <div className="mb-8">

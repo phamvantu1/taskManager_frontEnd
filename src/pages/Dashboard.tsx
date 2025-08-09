@@ -301,7 +301,7 @@ const Dashboard: React.FC = () => {
       <Header isDropdownOpen={isDropdownOpen} toggleDropdown={toggleDropdown} />
 
         {showProfile ? (
-          <Profile onBack={handleBackToDashboard} />
+          <Profile/>
         ) : (
           <div className="p-4 sm:p-6 md:p-8">
             {/* Department Selector */}

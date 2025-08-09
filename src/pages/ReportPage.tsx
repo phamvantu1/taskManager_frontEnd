@@ -137,7 +137,7 @@ const ReportPage = () => {
           {/* Nội dung trang */}
         </div>
         {showProfile ? (
-          <Profile onBack={handleBackToDashboard} />
+          <Profile />
         ) : (
           <div className="p-6">
             <div className="bg-white rounded-lg shadow p-6">

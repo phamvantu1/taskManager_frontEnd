@@ -292,7 +292,7 @@ const ProjectDetail = () => {
         </div>
 
         {showProfile ? (
-          <Profile onBack={handleBackToDashboard} />
+          <Profile/>
         ) : (
           <div className="p-3 sm:p-4 lg:p-6">
             <div className="bg-white rounded-lg shadow-lg p-4 sm:p-6">

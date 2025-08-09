@@ -15,10 +15,7 @@ const Sidebar: React.FC = () => {
         </div>
       </div>
 
-      {/* Sidebar Title */}
-      <div className="px-4 py-2 text-sm font-semibold uppercase text-blue-600">
-        Trang chủ
-      </div>
+
 
       {/* Navigation */}
       <nav className="flex-1 flex flex-col gap-1 px-2 py-4">

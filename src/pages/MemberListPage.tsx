@@ -418,7 +418,7 @@ const MemberListPage = () => {
       <Header isDropdownOpen={isDropdownOpen} toggleDropdown={toggleDropdown} />
 
         {showProfile ? (
-          <Profile onBack={handleBackToDashboard} />
+          <Profile  />
         ) : (
           <div className="p-6">
             <div className="bg-white rounded-xl shadow-lg p-6">

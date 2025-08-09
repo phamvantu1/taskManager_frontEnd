@@ -209,7 +209,7 @@ const TaskListPage = () => {
           {/* Nội dung trang */}
         </div>
         {showProfile ? (
-          <Profile onBack={() => setShowProfile(false)} />
+          <Profile />
         ) : (
           <div className="p-6">
             <div className="bg-white rounded-lg shadow p-6">
