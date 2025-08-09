@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { fetchUsers, type User } from '../api/userApi';
-import { updateTask, markFinishTask, deleteTask } from '../api/taskApi'; // Import new API functions
+import { updateTask, markFinishTask, deleteTask } from '../api/taskApi';
 import { toast } from 'react-toastify';
 import ConfirmModal from '../components/ConfirmModal';
 
@@ -9,14 +9,15 @@ interface TaskDetailPopupProps {
   onClose: () => void;
   onComplete?: () => void;
   onSave?: (updatedTask: any) => void;
-  onDelete?: () => void; // New prop for handling delete
+  onDelete?: () => void;
 }
 
 const TaskDetailPopup: React.FC<TaskDetailPopupProps> = ({ task, onClose, onComplete, onSave, onDelete }) => {
   const [editingField, setEditingField] = useState<string | null>(null);
   const [editedTask, setEditedTask] = useState(task);
   const [userList, setUserList] = useState<User[]>([]);
-  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+  const [isCompleteConfirmOpen, setIsCompleteConfirmOpen] = useState(false);
+  const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
 
   if (!task) return null;
 
@@ -349,36 +350,18 @@ const TaskDetailPopup: React.FC<TaskDetailPopupProps> = ({ task, onClose, onComp
         <div className="flex justify-end gap-3 mt-6">
           <button
             className="px-4 py-2 bg-green-600 text-white rounded-xl hover:bg-green-700 transition-all duration-200 font-semibold shadow-sm"
-            onClick={() => setIsConfirmOpen(true)}
+            onClick={() => setIsCompleteConfirmOpen(true)}
           >
             Đánh dấu hoàn thành
           </button>
-          <ConfirmModal
-            isOpen={isConfirmOpen}
-            onConfirm={() => {
-              handleComplete();
-              setIsConfirmOpen(false);
-            }}
-            onCancel={() => setIsConfirmOpen(false)}
-            title="Xác nhận đánh dấu hoàn thành"
-            message="Bạn có chắc chắn muốn đánh dấu công việc này là hoàn thành không? Hành động này không thể hoàn tác."
-          />
+          
           <button
             className="px-4 py-2 bg-red-600 text-white rounded-xl hover:bg-red-700 transition-all duration-200 font-semibold shadow-sm"
-            onClick={() => setIsConfirmOpen(true)}
+            onClick={() => setIsDeleteConfirmOpen(true)}
           >
             Xóa
           </button>
-          <ConfirmModal
-            isOpen={isConfirmOpen}
-            onConfirm={() => {
-              handleDelete();
-              setIsConfirmOpen(false);
-            }}
-            onCancel={() => setIsConfirmOpen(false)}
-            title="Xác nhận xóa công việc"
-            message="Bạn có chắc chắn muốn xóa công việc này không? Hành động này không thể hoàn tác."
-          />
+          
           <button
             className="px-4 py-2 bg-gradient-to-r from-indigo-600 to-blue-500 text-white rounded-xl hover:from-indigo-700 hover:to-blue-600 transition-all duration-200 font-semibold shadow-sm"
             onClick={handleSave}
@@ -386,6 +369,30 @@ const TaskDetailPopup: React.FC<TaskDetailPopupProps> = ({ task, onClose, onComp
             Lưu thay đổi
           </button>
         </div>
+
+        {/* Confirm Modal for Complete */}
+        <ConfirmModal
+          isOpen={isCompleteConfirmOpen}
+          onConfirm={() => {
+            handleComplete();
+            setIsCompleteConfirmOpen(false);
+          }}
+          onCancel={() => setIsCompleteConfirmOpen(false)}
+          title="Xác nhận đánh dấu hoàn thành"
+          message="Bạn có chắc chắn muốn đánh dấu công việc này là hoàn thành không?"
+        />
+
+        {/* Confirm Modal for Delete */}
+        <ConfirmModal
+          isOpen={isDeleteConfirmOpen}
+          onConfirm={() => {
+            handleDelete();
+            setIsDeleteConfirmOpen(false);
+          }}
+          onCancel={() => setIsDeleteConfirmOpen(false)}
+          title="Xác nhận xóa công việc"
+          message="Bạn có chắc chắn muốn xóa công việc này không? Hành động này không thể hoàn tác."
+        />
       </div>
     </div>
   );

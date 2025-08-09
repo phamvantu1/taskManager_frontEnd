@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { useLocation } from 'react-router-dom';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { useHeaderActions } from './HeaderContext';
 import { getUserDetails, type UserInfo, updateUserInfo } from '../api/userApi';
 import { getAllNotifications, markNotificationAsRead } from '../api/notificationApi';
+import { getTaskDetailById } from '../api/taskApi';
+import TaskDetailPopup from './TaskDetailPopup'; // Adjust the import path as needed
 
 interface HeaderProps {
   isDropdownOpen: boolean;
@@ -32,6 +33,12 @@ interface NotificationResponse {
   };
 }
 
+interface TaskDetail {
+  id: number;
+  // Add other task fields based on your API response, e.g., title, description, etc.
+  data: any; // Adjust this type based on your task API response
+}
+
 const getPageTitle = (pathname: string): string => {
   if (pathname === '/dashboard') return 'Tổng quan';
   if (pathname === '/projects') return 'Dự án';
@@ -54,6 +61,8 @@ const Header: React.FC<HeaderProps> = ({ isDropdownOpen, toggleDropdown }) => {
   const [currentPage, setCurrentPage] = useState(0);
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [isTaskPopupOpen, setIsTaskPopupOpen] = useState(false);
+  const [selectedTask, setSelectedTask] = useState<TaskDetail | null>(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -63,7 +72,6 @@ const Header: React.FC<HeaderProps> = ({ isDropdownOpen, toggleDropdown }) => {
       } catch (error) {}
     };
     fetchData();
-    fetchNotifications();
   }, [navigate]);
 
   const fetchNotifications = async () => {
@@ -95,6 +103,33 @@ const Header: React.FC<HeaderProps> = ({ isDropdownOpen, toggleDropdown }) => {
     }
   };
 
+  const handleNotificationClick = async (notification: Notification) => {
+    // Mark as read if unread
+    if (!notification.isRead) {
+      await handleMarkAsRead(notification.id);
+    }
+
+    // Navigate or open popup based on referenceType
+    if (notification.referenceType === 'PROJECT' && notification.referenceId) {
+      navigate(`/projects/${notification.referenceId}`);
+    } else if (notification.referenceType === 'TASK' && notification.referenceId) {
+      try {
+        const token = localStorage.getItem('access_token');
+        if (token) {
+          const taskDetail = await getTaskDetailById(token, notification.referenceId);
+          setSelectedTask(taskDetail); // Store task detail
+          setIsTaskPopupOpen(true); // Open popup
+        }
+      } catch (error) {
+        console.error('Failed to fetch task detail:', error);
+        navigate('/taskListPage'); // Fallback
+      }
+    }
+
+    // Close notification dropdown
+    setIsNotificationOpen(false);
+  };
+
   const handlePageChange = (page: number) => {
     if (page >= 0 && page < totalPages) {
       setCurrentPage(page);
@@ -102,8 +137,14 @@ const Header: React.FC<HeaderProps> = ({ isDropdownOpen, toggleDropdown }) => {
     }
   };
 
-  // Đếm thông báo chưa đọc
+  // Count unread notifications
   const unreadCount = notifications.filter(n => !n.isRead).length;
+
+  // Handle popup close
+  const handlePopupClose = () => {
+    setIsTaskPopupOpen(false);
+    setSelectedTask(null);
+  };
 
   return (
     <div className="flex justify-between items-center px-4 sm:px-6 py-3 sm:py-4 bg-white border-b border-gray-200 shadow-sm">
@@ -168,7 +209,7 @@ const Header: React.FC<HeaderProps> = ({ isDropdownOpen, toggleDropdown }) => {
                             ? 'border-l-sky-300 bg-sky-50 hover:bg-sky-100' 
                             : 'border-l-transparent bg-white hover:bg-gray-50'
                         }`}
-                        onClick={() => handleMarkAsRead(notification.id)}
+                        onClick={() => handleNotificationClick(notification)}
                       >
                         <div className="flex items-start justify-between">
                           <div className="flex-1 min-w-0">
@@ -280,6 +321,26 @@ const Header: React.FC<HeaderProps> = ({ isDropdownOpen, toggleDropdown }) => {
           )}
         </div>
       </div>
+
+      {/* Task Detail Popup */}
+      {isTaskPopupOpen && selectedTask && (
+        <TaskDetailPopup
+          task={selectedTask.data} // Pass the task data
+          onClose={handlePopupClose}
+          onComplete={() => {
+            setIsTaskPopupOpen(false);
+            fetchNotifications(); // Refresh notifications after completion
+          }}
+          onSave={(updatedTask) => {
+            setIsTaskPopupOpen(false);
+            // Optionally refresh notifications or task list if needed
+          }}
+          onDelete={() => {
+            setIsTaskPopupOpen(false);
+            fetchNotifications(); // Refresh notifications after deletion
+          }}
+        />
+      )}
     </div>
   );
 };
