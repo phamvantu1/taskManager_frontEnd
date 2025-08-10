@@ -1,7 +1,6 @@
 import axios from 'axios';
 
 export interface UserInfo {
-    role: string;
     departmentName: string;
     id ?: number; 
     firstName: string;
@@ -11,6 +10,11 @@ export interface UserInfo {
     gender : string | null;
     dateOfBirth : String | null;
     active : boolean;
+    roles: Array<{
+      id: number;
+      name: string;
+      permissions: Array<any>; // Adjust 'any' to a specific type if permissions have a defined structure
+    }>;
   }
   
   interface ApiResponse<T> {
