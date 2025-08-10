@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { fetchUsers, type User } from '../api/userApi';
-import { updateTask, markFinishTask, deleteTask } from '../api/taskApi';
+import { updateTask, markFinishTask, deleteTask, approveCompletedTask, rejectCompletedTask, extendTask } from '../api/taskApi';
 import { toast } from 'react-toastify';
 import ConfirmModal from '../components/ConfirmModal';
 
@@ -18,6 +18,10 @@ const TaskDetailPopup: React.FC<TaskDetailPopupProps> = ({ task, onClose, onComp
   const [userList, setUserList] = useState<User[]>([]);
   const [isCompleteConfirmOpen, setIsCompleteConfirmOpen] = useState(false);
   const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
+  const [isApproveConfirmOpen, setIsApproveConfirmOpen] = useState(false);
+  const [isRejectConfirmOpen, setIsRejectConfirmOpen] = useState(false);
+  const [isExtendModalOpen, setIsExtendModalOpen] = useState(false);
+  const [newEndTime, setNewEndTime] = useState('');
 
   if (!task) return null;
 
@@ -50,6 +54,7 @@ const TaskDetailPopup: React.FC<TaskDetailPopupProps> = ({ task, onClose, onComp
       case 'PROCESSING': return 'Đang thực hiện';
       case 'COMPLETED': return 'Hoàn thành';
       case 'OVERDUE': return 'Quá hạn';
+      case 'WAIT_COMPLETED': return 'Chờ duyệt hoàn thành';
       default: return 'Không xác định';
     }
   };
@@ -69,6 +74,7 @@ const TaskDetailPopup: React.FC<TaskDetailPopupProps> = ({ task, onClose, onComp
       case 'Đang thực hiện': return 'PROCESSING';
       case 'Hoàn thành': return 'COMPLETED';
       case 'Quá hạn': return 'OVERDUE';
+      case 'Chờ duyệt hoàn thành': return 'WAIT_COMPLETED';
       default: return status;
     }
   };
@@ -93,6 +99,72 @@ const TaskDetailPopup: React.FC<TaskDetailPopupProps> = ({ task, onClose, onComp
       }
     } catch (err: any) {
       const message = err?.message || 'Đánh dấu hoàn thành thất bại. Vui lòng thử lại sau.';
+      toast.error(message);
+    }
+  };
+
+  const handleApprove = async () => {
+    try {
+      const token = localStorage.getItem('access_token');
+      if (!token) {
+        toast.error('Không tìm thấy token xác thực');
+        return;
+      }
+
+      await approveCompletedTask(task.id, token);
+      toast.success('Duyệt hoàn thành thành công!');
+      onClose();
+      if (onComplete) {
+        onComplete();
+      }
+    } catch (err: any) {
+      const message = err?.message || 'Duyệt hoàn thành thất bại. Vui lòng thử lại sau.';
+      toast.error(message);
+    }
+  };
+
+  const handleReject = async () => {
+    try {
+      const token = localStorage.getItem('access_token');
+      if (!token) {
+        toast.error('Không tìm thấy token xác thực');
+        return;
+      }
+
+      await rejectCompletedTask(task.id, token);
+      toast.success('Từ chối hoàn thành thành công!');
+      onClose();
+      if (onComplete) {
+        onComplete();
+      }
+    } catch (err: any) {
+      const message = err?.message || 'Từ chối hoàn thành thất bại. Vui lòng thử lại sau.';
+      toast.error(message);
+    }
+  };
+
+  const handleExtend = async () => {
+    if (!newEndTime) {
+      toast.error('Vui lòng chọn ngày kết thúc mới');
+      return;
+    }
+
+    try {
+      const token = localStorage.getItem('access_token');
+      if (!token) {
+        toast.error('Không tìm thấy token xác thực');
+        return;
+      }
+
+      await extendTask(task.id, newEndTime, token);
+      toast.success('Gia hạn thành công!');
+      setIsExtendModalOpen(false);
+      onClose();
+      if (onComplete) {
+        onComplete();
+      }
+    } catch (err: any) {
+      const message = err?.message || 'Gia hạn thất bại. Vui lòng thử lại sau.';
       toast.error(message);
     }
   };
@@ -318,7 +390,7 @@ const TaskDetailPopup: React.FC<TaskDetailPopupProps> = ({ task, onClose, onComp
     fetchDataUser();
   }, []);
 
-  const statusOptions = ['Chưa bắt đầu', 'Đang thực hiện', 'Hoàn thành'];
+  const statusOptions = ['Chưa bắt đầu', 'Đang thực hiện', 'Hoàn thành', 'Chờ duyệt hoàn thành'];
   const leverOptions = ['Dễ', 'Trung bình', 'Khó'];
 
   return (
@@ -348,12 +420,40 @@ const TaskDetailPopup: React.FC<TaskDetailPopupProps> = ({ task, onClose, onComp
         </div>
 
         <div className="flex justify-end gap-3 mt-6">
-          <button
-            className="px-4 py-2 bg-green-600 text-white rounded-xl hover:bg-green-700 transition-all duration-200 font-semibold shadow-sm"
-            onClick={() => setIsCompleteConfirmOpen(true)}
-          >
-            Đánh dấu hoàn thành
-          </button>
+          {editedTask.status === 'PROCESSING' && (
+            <button
+              className="px-4 py-2 bg-green-600 text-white rounded-xl hover:bg-green-700 transition-all duration-200 font-semibold shadow-sm"
+              onClick={() => setIsCompleteConfirmOpen(true)}
+            >
+              Đánh dấu hoàn thành
+            </button>
+          )}
+          
+          {editedTask.status === 'OVERDUE' && (
+            <button
+              className="px-4 py-2 bg-yellow-600 text-white rounded-xl hover:bg-yellow-700 transition-all duration-200 font-semibold shadow-sm"
+              onClick={() => setIsExtendModalOpen(true)}
+            >
+              Gia hạn
+            </button>
+          )}
+          
+          {editedTask.status === 'WAIT_COMPLETED' && (
+            <>
+              <button
+                className="px-4 py-2 bg-green-600 text-white rounded-xl hover:bg-green-700 transition-all duration-200 font-semibold shadow-sm"
+                onClick={() => setIsApproveConfirmOpen(true)}
+              >
+                Duyệt hoàn thành
+              </button>
+              <button
+                className="px-4 py-2 bg-red-600 text-white rounded-xl hover:bg-red-700 transition-all duration-200 font-semibold shadow-sm"
+                onClick={() => setIsRejectConfirmOpen(true)}
+              >
+                Từ chối
+              </button>
+            </>
+          )}
           
           <button
             className="px-4 py-2 bg-red-600 text-white rounded-xl hover:bg-red-700 transition-all duration-200 font-semibold shadow-sm"
@@ -381,6 +481,62 @@ const TaskDetailPopup: React.FC<TaskDetailPopupProps> = ({ task, onClose, onComp
           title="Xác nhận đánh dấu hoàn thành"
           message="Bạn có chắc chắn muốn đánh dấu công việc này là hoàn thành không?"
         />
+
+        {/* Confirm Modal for Approve */}
+        <ConfirmModal
+          isOpen={isApproveConfirmOpen}
+          onConfirm={() => {
+            handleApprove();
+            setIsApproveConfirmOpen(false);
+          }}
+          onCancel={() => setIsApproveConfirmOpen(false)}
+          title="Xác nhận duyệt hoàn thành"
+          message="Bạn có chắc chắn muốn duyệt hoàn thành công việc này không?"
+        />
+
+        {/* Confirm Modal for Reject */}
+        <ConfirmModal
+          isOpen={isRejectConfirmOpen}
+          onConfirm={() => {
+            handleReject();
+            setIsRejectConfirmOpen(false);
+          }}
+          onCancel={() => setIsRejectConfirmOpen(false)}
+          title="Xác nhận từ chối hoàn thành"
+          message="Bạn có chắc chắn muốn từ chối hoàn thành công việc này không?"
+        />
+
+        {/* Extend Modal */}
+        {isExtendModalOpen && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+            <div className="bg-white rounded-xl p-6 max-w-sm w-full">
+              <h3 className="text-lg font-semibold mb-4">Gia hạn công việc</h3>
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-2">Ngày kết thúc mới</label>
+                <input
+                  type="date"
+                  value={newEndTime}
+                  onChange={(e) => setNewEndTime(e.target.value)}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none"
+                />
+              </div>
+              <div className="flex justify-end gap-3">
+                <button
+                  className="px-4 py-2 bg-gray-300 text-gray-700 rounded-xl hover:bg-gray-400"
+                  onClick={() => setIsExtendModalOpen(false)}
+                >
+                  Hủy
+                </button>
+                <button
+                  className="px-4 py-2 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700"
+                  onClick={handleExtend}
+                >
+                  Xác nhận
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Confirm Modal for Delete */}
         <ConfirmModal

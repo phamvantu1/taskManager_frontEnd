@@ -55,6 +55,7 @@ const TaskListPage = () => {
           PENDING?: number;
           OVERDUE?: number;
           TOTAL?: number;
+          WAIT_COMPLETED?: number;
         };
       };
 
@@ -66,6 +67,7 @@ const TaskListPage = () => {
         { label: 'Đang xử lý', value: stats.PROCESSING || 0 },
         { label: 'Hoàn thành', value: stats.COMPLETED || 0 },
         { label: 'Quá hạn', value: stats.OVERDUE || 0 },
+        { label: 'Chờ hoàn thành', value: stats.WAIT_COMPLETED || 0 },
       ];
 
       setTaskStats(mappedStats);

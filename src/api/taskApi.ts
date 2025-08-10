@@ -196,3 +196,63 @@ export const deleteTask = async (taskId: number, token: string): Promise<TaskApi
     throw new Error(errorMessage);
   }
 };
+
+export const approveCompletedTask = async (taskId: number, token: string): Promise<TaskApiResponse> => {
+  try {
+    const response = await axios.put<TaskApiResponse>(
+      `${BASE_URL}/approve-completed-task/${taskId}`,
+      {},
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    return response.data;
+  } catch (error: any) {
+    const errorMessage =
+      error?.response?.data?.message || 'Duyệt hoàn thành thất bại. Vui lòng thử lại sau.';
+    throw new Error(errorMessage);
+  }
+};
+
+export const rejectCompletedTask = async (taskId: number, token: string): Promise<TaskApiResponse> => {
+  try {
+    const response = await axios.put<TaskApiResponse>(
+      `${BASE_URL}/reject-completed-task/${taskId}`,
+      {},
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    return response.data;
+  } catch (error: any) {
+    const errorMessage =
+      error?.response?.data?.message || 'Từ chối hoàn thành thất bại. Vui lòng thử lại sau.';
+    throw new Error(errorMessage);
+  }
+};
+
+export const extendTask = async (taskId: number, newEndTime: string, token: string): Promise<TaskApiResponse> => {
+  try {
+    const response = await axios.put<TaskApiResponse>(
+      `${BASE_URL}/extend-task/${taskId}`,
+      null,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        params: {
+          newEndTime,
+        },
+      }
+    );
+    return response.data;
+  } catch (error: any) {
+    const errorMessage =
+      error?.response?.data?.message || 'Gia hạn thất bại. Vui lòng thử lại sau.';
+    throw new Error(errorMessage);
+  }
+};

@@ -40,6 +40,7 @@ const TaskListSection: React.FC<TaskListSectionProps> = ({
       case 'PROCESSING': return 'Đang thực hiện';
       case 'COMPLETED': return 'Hoàn thành';
       case 'OVERDUE': return 'Quá hạn';
+      case 'WAIT_COMPLETED': return 'Chờ hoàn thành';
       default: return 'Không xác định';
     }
   };
@@ -51,6 +52,7 @@ const TaskListSection: React.FC<TaskListSectionProps> = ({
       case 'Đang thực hiện': return '1';
       case 'Hoàn thành': return '2';
       case 'Quá hạn': return '3';
+      case 'Chờ hoàn thành': return '4';
       default: return null;
     }
   };
@@ -61,6 +63,7 @@ const TaskListSection: React.FC<TaskListSectionProps> = ({
       case 'PROCESSING': return 'bg-yellow-100 text-yellow-800';
       case 'COMPLETED': return 'bg-green-100 text-green-800';
       case 'OVERDUE': return 'bg-red-100 text-red-800';
+      case 'WAIT_COMPLETED': return 'bg-purple-100 text-purple-800';
       default: return 'bg-gray-100 text-gray-800';
     }
   };
@@ -113,7 +116,10 @@ const TaskListSection: React.FC<TaskListSectionProps> = ({
               ? 'Đang thực hiện'
               : filters.status === '2'
               ? 'Hoàn thành'
-              : 'Quá hạn'
+              : filters.status === '3'
+              ? 'Quá hạn'
+              : 'Chờ hoàn thành'
+             
           }
           onChange={(e) => handleFilterChange('status', e.target.value)}
           className="px-4 py-2 rounded-xl border border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none text-sm text-gray-700 bg-white shadow-sm"
@@ -123,6 +129,7 @@ const TaskListSection: React.FC<TaskListSectionProps> = ({
           <option value="Đang thực hiện">Đang thực hiện</option>
           <option value="Hoàn thành">Hoàn thành</option>
           <option value="Quá hạn">Quá hạn</option>
+          <option value="Chờ hoàn thành">Chờ hoàn thành</option>
         </select>
         <button
           onClick={() => fetchTasks(0, false, filters)}
