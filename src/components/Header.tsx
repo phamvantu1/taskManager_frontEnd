@@ -72,6 +72,7 @@ const Header: React.FC<HeaderProps> = ({ isDropdownOpen, toggleDropdown }) => {
       } catch (error) {}
     };
     fetchData();
+    fetchNotifications();
   }, [navigate]);
 
   const fetchNotifications = async () => {

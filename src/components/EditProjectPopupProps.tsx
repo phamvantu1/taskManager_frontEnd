@@ -22,6 +22,7 @@ const EditProjectPopup: React.FC<EditProjectPopupProps> = ({ onClose, onUpdateSu
     departmentId: project.departmentId || undefined,
     ownerId: project.ownerId,
     type_project: project.type_project || '',
+    status: project.status !== undefined ? Number(project.status) : 0, // Default to 0 (PENDING) if not provided
   });
 
   useEffect(() => {
@@ -54,17 +55,22 @@ const EditProjectPopup: React.FC<EditProjectPopupProps> = ({ onClose, onUpdateSu
     const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
-      [name]: name === 'departmentId' ? (value ? Number(value) : undefined) : value,
+      [name]: name === 'departmentId' ? (value ? Number(value) : undefined) : 
+              name === 'status' ? Number(value) : value,
     }));
   };
 
   const validateForm = () => {
-    const requiredFields: (keyof ProjectPayload)[] = ['name', 'type_project', 'ownerId', 'startTime', 'endTime'];
+    const requiredFields: (keyof ProjectPayload)[] = ['name', 'type_project', 'ownerId', 'startTime', 'endTime', 'status'];
     for (const field of requiredFields) {
       if (typeof formData[field] === 'string' && !formData[field].trim()) {
         toast.error(`Vui lòng điền ${getFieldLabel(field)}`);
         return false;
       }
+      // if (field === 'status' && (formData.status < 0 || formData.status > 4)) {
+      //   toast.error('Trạng thái không hợp lệ');
+      //   return false;
+      // }
     }
     if (new Date(formData.startTime) > new Date(formData.endTime)) {
       toast.error('Ngày kết thúc phải sau ngày bắt đầu');
@@ -81,6 +87,7 @@ const EditProjectPopup: React.FC<EditProjectPopupProps> = ({ onClose, onUpdateSu
       case 'startTime': return 'ngày bắt đầu';
       case 'endTime': return 'ngày kết thúc';
       case 'departmentId': return 'phòng ban';
+      case 'status': return 'trạng thái';
       default: return field;
     }
   };
@@ -104,7 +111,7 @@ const EditProjectPopup: React.FC<EditProjectPopupProps> = ({ onClose, onUpdateSu
   };
 
   return (
-    <div className="fixed inset-0 backdrop-blur-sm  bg-opacity-50 flex items-center justify-center z-50">
+    <div className="fixed inset-0 backdrop-blur-sm bg-opacity-50 flex items-center justify-center z-50">
       <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-md">
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-xl font-semibold text-gray-800 text-center w-full">Sửa dự án</h2>
@@ -146,21 +153,17 @@ const EditProjectPopup: React.FC<EditProjectPopupProps> = ({ onClose, onUpdateSu
               Loại dự án <span className="text-red-500">*</span>
             </label>
             <select
-              name="type"
+              name="type_project"
               value={formData.type_project}
               onChange={handleInputChange}
               className="mt-1 w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
               required
             >
-              {/* Hiển thị giá trị mặc định, nhưng không cho chọn */}
               <option value="" disabled hidden>{formData.type_project || "Chọn loại dự án"}</option>
-
-              {/* Lựa chọn thực tế */}
               <option value="Nội bộ">Nội bộ</option>
               <option value="Khách hàng">Khách hàng</option>
             </select>
           </div>
-
           <div>
             <label className="block text-sm font-medium text-gray-700">
               Quản lý dự án <span className="text-red-500">*</span>
@@ -221,6 +224,22 @@ const EditProjectPopup: React.FC<EditProjectPopupProps> = ({ onClose, onUpdateSu
               className="mt-1 w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
               required
             />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700">
+              Trạng thái <span className="text-red-500">*</span>
+            </label>
+            <select
+              name="status"
+              value={formData.status}
+              onChange={handleInputChange}
+              className="mt-1 w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              required
+            >
+              <option value={0}>Chưa bắt đầu</option>
+              <option value={1}>Đang thực hiện</option>
+              <option value={2}>Hoàn thành</option>
+            </select>
           </div>
           <div className="flex justify-end gap-2">
             <button

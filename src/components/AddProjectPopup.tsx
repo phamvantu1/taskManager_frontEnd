@@ -150,7 +150,7 @@ const AddProjectPopup: React.FC<AddProjectPopupProps> = ({ departmentId, onClose
               Loại dự án <span className="text-red-500">*</span>
             </label>
             <select
-              name="type"
+              name="type_project"
               value={formData.type_project}
               onChange={handleInputChange}
               className="mt-1 w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500"

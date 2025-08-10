@@ -10,13 +10,13 @@ export interface ProjectPayload {
   departmentId?: number;
   ownerId?: any;  // Assuming this can be any type, adjust as necessary
   departmentName?: string;  // Assuming this can be optional or undefined
-  type_project?: string;  // Assuming this can be optional or undefined
+  type_project?: string; 
+  status? : number ;// Assuming this can be optional or undefined
 }
 
 export interface ProjectDetail {
   departmentId: undefined;    // Assuming this is optional or can be undefined
   ownerId: any;  // Assuming this can be any type, adjust as necessary
-  type: string;
   progress: number;
   id: number;
   name: string;
