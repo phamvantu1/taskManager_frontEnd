@@ -25,7 +25,7 @@ const AddMemberPopup: React.FC<AddMemberPopupProps> = ({ departmentId, onClose, 
                     throw new Error('Không tìm thấy token xác thực');
                 }
                 const usersData = await fetchUsers();
-                setUsers(usersData.map(user => ({ id: user.id, fullName: user.email })));
+                setUsers(usersData.map(user => ({ id: user.id, fullName: user.fullName })));
             } catch (err) {
                 setError('Không thể tải danh sách người dùng');
                 console.error(err);
