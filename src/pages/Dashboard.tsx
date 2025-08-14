@@ -520,7 +520,7 @@ const Dashboard: React.FC = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-6 sm:mb-8">
               {/* Line Chart */}
               <div className="bg-white rounded-xl shadow-md p-4 sm:p-6 flex flex-col items-center">
-                <h3 className="text-base sm:text-lg font-semibold text-gray-800 mb-4 sm:mb-6">DOANH THU THEO THÁNG</h3>
+                <h3 className="text-base sm:text-lg font-semibold text-gray-800 mb-4 sm:mb-6">TIẾN ĐỘ DỰ ÁN THEO THÁNG</h3>
                 <div className="w-full max-w-[400px] h-[300px]">
                   <BaseLineChart data={lineChartData} options={lineChartOptions} />
                 </div>
@@ -528,7 +528,7 @@ const Dashboard: React.FC = () => {
 
               {/* Pie Chart */}
               <div className="bg-white rounded-xl shadow-md p-4 sm:p-6 flex flex-col items-center">
-                <h3 className="text-base sm:text-lg font-semibold text-gray-800 mb-4 sm:mb-6">PHÂN BỔ NGÂN SÁCH</h3>
+                <h3 className="text-base sm:text-lg font-semibold text-gray-800 mb-4 sm:mb-6">PHÂN BỔ NHÂN SỰ</h3>
                 <div className="flex justify-center w-full max-w-[300px]">
                   <BasePieChart data={pieChartData} options={pieChartOptions} width={300} height={300} />
                 </div>
