@@ -5,6 +5,9 @@ import Sidebar from '../components/Sidebar';
 import Header from '../components/Header';
 import BaseDoughnutChart from '../components/BaseDoughnutChart';
 import BaseBarChart from '../components/BaseBarChart';
+import BaseLineChart from '../components/BaseLineChart'; // New import
+import BasePieChart from '../components/BasePieChart'; // New import
+import BaseRadarChart from '../components/BaseRadarChart'; // New import
 import ProgressChart from '../components/ProgressChart';
 import { getDepartments } from '../api/departmentApi';
 import { getDashboardOverview, getDashboardProjects, getDashboardTasks, type ProjectChartData, type TaskChartData } from '../api/dashboardApi';
@@ -272,6 +275,94 @@ const Dashboard: React.FC = () => {
     },
   };
 
+  // Hard-coded data for new Line Chart (e.g., Revenue over months)
+  const lineChartData = {
+    labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
+    datasets: [
+      {
+        label: 'Revenue',
+        data: [65, 59, 80, 81, 56, 55, 40],
+        fill: false,
+        backgroundColor: 'rgb(75, 192, 192)',
+        borderColor: 'rgba(75, 192, 192, 0.2)',
+      },
+    ],
+  };
+
+  const lineChartOptions = {
+    responsive: true,
+    plugins: {
+      legend: {
+        position: 'top' as const,
+      },
+      title: {
+        display: true,
+        text: 'Monthly Revenue',
+      },
+    },
+  };
+
+  // Hard-coded data for new Pie Chart (e.g., Budget Allocation)
+  const pieChartData = {
+    labels: ['Marketing', 'Development', 'Operations', 'HR'],
+    datasets: [
+      {
+        data: [300, 500, 200, 100],
+        backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0'],
+        hoverBackgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0'],
+      },
+    ],
+  };
+
+  const pieChartOptions = {
+    responsive: true,
+    plugins: {
+      legend: {
+        position: 'bottom' as const,
+      },
+    },
+  };
+
+  // Hard-coded data for new Radar Chart (e.g., Team Skills)
+  const radarChartData = {
+    labels: ['Coding', 'Design', 'Communication', 'Leadership', 'Problem Solving'],
+    datasets: [
+      {
+        label: 'Team A',
+        data: [65, 59, 90, 81, 56],
+        backgroundColor: 'rgba(179,181,198,0.2)',
+        borderColor: 'rgba(179,181,198,1)',
+        pointBackgroundColor: 'rgba(179,181,198,1)',
+        pointBorderColor: '#fff',
+        pointHoverBackgroundColor: '#fff',
+        pointHoverBorderColor: 'rgba(179,181,198,1)',
+      },
+      {
+        label: 'Team B',
+        data: [28, 48, 40, 19, 96],
+        backgroundColor: 'rgba(255,99,132,0.2)',
+        borderColor: 'rgba(255,99,132,1)',
+        pointBackgroundColor: 'rgba(255,99,132,1)',
+        pointBorderColor: '#fff',
+        pointHoverBackgroundColor: '#fff',
+        pointHoverBorderColor: 'rgba(255,99,132,1)',
+      },
+    ],
+  };
+
+  const radarChartOptions = {
+    responsive: true,
+    plugins: {
+      legend: {
+        position: 'top' as const,
+      },
+      title: {
+        display: true,
+        text: 'Team Skills Comparison',
+      },
+    },
+  };
+
   useEffect(() => {
     fetchDepartments();
     fetchStatsData();
@@ -348,7 +439,7 @@ const Dashboard: React.FC = () => {
               )}
             </div>
 
-            {/* Charts */}
+            {/* Existing Charts */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 mb-6 sm:mb-8">
               {/* Project Status Chart */}
               <div className="bg-white rounded-xl shadow-md p-4 sm:p-6 flex flex-col items-center">
@@ -377,12 +468,6 @@ const Dashboard: React.FC = () => {
                   <BaseDoughnutChart data={chartData} options={chartOptions} width={300} height={300} />
                 </div>
               </div>
-
-              {/* Task Status Chart */}
-              {/* ... Other imports and code remain unchanged ... */}
-
-              {/* Task Status Chart */}
-              {/* ... Other imports and code remain unchanged ... */}
 
               {/* Task Status Chart */}
               <div className="bg-white rounded-xl shadow-md p-4 sm:p-6 flex flex-col items-center">
@@ -427,6 +512,33 @@ const Dashboard: React.FC = () => {
                 </div>
                 <div className="w-full max-w-[90vw] sm:max-w-[500px] md:max-w-[600px] lg:max-w-[700px] h-[250px] sm:h-[300px] md:h-[350px] lg:h-[400px]">
                   <BaseBarChart data={chartDataCot} options={chartOptionsCot} />
+                </div>
+              </div>
+            </div>
+
+            {/* New Supplementary Charts Section */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-6 sm:mb-8">
+              {/* Line Chart */}
+              <div className="bg-white rounded-xl shadow-md p-4 sm:p-6 flex flex-col items-center">
+                <h3 className="text-base sm:text-lg font-semibold text-gray-800 mb-4 sm:mb-6">DOANH THU THEO THÁNG</h3>
+                <div className="w-full max-w-[400px] h-[300px]">
+                  <BaseLineChart data={lineChartData} options={lineChartOptions} />
+                </div>
+              </div>
+
+              {/* Pie Chart */}
+              <div className="bg-white rounded-xl shadow-md p-4 sm:p-6 flex flex-col items-center">
+                <h3 className="text-base sm:text-lg font-semibold text-gray-800 mb-4 sm:mb-6">PHÂN BỔ NGÂN SÁCH</h3>
+                <div className="flex justify-center w-full max-w-[300px]">
+                  <BasePieChart data={pieChartData} options={pieChartOptions} width={300} height={300} />
+                </div>
+              </div>
+
+              {/* Radar Chart */}
+              <div className="bg-white rounded-xl shadow-md p-4 sm:p-6 flex flex-col items-center">
+                <h3 className="text-base sm:text-lg font-semibold text-gray-800 mb-4 sm:mb-6">SO SÁNH KỸ NĂNG ĐỘI NHÓM</h3>
+                <div className="w-full max-w-[400px] h-[400px]">
+                  <BaseRadarChart data={radarChartData} options={radarChartOptions} />
                 </div>
               </div>
             </div>

@@ -63,10 +63,10 @@ const TaskListPage = () => {
       setTaskNumber(stats.TOTAL || 0);
 
       const mappedStats = [
+        { label: 'Quá hạn', value: stats.OVERDUE || 0 },
         { label: 'Chưa bắt đầu', value: stats.PENDING || 0 },
         { label: 'Đang xử lý', value: stats.PROCESSING || 0 },
         { label: 'Hoàn thành', value: stats.COMPLETED || 0 },
-        { label: 'Quá hạn', value: stats.OVERDUE || 0 },
         { label: 'Chờ hoàn thành', value: stats.WAIT_COMPLETED || 0 },
       ];
 

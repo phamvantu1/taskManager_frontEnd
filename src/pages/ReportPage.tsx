@@ -212,11 +212,11 @@ const ReportPage = () => {
                         <tr className="bg-gray-100">
                           <th className="p-3 text-sm font-semibold text-gray-700">Nhân sự</th>
                           <th className="p-3 text-sm font-semibold text-gray-700">Phòng ban</th>
+                          <th className="p-3 text-sm font-semibold text-gray-700">Quá hạn</th>
                           <th className="p-3 text-sm font-semibold text-gray-700">Chờ xử lý</th>
                           <th className="p-3 text-sm font-semibold text-gray-700">Đang thực hiện</th>
                           <th className="p-3 text-sm font-semibold text-gray-700">Chờ duyệt hoàn thành</th>
                           <th className="p-3 text-sm font-semibold text-gray-700">Hoàn thành</th>
-                          <th className="p-3 text-sm font-semibold text-gray-700">Quá hạn</th>
                           <th className="p-3 text-sm font-semibold text-gray-700">Tổng số công việc</th>
                           <th className="p-3 text-sm font-semibold text-gray-700">Điểm cộng</th>
                           <th className="p-3 text-sm font-semibold text-gray-700">Điểm trừ</th>
@@ -231,11 +231,11 @@ const ReportPage = () => {
                           >
                             <td className="p-3 text-sm text-gray-800">{user.name}</td>
                             <td className="p-3 text-sm text-gray-800">{user.departmentName}</td>
+                            <td className="p-3 text-sm text-gray-800">{user.overdue}</td>
                             <td className="p-3 text-sm text-gray-800">{user.pending}</td>
                             <td className="p-3 text-sm text-gray-800">{user.processing}</td>
                             <td className="p-3 text-sm text-gray-800">{user.waitCompleted}</td>
                             <td className="p-3 text-sm text-gray-800">{user.completed}</td>
-                            <td className="p-3 text-sm text-gray-800">{user.overdue}</td>
                             <td className="p-3 text-sm text-gray-800">{user.totalTasks}</td>
                             <td className="p-3 text-sm text-gray-800">{user.plusPoint}</td>
                             <td className="p-3 text-sm text-gray-800">{user.minusPoint}</td>

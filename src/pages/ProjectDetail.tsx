@@ -13,6 +13,7 @@ import TaskListSection from '../components/TaskListSection';
 import EditProjectPopup from '../components/EditProjectPopupProps';
 import { toast } from 'react-toastify';
 import ConfirmModal from '../components/ConfirmModal';
+import MemberDetailPopup from '../components/MemberDetailPopup';
 
 const ProjectDetail = () => {
   const navigate = useNavigate();
@@ -39,6 +40,9 @@ const ProjectDetail = () => {
   const [selectedTask, setSelectedTask] = useState<any>(null);
   const [showTaskDetailPopup, setShowTaskDetailPopup] = useState(false);
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+  const [selectedMember, setSelectedMember] = useState<any>(null);
+const [showMemberDetailPopup, setShowMemberDetailPopup] = useState(false);
+
   const [filters, setFilters] = useState({
     textSearch: '',
     startTime: '',
@@ -124,6 +128,71 @@ const ProjectDetail = () => {
     }
   };
 
+  // 3. Thêm hàm này để handle click member (sau các hàm khác):
+const handleMemberClick = async (member: any) => {
+  try {
+    // Gọi API để lấy thông tin chi tiết member
+    // const token = localStorage.getItem('access_token');
+    // const memberDetail = await getMemberDetailApi(token, member.userId);
+    
+    // Tạm thời dùng mock data, bạn có thể thay bằng API call
+    const mockMemberDetail = {
+      ...member,
+      email: "user@company.com",
+      position: "Developer",
+      avatar: null,
+      department: {
+        id: 1,
+        name: "Phòng Công nghệ Thông tin",
+        description: "Phát triển và bảo trì hệ thống công nghệ"
+      },
+      projects: [
+        {
+          id: Number(projectId),
+          name: projectDetails?.name || "Dự án hiện tại",
+          status: "PROCESSING",
+          progress: 75,
+          role: "Team Member",
+          startDate: projectDetails?.startDate || "2024-01-15",
+          endDate: projectDetails?.endDate || "2024-06-30"
+        }
+      ],
+      tasks: [
+        {
+          id: 1,
+          title: "Công việc mẫu 1",
+          status: "OVERDUE",
+          priority: "HIGH",
+          dueDate: "2024-02-10",
+          projectName: projectDetails?.name || "Dự án hiện tại",
+          description: "Mô tả công việc mẫu"
+        },
+        {
+          id: 2,
+          title: "Công việc mẫu 2",
+          status: "PROCESSING",
+          priority: "MEDIUM",
+          dueDate: "2024-02-20",
+          projectName: projectDetails?.name || "Dự án hiện tại",
+          description: "Mô tả công việc mẫu"
+        }
+      ],
+      stats: {
+        totalTasks: member.totalTasks || 0,
+        completedTasks: member.completedTasks || 0,
+        overdueTasks: member.overdueTasks || 0,
+        processingTasks: (member.totalTasks || 0) - (member.completedTasks || 0) - (member.overdueTasks || 0)
+      }
+    };
+
+    setSelectedMember(mockMemberDetail);
+    setShowMemberDetailPopup(true);
+  } catch (error) {
+    console.error('Lỗi khi lấy thông tin thành viên:', error);
+    toast.error('Không thể tải thông tin thành viên');
+  }
+};
+
   const fetchTasks = async (pageToFetch = 0, append = false) => {
     try {
       const token = localStorage.getItem('access_token');
@@ -196,10 +265,10 @@ const ProjectDetail = () => {
       setTaskNumber(stats.TOTAL || 0);
 
       const mappedStats = [
+        { label: 'Quá hạn', value: stats.OVERDUE || 0 },
         { label: 'Chưa bắt đầu', value: stats.PENDING || 0 },
         { label: 'Đang xử lý', value: stats.PROCESSING || 0 },
         { label: 'Hoàn thành', value: stats.COMPLETED || 0 },
-        { label: 'Quá hạn', value: stats.OVERDUE || 0 },
         { label: 'Chờ hoàn thành', value: stats.WAIT_COMPLETED || 0 },
       ];
 
@@ -478,7 +547,10 @@ const ProjectDetail = () => {
                           <div key={index} className="border-b border-gray-200 last:border-b-0">
                             {/* Mobile Card Layout */}
                             <div className="sm:hidden p-4 space-y-3">
-                              <div className="font-medium text-gray-900">
+                              <div 
+    className="font-medium text-gray-900 cursor-pointer hover:text-indigo-600 transition-colors duration-200"
+    onClick={() => handleMemberClick(member)}
+  >
                                 {member.fullName || '---'}
                               </div>
                               <div className="grid grid-cols-3 gap-4 text-sm">
@@ -499,8 +571,10 @@ const ProjectDetail = () => {
 
                             {/* Desktop Row Layout */}
                             <div className="hidden sm:grid sm:grid-cols-4 gap-4 p-4 hover:bg-gray-50 transition-colors duration-150">
-                              <div className="font-medium text-gray-900 truncate">
-                                {member.fullName || '---'}
+<div 
+    className="font-medium text-gray-900 truncate cursor-pointer hover:text-indigo-600 transition-colors duration-200"
+    onClick={() => handleMemberClick(member)}
+  >                                {member.fullName || '---'}
                               </div>
                               <div className="text-center font-semibold">{member.totalTasks}</div>
                               <div className="text-center font-semibold text-green-600">{member.completedTasks}</div>
@@ -554,6 +628,15 @@ const ProjectDetail = () => {
             />
           </div>
         )}
+        {showMemberDetailPopup && selectedMember && (
+  <MemberDetailPopup
+    member={selectedMember}
+    onClose={() => {
+      setShowMemberDetailPopup(false);
+      setSelectedMember(null);
+    }}
+  />
+)}
       </div>
     </div>
   );
